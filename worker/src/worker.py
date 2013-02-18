@@ -13,7 +13,7 @@ from tasks import hello, wait, translate
 
 # Create Flask app
 app = Flask(__name__)
-app.config.from_pyfile('settings.cfg')
+app.config.from_pyfile('worker.cfg')
 
 # Logging initialization
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
