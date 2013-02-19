@@ -16,7 +16,7 @@ from time import sleep
 
 # Create Flask app
 app = Flask(__name__)
-app.config.from_pyfile('settings.cfg')
+app.config.from_pyfile('appserver.cfg')
 
 # Logging initialization
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
