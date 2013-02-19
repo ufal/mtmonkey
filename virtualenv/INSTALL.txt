@@ -8,6 +8,6 @@ wget https://raw.github.com/pypa/virtualenv/master/virtualenv.py
 mkdir virtualenv
 python virtualenv.py virtualenv
 
-# Activate virtualenv and install flask libraries
+# Activate virtualenv and install needed libraries
 source virtualenv/bin/activate
-pip install flask
+pip install flask validictory

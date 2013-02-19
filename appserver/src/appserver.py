@@ -93,7 +93,7 @@ def send_task_to_slave(task):
         return { "errorCode": 3,
 	         "errorMessage": "No worker found."
         }
-    logger.info('Sendind task to %s' % slave_hostname)
+    logger.info('Sending task to %s' % slave_hostname)
     slave_url = urlparse.urlunparse(('http', slave_hostname, 'khresmoi', '', '', ''))
 
     # Create a new request from the task
