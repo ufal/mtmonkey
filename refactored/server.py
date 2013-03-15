@@ -37,7 +37,7 @@ class WorkerCollection:
             raise WorkerNotFoundException
         with self.lock:
             worker_id = self.nextworker[pair_id]
-            self.nextworker[pair_id] = worker_id + 1 % len(self.workers[pair_id])
+            self.nextworker[pair_id] = (worker_id + 1) % len(self.workers[pair_id])
             return self.workers[pair_id][worker_id]
 
 workers = WorkerCollection(app.config['WORKERS'])
