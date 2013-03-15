@@ -58,11 +58,11 @@ def process_task_locally(task):
 def find_idle_slave(task):
     for slave in app.config['WORKERS']:
         # Create url for idle action
-	langs = task['sourceLang'] + task['targetLang']
+        langs = task['sourceLang'] + task['targetLang']
         slave_url = urlparse.urlunparse(('http', slave, 'idle-flip/%s' % langs, '', '', ''))
         logger.info('Asking if %s is idle, url=%s' % (slave, slave_url))
         
-	for ntry in xrange(7):
+        for ntry in xrange(7):
           # Send request and parse response (json)
           try:
               req = urllib2.Request(slave_url)
@@ -77,7 +77,7 @@ def find_idle_slave(task):
               return slave
           else:
               logger.info('Server %s is busy' % slave)
-	      sleep(ntry/2 + 1 + random())
+              sleep(ntry/2 + 1 + random())
             
     raise WorkerNotFoundException()
     # All slaves are busy, choose random one
@@ -91,7 +91,7 @@ def send_task_to_slave(task):
         slave_hostname = find_idle_slave(task)
     except WorkerNotFoundException:
         return { "errorCode": 3,
-	         "errorMessage": "No worker found."
+                 "errorMessage": "No worker found."
         }
     logger.info('Sending task to %s' % slave_hostname)
     slave_url = urlparse.urlunparse(('http', slave_hostname, 'khresmoi', '', '', ''))
@@ -125,10 +125,10 @@ def dispatch_task(task):
     if True:
         # Send the task to one of the slaves
         logger.info('Task will be sent to one of the slaves.')
-	try:
-	    validate(task)
-	except ValueError, e:
-	    return { "errorCode": 5, "errorMessage": str(e) }
+        try:
+            validate(task)
+        except ValueError, e:
+            return { "errorCode": 5, "errorMessage": str(e) }
         result = send_task_to_slave(task)
     else:
         # Process the task
@@ -144,18 +144,18 @@ def dispatch_task(task):
 
 def validate(task):
     schema = {
-	    "type": "object",
-	    "properties": {
-		    "action": {"type": "string"},
-		    "userId": {"type": "string", "required": False},
-		    "sourceLang": {"type": "string"},
-		    "targetLang": {"type": "string"},
-		    "text": {"type": "string"},
-		    "nBestSize": {"type": "integer", "required": False},
-		    "alignmentInfo": {"type": "string", "required": False},
-		    "docType": {"type": "string", "required": False},
-		    "profileType": {"type": "string", "required": False},
-	    },
+        "type": "object",
+        "properties": {
+            "action": {"type": "string"},
+            "userId": {"type": "string", "required": False},
+            "sourceLang": {"type": "string"},
+            "targetLang": {"type": "string"},
+            "text": {"type": "string"},
+            "nBestSize": {"type": "integer", "required": False},
+            "alignmentInfo": {"type": "string", "required": False},
+            "docType": {"type": "string", "required": False},
+            "profileType": {"type": "string", "required": False},
+        },
     }
     validictory.validate(task, schema)
 
@@ -204,14 +204,14 @@ def new_task():
         logger.info('Received new task')
         result = dispatch_task(request.json)
         #return jsonify(**result)
-	return json.dumps(result, encoding='utf-8', ensure_ascii=False, indent=4)
+        return json.dumps(result, encoding='utf-8', ensure_ascii=False, indent=4)
     else:
         abort(405)
 
 def new_task_direct(sourceLang, targetLang, text):
-        q = { 'action': 'translate', 'sourceLang': sourceLang, 'targetLang': targetLang, 'text': text }
-	result = dispatch_task(q)
-	return jsonify(**result)
+    q = { 'action': 'translate', 'sourceLang': sourceLang, 'targetLang': targetLang, 'text': text }
+    result = dispatch_task(q)
+    return jsonify(**result)
         
 @app.route('/idle-flip')
 def is_idle():
