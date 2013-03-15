@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
-from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 from configobj import ConfigObj
+
+class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
+                           SimpleXMLRPCServer.SimpleXMLRPCServer):
+    pass
 
 def process_task(task):
   return {
@@ -19,7 +22,7 @@ def main():
     config = ConfigObj("worker.cfg")
 
     # Create server
-    server = SimpleXMLRPCServer(("localhost", int(config['PORT'])))
+    server = ThreadedXMLRPCServer(("localhost", int(config['PORT'])))
     server.register_introspection_functions()
     
     server.register_function(process_task)
