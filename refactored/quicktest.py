@@ -12,5 +12,5 @@ def logmsg(msg):
     sys.stderr.write(str(msg) + "\n")
 
 logmsg("Trying GET")
-req = urllib2.Request("http://" + SERVER + ":" + PORT + "/khresmoi?sourceLang=en&targetLang=cs&text=testing")
+req = urllib2.Request("http://" + SERVER + ":" + PORT + "/khresmoi?sourceLang=en&targetLang=de&text=testing")
 logmsg(urllib2.urlopen(req).read())

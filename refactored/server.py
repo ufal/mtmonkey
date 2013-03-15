@@ -76,7 +76,7 @@ class KhresmoiService:
             }
     
         # call the worker
-        worker_proxy = xmlrpclib.ServerProxy("http://" + worker)
+        worker_proxy = xmlrpclib.ServerProxy("http://" + worker + "/")
         try:
             result = worker_proxy.process_task(task)
         except (socket_err, xmlrpclib.Fault,
