@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-from SimpleXMLRPCServer import SimpleXMLRPCServer
+import SimpleXMLRPCServer
+import SocketServer
 from configobj import ConfigObj
 
 class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
                            SimpleXMLRPCServer.SimpleXMLRPCServer):
+    """Multithreaded SimpleXMLRPCServer"""
     pass
 
 def process_task(task):
