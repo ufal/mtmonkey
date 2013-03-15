@@ -8,12 +8,12 @@ from threading import Lock
 from flask import Flask, request, abort, Response
 from socket import error as socket_err
 
-
 class WorkerNotFoundException(Exception): pass
 
-"""Collection of MT workers; provides thread-safe round-robin selection among
-available workers."""
 class WorkerCollection:
+    """Collection of MT workers; provides thread-safe round-robin selection among
+    available workers."""
+
     def __init__(self, workers):
         self.workers = workers
         self.nextworker = dict((pair_id, 0) for pair_id in workers)
@@ -29,17 +29,39 @@ class WorkerCollection:
             return self.workers[pair_id][worker_id]
 
 class KhresmoiService:
+    """Khresmoi web service; calls workers which process individual language pairs
+    and returns their outputs in JSON"""
+
     def __init__(self, workers, logger):
         self.workers = workers
         self.logger  = logger
 
+    """Handle POST requests"""
+    def post(self):
+        if not request.json:
+            abort(400)
+        self.logger.info('Received new task [POST]')
+        result = self._dispatch_task(request.json)
+        return self._wrap_result(result)
+    
+    """Handle GET requests"""
+    def get(self):
+        result = self._dispatch_task({
+            'action': 'translate',
+            'sourceLang': request.args.get('sourceLang', None),
+            'targetLang': request.args.get('targetLang', None),
+            'text': request.args.get('text', None)
+        })
+        self.logger.info('Received new task [GET]')
+        return self._wrap_result(result)
+
     """Dispatch task to worker and return its output (and/or error code)"""
-    def dispatch_task(self, task):
+    def _dispatch_task(self, task):
         pair_id = "%s-%s" % (task['sourceLang'], task['targetLang'])
     
         # validate the task
         try:
-            self.validate(task)
+            self._validate(task)
         except ValueError as e:
             return { "errorCode": 5, "errorMessage": str(e) }
     
@@ -54,7 +76,6 @@ class KhresmoiService:
             }
     
         # call the worker
-        print "WORKER: ", worker
         worker_proxy = xmlrpclib.ServerProxy("http://" + worker)
         try:
             result = worker_proxy.process_task(task)
@@ -72,27 +93,11 @@ class KhresmoiService:
         return result
     
     """Wrap the output in JSON"""
-    def wrap_result(self, result):
+    def _wrap_result(self, result):
         return json.dumps(result, encoding='utf-8', ensure_ascii=False, indent=4)
-    
-    def post(self):
-        if not request.json:
-            abort(400)
-        self.logger.info('Received new task [POST]')
-        result = self.dispatch_task(request.json)
-        return self.wrap_result(result)
-    
-    def get(self):
-        result = self.dispatch_task({
-            'action': 'translate',
-            'sourceLang': request.args.get('sourceLang', None),
-            'targetLang': request.args.get('targetLang', None),
-            'text': request.args.get('text', None)
-        })
-        self.logger.info('Received new task [GET]')
-        return self.wrap_result(result)
-    
-    def validate(self, task):
+        
+    """Validate task according to schema"""
+    def _validate(self, task):
         schema = {
             "type": "object",
             "properties": {
