@@ -11,15 +11,19 @@ import codecs
 import sys
 
 
+DEFAULT_ENCODING = 'UTF-8'
+
+
 class Tokenizer(object):
     """\
     A simple tokenizer class, capable of tokenizing given strings.
     """
 
-    def __init__(self):
+    def __init__(self, options={}):
         """\
         Constructor (pre-compile all needed regexes).
         """
+        self.lowercase = 'lowercase' in options
         self.__spaces = Regex(r'\s+')
         self.__ascii_junk = Regex(r'[\000-\037]')
         self.__special_chars = \
@@ -50,13 +54,39 @@ class Tokenizer(object):
         # spaces to single space
         text = self.__spaces.sub(' ', text)
         text = text.strip() + "\n"
+        if self.lowercase:
+            text = text.lower()
         return text
 
 
 if __name__ == '__main__':
-    fh_in = codecs.getreader('UTF-8')(sys.stdin)
-    fh_out = codecs.getwriter('UTF-8')(sys.stdout)
-    tok = Tokenizer()
+    # parse options
+    opts, filenames = getopt.getopt(sys.argv[1:], 'hle:')
+    options = {}
+    help = False
+    encoding = DEFAULT_ENCODING
+    for opt, arg in opts:
+        if opt == '-l':
+            options['lowercase'] = True
+        elif opt == '-h':
+            help = True
+        elif opt == '-e':
+            encoding = arg
+    # display help
+    if filenames > 2 or help:
+        display_usage()
+        sys.exit(1)
+    # open input and output streams
+    if len(filenames) == 2:
+        fh_out = codecs.open(filenames[1], 'w', encoding)
+    else:
+        fh_out = codecs.getwriter(encoding)(sys.stdout)
+    if len(filenames) >= 1:
+        fh_in = codecs.open(filenames[0], 'r', encoding)
+    else:
+        fh_in = codecs.getreader(encoding)(sys.stdin)
+    # process the input
+    tok = Tokenizer(options)
     for line in fh_in:
         line = tok.tokenize(line)
         print >> fh_out, line,
