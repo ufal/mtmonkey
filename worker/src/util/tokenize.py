@@ -9,10 +9,12 @@ from __future__ import unicode_literals
 from regex import Regex
 import codecs
 import sys
-
+import logging
 
 DEFAULT_ENCODING = 'UTF-8'
 
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
+logger = logging.getLogger('tokenize')
 
 class Tokenizer(object):
     """\
@@ -23,6 +25,7 @@ class Tokenizer(object):
         """\
         Constructor (pre-compile all needed regexes).
         """
+        logger.info('Creating tokenizer')
         self.lowercase = 'lowercase' in options
         self.__spaces = Regex(r'\s+')
         self.__ascii_junk = Regex(r'[\000-\037]')
@@ -38,6 +41,7 @@ class Tokenizer(object):
         """\
         Tokenize the given text using current settings.
         """
+        logger.info('Tokenizing sentence')
         # spaces to single space
         text = self.__spaces.sub(' ', text)
         # remove ASCII junk

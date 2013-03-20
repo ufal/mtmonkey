@@ -6,6 +6,9 @@ import uuid
 import xmlrpclib
 from subprocess import Popen, PIPE
 import operator
+import util.tokenize as tokenize
+
+tok = Tokenizer({'lowercase': True})
 
 def ex(text):
   return text + text[-1]
@@ -47,13 +50,15 @@ def add_tgt_end(align, tgttok):
 
 def translate(text, doalign):
   # tokenize
-  p = Popen(['/home/khresmoi/scripts/tokenizer/tokenizer.perl', '-l', 'en'],
-	stdin=PIPE, stdout=PIPE, stderr=PIPE)
-  (text, stderr) = p.communicate((text.lower()))
+#  p = Popen(['/home/khresmoi/scripts/tokenizer/tokenizer.perl', '-l', 'en'],
+#	stdin=PIPE, stdout=PIPE, stderr=PIPE)
+#  (text, stderr) = p.communicate((text.lower()))
+#  src_tokenized = ' '.join(text.split())
+#  p.stdin.close()
+#  try: p.kill()
+#  except Exception, e: pass
+  text = tok.tokenize(text)
   src_tokenized = ' '.join(text.split())
-  p.stdin.close()
-  try: p.kill()
-  except Exception, e: pass
 
   # translate
   p = xmlrpclib.ServerProxy("http://localhost:8080/RPC2")
