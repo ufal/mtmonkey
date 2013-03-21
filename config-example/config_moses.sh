@@ -1,0 +1,4 @@
+export RECASER_PORT=9000
+export TRANSL_PORT=8080
+export RECASER_INI=
+export TRANSL_INI=

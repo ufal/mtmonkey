@@ -1,0 +1,7 @@
+#!/bin/sh
+
+. ~khresmoi/moses-stable/scripts/setenv.sh
+. ~khresmoi/config-stable/config_moses.sh
+
+mosesserver --server-port $RECASER_PORT -f $RECASER_INI &
+mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI
