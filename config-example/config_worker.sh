@@ -1,2 +1,2 @@
 
-export MICROTASK_SETTINGS=~khresmoi/config-stable/worker.cfg
+export MICROTASK_SETTINGS=/home/khresmoi/mt-stable/config/worker.cfg

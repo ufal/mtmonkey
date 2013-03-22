@@ -6,23 +6,31 @@ import urllib2
 import urlparse
 import json
 import logging
+import os
 
 from flask import Flask, request, jsonify, abort
 from random import choice
 from tasks import hello, wait, translate
 
-# Create Flask app
-app = Flask(__name__)
-app.config.from_pyfile('worker.cfg')
-
 # Logging initialization
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
 logger = logging.getLogger('microtask')
 
+# Create Flask app
+app = Flask(__name__)
+try:
+    app.config.from_pyfile('worker.cfg')
+    logger.info('Loaded app config from %s' % 'worker.cfg')
+except:
+    logger.info('Could not load app config from %s' % 'worker.cfg')
+    pass
+
 # Overwrite default settings by envvar
 try:
     app.config.from_envvar('MICROTASK_SETTINGS')
+    logger.info('Loaded app config from %s' % os.getenv('MICROTASK_SETTINGS', '<undef>'))
 except:
+    logger.info('Could not load app config from %s' % os.getenv('MICROTASK_SETTINGS', '<undef>'))
     pass
 
 # DBM for saving status

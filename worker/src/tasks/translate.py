@@ -6,9 +6,9 @@ import uuid
 import xmlrpclib
 from subprocess import Popen, PIPE
 import operator
-import util.tokenize as tokenize
+import os
 
-tok = Tokenizer({'lowercase': True})
+SCRIPT_PATH = os.path.split(os.path.dirname(__file__))[0] + '/perl-scripts/'
 
 def ex(text):
   return text + text[-1]
@@ -20,7 +20,7 @@ def paragraph(text, doalign):
   if not t:
     return [""]
   t_utf8 = t.encode('utf-8')
-  p = Popen(['/home/khresmoi/scripts/ems/support/split-sentences.perl', '-l en'], stdin=PIPE, stdout=PIPE, stderr=None)
+  p = Popen([SCRIPT_PATH + 'split-sentences.pl', '-l en'], stdin=PIPE, stdout=PIPE, stderr=None)
   (out, stderr) = p.communicate(ex(t).encode('utf-8'))
   p.stdin.close()
   try: p.kill()
@@ -50,15 +50,13 @@ def add_tgt_end(align, tgttok):
 
 def translate(text, doalign):
   # tokenize
-#  p = Popen(['/home/khresmoi/scripts/tokenizer/tokenizer.perl', '-l', 'en'],
-#	stdin=PIPE, stdout=PIPE, stderr=PIPE)
-#  (text, stderr) = p.communicate((text.lower()))
-#  src_tokenized = ' '.join(text.split())
-#  p.stdin.close()
-#  try: p.kill()
-#  except Exception, e: pass
-  text = tok.tokenize(text)
+  p = Popen([SCRIPT_PATH + 'tokenizer.pl', '-l', 'en'],
+        stdin=PIPE, stdout=PIPE, stderr=PIPE)
+  (text, stderr) = p.communicate((text.lower()))
   src_tokenized = ' '.join(text.split())
+  p.stdin.close()
+  try: p.kill()
+  except Exception, e: pass
 
   # translate
   p = xmlrpclib.ServerProxy("http://localhost:8080/RPC2")
@@ -72,7 +70,7 @@ def translate(text, doalign):
   tgt_tokenized = ' '.join(text.split())
 
   # detokenize
-  p = Popen(['/home/khresmoi/scripts/tokenizer/detokenizer.perl', '-l', 'en'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+  p = Popen([SCRIPT_PATH + 'detokenizer.pl', '-l', 'en'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
   (text, stderr) = p.communicate(text.encode('utf-8'))
   p.stdin.close()
   try: p.kill()

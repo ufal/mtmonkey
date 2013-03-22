@@ -1,4 +1,4 @@
-export MODELS_DIR=/home/khresmoi/models-stable/deen
+export MODELS_DIR=/home/khresmoi/mt-stable/models/deen
 
 export RECASER_PORT=9001
 export RECASER_INI=$MODELS_DIR/recaser.moses.ini
