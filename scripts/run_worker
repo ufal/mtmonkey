@@ -1,6 +1,6 @@
 #!/bin/sh
 
 . ~khresmoi/virtualenv/bin/activate
-. ~khresmoi/config-stable/config_worker.sh
+. ~khresmoi/mt-stable/config/config_worker.sh
 
-nohup python ~khresmoi/worker-stable/worker.py >> ~khresmoi/logs-stable/worker.out 2&>1 &
+nohup python ~khresmoi/worker-stable/worker.py >> ~khresmoi/mt-stable/logs/worker.log 2&>1 &

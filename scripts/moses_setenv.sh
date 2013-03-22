@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREFIX=/home/khresmoi/moses-stable/usr
+PREFIX=/home/khresmoi/mt-stable/moses/usr
 if [ -d /lib64 ]; then
 LIBDIR=$PREFIX/lib64
 else

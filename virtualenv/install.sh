@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Installation of mt-worker environment.
 #
@@ -10,4 +11,4 @@ python virtualenv.py virtualenv
 
 # Activate virtualenv and install needed libraries
 source virtualenv/bin/activate
-pip install flask validictory
+pip install flask validictory regex
