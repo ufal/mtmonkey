@@ -19,22 +19,37 @@ import sys
 import getopt
 import urllib2
 import json
+import logging
 from random import random
 from flask import jsonify
 
 __author__ = "Ondřej Dušek"
 __date__ = "2013"
 
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s - %(name)s - %(message)s")
+logger = logging.getLogger('tester')
 
-def test_moses():
-    return True
+def test_moses(port):
+    url = 'http://localhost:%d/RPC2' % port
+    text = None
+    try:
+        logger.info('Testing %s ...' % url)
+        r = xmlrpclib.ServerProxy(url)
+        text = r.translate({ 'text': 'test' })['text']
+    except:
+        logger.info('Exception occurred. Will return false.')
+        return False
+    logger.info('Returned: %s' % text)
+    return True if text else False
+
 
 def test_worker(port):
     url = 'http://localhost:%d/idle-check' % port
     # Send idle check and parse response (JSON)
     for ntry in xrange(7):
       try:
-          print 'Testing %s ...' % url
+          logger.info('Testing %s ...' % url)
           req = urllib2.Request(url)
           response = urllib2.urlopen(req)
           result = json.loads(response.read())
@@ -42,13 +57,13 @@ def test_worker(port):
           continue
       # return true if worker is idle
       if result['idle']:
-          print 'Worker is idle'
+          logger.info('Worker is idle.')
           return True
       else:
-          print 'Sleeping'
+          logger.info('Sleeping ...')
           sleep(ntry / 2 + 1 + random())
     # all trials ended with busy or error:
-    print 'Worker is busy'
+    logger.info('Failed: Worker is busy.')
     return False
 
 
