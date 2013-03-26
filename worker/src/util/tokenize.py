@@ -3,6 +3,22 @@
 
 """
 A simple tokenizer for MT preprocessing.
+
+Library usage:
+
+    from util.tokenize import Tokenizer
+    t = Tokenizer({'lowercase': True})
+
+Command-line usage:
+
+    ./tokenize.py [-h] [-l] [-e ENCODING] [input-file output-file]
+    
+    -h = display this help
+    -l = lowercase everything
+    -e = use the given encoding (default: UTF-8)
+    
+    If no input and output files are given, the tokenizer will read
+    STDIN and write to STDOUT.
 """
 
 from __future__ import unicode_literals
@@ -11,9 +27,13 @@ import codecs
 import sys
 import logging
 
+__author__ = "Ondřej Dušek"
+__date__ = "2013"
+
 DEFAULT_ENCODING = 'UTF-8'
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s - %(name)s - %(message)s")
 logger = logging.getLogger('tokenize')
 
 class Tokenizer(object):
@@ -61,6 +81,13 @@ class Tokenizer(object):
         if self.lowercase:
             text = text.lower()
         return text
+
+
+def display_usage():
+    """\
+    Display program usage information.
+    """
+    print >> sys.stderr, __doc__
 
 
 if __name__ == '__main__':
