@@ -24,7 +24,7 @@ def test_moses():
     return True
 
 def test_worker():
-    return True
+    return False
 
 def display_usage():
     """\
@@ -41,16 +41,17 @@ if __name__ == '__main__':
     help = False
     for opt, arg in opts:
         if opt == '-w':
-            test_worker = True
+            should_test_worker = True
         elif opt == '-h':
             help = True
         elif opt == '-m':
-            test_moses = True
+            should_test_moses = True
     # display help
     if filenames or (not test_moses and not test_worker) or help:
         display_usage()
         sys.exit(1)
     test_ok = True
+    # run tests
     if should_test_moses:
         test_ok &= test_moses()
     if should_test_worker:
