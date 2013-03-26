@@ -20,6 +20,7 @@ import getopt
 import urllib2
 import json
 import logging
+import xmlrpclib
 from random import random
 from flask import jsonify
 
@@ -37,7 +38,7 @@ def test_moses(port):
         logger.info('Testing %s ...' % url)
         r = xmlrpclib.ServerProxy(url)
         text = r.translate({ 'text': 'test' })['text']
-    except (Exception, e):
+    except Exception as e:
         logger.info('Exception occurred: %s. Will return false.' % str(e))
         return False
     logger.info('Returned: %s' % text)
