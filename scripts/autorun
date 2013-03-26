@@ -1,0 +1,29 @@
+#!/bin/bash
+
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+VERSION=stable
+
+function test_process {
+    echo "Testing $1"
+    $MYDIR/test.py $1
+    if [ $? -ne 0 ]; then
+        echo "Does not work. Killing..."
+        # process does not work: try to kill it
+        for i in `ps ax | grep "$2" | sed 's/\s.*//'`; do 
+            kill $i; 
+        done
+        sleep 10
+        # start it again and wait
+        echo "Running again..."
+        $MYDIR/$3
+        sleep $4
+        echo "Should be running now."
+    else
+        echo "Working OK."
+    fi
+}
+
+# test if Moses is working
+test_process -m "mosesserver.*$VERSION" "run_moses" 5000
+# test if Worker is working
+test_process -w "$VERSION.*/worker.py" "run_worker" 5
