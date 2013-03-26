@@ -13,11 +13,8 @@ Usage:
 """
 
 from __future__ import unicode_literals
-from regex import Regex
-import codecs
 import sys
-import logging
-import xmlrpclib
+import getopt
 
 __author__ = "Ondřej Dušek"
 __date__ = "2013"
@@ -39,8 +36,8 @@ def display_usage():
 if __name__ == '__main__':
     # parse options
     opts, filenames = getopt.getopt(sys.argv[1:], 'hwm')
-    test_moses = False
-    test_worker = False
+    should_test_moses = False
+    should_test_worker = False
     help = False
     for opt, arg in opts:
         if opt == '-w':
@@ -54,8 +51,8 @@ if __name__ == '__main__':
         display_usage()
         sys.exit(1)
     test_ok = True
-    if test_moses:
+    if should_test_moses:
         test_ok &= test_moses()
-    if test_worker:
+    if should_test_worker:
         test_ok &= test_worker()
     sys.exit(0 if test_ok else 1)
