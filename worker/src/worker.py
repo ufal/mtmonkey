@@ -156,5 +156,9 @@ def is_idle(langs):
         db['idle'] = str(int(db['idle']) - 1)
         return jsonify(idle=False)
 
+@app.route('/idle-check')
+def check_idle():
+    return jsonify(capa=app.config['CAPA'], idle=db['idle'])
+
 if __name__ == "__main__":
     app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=True)
