@@ -13,11 +13,9 @@ Usage:
 """
 
 from __future__ import unicode_literals
-from regex import Regex
-import codecs
 import sys
-import logging
-import xmlrpclib
+import getopt
+#import xmlrpclib
 
 __author__ = "Ondřej Dušek"
 __date__ = "2013"
