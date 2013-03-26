@@ -37,8 +37,8 @@ def test_moses(port):
         logger.info('Testing %s ...' % url)
         r = xmlrpclib.ServerProxy(url)
         text = r.translate({ 'text': 'test' })['text']
-    except:
-        logger.info('Exception occurred. Will return false.')
+    except (Exception, e):
+        logger.info('Exception occurred: %s. Will return false.' % str(e))
         return False
     logger.info('Returned: %s' % text)
     return True if text else False
