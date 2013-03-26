@@ -34,6 +34,7 @@ def test_worker(port):
     # Send idle check and parse response (JSON)
     for ntry in xrange(7):
       try:
+          print 'Testing %s ...' % url
           req = urllib2.Request(url)
           response = urllib2.urlopen(req)
           result = json.loads(response.read())
@@ -41,10 +42,13 @@ def test_worker(port):
           continue
       # return true if worker is idle
       if result['idle']:
+          print 'Worker is idle'
           return True
       else:
+          print 'Sleeping'
           sleep(ntry / 2 + 1 + random())
     # all trials ended with busy or error:
+    print 'Worker is busy'
     return False
 
 
