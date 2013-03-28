@@ -51,8 +51,10 @@ class Tokenizer(object):
         self.__ascii_junk = Regex(r'[\000-\037]')
         self.__special_chars = \
                 Regex(r'(([^\p{IsAlnum}\s\.\,])\2*)')
-        self.__to_single_quotes = Regex(r'[`‚‘’]')
-        self.__to_double_quotes = Regex(r'(\'\'|[“”„])')
+        # single quotes: all unicode quotes + prime
+        self.__to_single_quotes = Regex(r'[`‛‚‘’‹›′]')
+        # double quotes: all unicode chars incl. Chinese + double prime + ditto
+        self.__to_double_quotes = Regex(r'(\'\'|``|[«»„‟“”″〃「」『』〝〞〟])')
         self.__no_numbers = Regex(r'([^\p{N}])([,.])([^\p{N}])')
         self.__pre_numbers = Regex(r'([^\p{N}])([,.])([\p{N}])')
         self.__post_numbers = Regex(r'([\p{N}])([,.])([^\p{N}])')
