@@ -59,7 +59,7 @@ class Tokenizer(object):
         self.__pre_numbers = Regex(r'([^\p{N}])([,.])([\p{N}])')
         self.__post_numbers = Regex(r'([\p{N}])([,.])([^\p{N}])')
         # hyphen: separate every time but for unary minus
-        self.__minus = Regex(r'(-−)')
+        self.__minus = Regex(r'([-−])')
         self.__minus_notnum = Regex(r'(-)([^\p{N}])')
         self.__minus_postnum = Regex(r'(\p{N}\s*)(-)')
 
