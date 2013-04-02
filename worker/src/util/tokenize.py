@@ -26,6 +26,7 @@ from regex import Regex
 import codecs
 import sys
 import logging
+import getopt
 
 __author__ = "Ondřej Dušek"
 __date__ = "2013"
@@ -45,12 +46,11 @@ class Tokenizer(object):
         """\
         Constructor (pre-compile all needed regexes).
         """
-        logger.info('Creating tokenizer')
         self.lowercase = 'lowercase' in options
         self.__spaces = Regex(r'\s+')
         self.__ascii_junk = Regex(r'[\000-\037]')
         self.__special_chars = \
-                Regex(r'(([^\p{IsAlnum}\s\.\,])\2*)')
+                Regex(r'(([^\p{IsAlnum}\s\.\,−\-])\2*)')
         # single quotes: all unicode quotes + prime
         self.__to_single_quotes = Regex(r'[`‛‚‘’‹›′]')
         # double quotes: all unicode chars incl. Chinese + double prime + ditto
@@ -58,12 +58,15 @@ class Tokenizer(object):
         self.__no_numbers = Regex(r'([^\p{N}])([,.])([^\p{N}])')
         self.__pre_numbers = Regex(r'([^\p{N}])([,.])([\p{N}])')
         self.__post_numbers = Regex(r'([\p{N}])([,.])([^\p{N}])')
+        # hyphen: separate every time but for unary minus
+        self.__minus = Regex(r'(-−)')
+        self.__minus_notnum = Regex(r'(-)([^\p{N}])')
+        self.__minus_postnum = Regex(r'(\p{N}\s*)(-)')
 
     def tokenize(self, text):
         """\
         Tokenize the given text using current settings.
         """
-        logger.info('Tokenizing sentence')
         # spaces to single space
         text = self.__spaces.sub(' ', text)
         # remove ASCII junk
@@ -77,6 +80,10 @@ class Tokenizer(object):
         # normalize quotes
         text = self.__to_single_quotes.sub('\'', text)
         text = self.__to_double_quotes.sub('"', text)
+        # separate hyphen-minus
+        text = self.__minus.sub(r' \1', text)
+        text = self.__minus_notnum.sub(r'\1 \2', text)
+        text = self.__minus_postnum.sub(r'\1\2 ', text)
         # spaces to single space
         text = self.__spaces.sub(' ', text)
         text = text.strip() + "\n"
@@ -106,7 +113,7 @@ if __name__ == '__main__':
         elif opt == '-e':
             encoding = arg
     # display help
-    if filenames > 2 or help:
+    if len(filenames) > 2 or help:
         display_usage()
         sys.exit(1)
     # open input and output streams
