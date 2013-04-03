@@ -22,7 +22,7 @@ Command-line usage:
 """
 
 from __future__ import unicode_literals
-from regex import Regex
+from regex import Regex, UNICODE
 import codecs
 import sys
 import logging
@@ -47,7 +47,7 @@ class Tokenizer(object):
         Constructor (pre-compile all needed regexes).
         """
         self.lowercase = 'lowercase' in options
-        self.__spaces = Regex(r'\p{Z}+')
+        self.__spaces = Regex(r'\s+', flags=UNICODE)
         self.__ascii_junk = Regex(r'[\000-\037]')
         self.__special_chars = \
                 Regex(r'(([^\p{IsAlnum}\s\.\,−\-])\2*)')
