@@ -1,0 +1,142 @@
+@charset "utf-8";
+
+html,body,input,select,textarea{font:14px/18px "Helvetica Neue",Arial,Helvetica,sans-serif;color:#393939;}
+html{font-size:100%;-webkit-text-size-adjust:100%;}
+body{margin:0;position:relative;z-index:0;
+background-color:#f8f8f0;
+overflow-y:auto;}
+p{margin:0;}
+ol,ul{list-style:none;margin:0;padding:0;}
+h1{font-size:15px;line-height:1em;margin:4px 4px 10px;}
+textarea {
+-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;
+-webkit-appearance:none;
+background-color:#e9e9e9;border:1px solid #bfbfbf;
+border-radius:5px;margin-bottom:8px;min-height:50px;padding:6px;
+height:140px;font-size:16px;width:100%;}
+textarea:focus,input:focus{outline:0;}
+
+
+#go { float:left; }
+
+#wrap {width:1100px; margin:0 auto; background-color:#f8f8f0; }
+#main {width:1100px; padding-top: 8px; height:200px; }
+#right {cursor:pointer; }
+/*
+#right {width:898px; background-color:#e8e8e8; padding:4px;
+ margin-top: 24px;
+-moz-box-shadow: 4px 4px 5px #888;
+-webkit-box-shadow: 4px 4px 5px #888;
+box-shadow: 4px 4px 5px #888;
+cursor:pointer;
+margin:0 auto;
+border-radius:3px;
+border: 1px solid;
+}
+*/
+#footer {clear:both; margin-top:16px; }
+
+#source { width:540px; float:left; margin-right:8px;}
+#destination{ width:540px; float:left;}
+
+#cannot {display:none;font-size:14px;}
+
+#align-wrap { 
+/*
+-moz-box-shadow: 2px 2px 4px #888;
+-webkit-box-shadow: 2px 2px 4px #888;
+box-shadow: 2px 2px 4px #888;
+background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+background:-ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+background:linear-gradient(top, white 0%, #F3F3F3 100%);
+background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+*/
+min-height:140px;
+width:1080px;
+margin-top:24px;
+margin-bottom:16px;
+border-radius:3px;
+border: 1px solid #e3e3e3;
+clear:both;
+}
+#align{ font: 16px/22px "Ubuntu Mono","Courier New",Mono; margin:0 auto;padding:8px; display:none;}
+
+#detail {display:none; width:100%;margin-top:16px; }
+#q-div, #r-div { width:540px; float:left; }
+#q-div {margin-right:8px;}
+#q, #r { font:15px "Ubuntu Mono", "Courier New", Monospace; background-color:#fff;width:100%;
+font-weight:bold;
+cursor:pointer; }
+#q textarea { margin: 8px !important; }
+#q textarea {color-background:white !important; margin:8px;}
+#r textarea {margin:8px; }
+/* #q:hover, #r:hover { background-color:white !important; font-size:16px; cursor:pointer; } */
+
+#src { background-color: #fff !important; }
+#dest { font-weight: bold; font-size: 16px/20px; }
+#header{color:#23658b;
+/*
+background:-moz-linear-gradient(top, #23658b 0%, #1c506e
+100%);background:-webkit-gradient(linear, left top, left bottom, color-stop(0%, #23658b),
+color-stop(100%, #1c506e));background:-webkit-linear-gradient(top, #23658b 0%, #1c506e
+100%);background:-o-linear-gradient(top, #23658b 0%, #1c506e
+100%);background:-ms-linear-gradient(top, #23658b 0%, #1c506e
+100%);background:linear-gradient(top, #23658b 0%, #1c506e
+100%);*/
+padding:16px 18px;font-size:36px;overflow:hidden;position:relative;}
+
+#inp { margin:16px; width:90%; }
+div.line { margin-bottom:8px; width:90%;
+padding:0px 2px;
+background-color:white;
+/*
+background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
+background:-ms-linear-gradient(top, white 0%, #F3F3F3 100%);
+background:linear-gradient(top, white 0%, #F3F3F3 100%);
+background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);*/
+}
+div.sentence { margin-bottom:24px; }
+
+#logo { margin:16px; color:#999;font-size:90%;font-style:italic; }
+#logo img {width:220px;}
+
+.loading { float:left; }
+.working { font-size:24px/32px; font-weight:bold; display:none; color:white;background-color:#3B5998;padding:8px 12px; margin-left: 16px; margin-top:2px; }
+.cannot{ font-size:24px/32px; font-weight:bold; display:none; color:yellow;background-color:red;padding:8px 12px; margin-left: 16px; margin-top:2px; }
+
+#footer {
+clear:both;
+}
+
+
+span.hover {
+	color: yellow;
+	background: green;
+}
+
+span.token {
+	margin-right: 8px;
+	cursor: pointer;
+}
+
+.button4{
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+  border-radius:5px;
+
+  -moz-box-shadow:0 1px 0 rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow:0 1px 0 rgba(0, 0, 0, 0.6);
+  box-shadow:0 1px 0 rgba(0, 0, 0, 0.6);
+
+  background: -moz-linear-gradient(19% 75% 90deg, #FF4D01, #FF8924);
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FF8924), to(#FF4D01));
+
+  color:#fff;
+  font-family:"Ubuntu",arial,helvetica,sans-serif;
+  font-size:14px;
+  font-weight:bold;
+  padding:8px 8px;
+  cursor:pointer;
+}
+.button4:hover {
+}
