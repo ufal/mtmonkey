@@ -47,7 +47,7 @@ class Tokenizer(object):
         Constructor (pre-compile all needed regexes).
         """
         self.lowercase = 'lowercase' in options
-        self.__spaces = Regex(r'\s+')
+        self.__spaces = Regex(r'\p{Z}+')
         self.__ascii_junk = Regex(r'[\000-\037]')
         self.__special_chars = \
                 Regex(r'(([^\p{IsAlnum}\s\.\,−\-])\2*)')
@@ -60,8 +60,8 @@ class Tokenizer(object):
         self.__post_numbers = Regex(r'([\p{N}])([,.])([^\p{N}])')
         # hyphen: separate every time but for unary minus
         self.__minus = Regex(r'([-−])')
-        self.__minus_notnum = Regex(r'(-)([^\p{N}])')
-        self.__minus_postnum = Regex(r'(\p{N}\s*)(-)')
+        self.__pre_notnum = Regex(r'(-)([^\p{N}])')
+        self.__post_num_or_nospace = Regex(r'(\p{N} *|[^ ])(-)')
 
     def tokenize(self, text):
         """\
@@ -80,10 +80,10 @@ class Tokenizer(object):
         # normalize quotes
         text = self.__to_single_quotes.sub('\'', text)
         text = self.__to_double_quotes.sub('"', text)
-        # separate hyphen-minus
+        # separate hyphen, minus
+        text = self.__pre_notnum.sub(r'\1 \2', text)
+        text = self.__post_num_or_nospace.sub(r'\1\2 ', text)
         text = self.__minus.sub(r' \1', text)
-        text = self.__minus_notnum.sub(r'\1 \2', text)
-        text = self.__minus_postnum.sub(r'\1\2 ', text)
         # spaces to single space
         text = self.__spaces.sub(' ', text)
         text = text.strip() + "\n"
