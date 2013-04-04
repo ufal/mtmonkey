@@ -3,4 +3,5 @@
 . ~khresmoi/virtualenv/bin/activate
 . ~khresmoi/mt-stable/config/config_worker.sh
 
+cd ~khresmoi/mt-stable/logs
 nohup python ~khresmoi/mt-stable/worker/worker.py >> ~khresmoi/mt-stable/logs/worker.log 2>&1 &
