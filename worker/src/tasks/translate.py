@@ -10,13 +10,6 @@ from util.detokenize import Detokenizer
 from util.split_sentences import SentenceSplitter
 
 def paragraph(text, doalign):
-#    if not text:
-#        return [""]
-#    t = text.strip()
-#    if not t:
-#        return [""]
-
-    print "splitting"
     splitter = SentenceSplitter()
     lines = splitter.split_sentences(text)
     return [translate(l, doalign) for l in lines]
@@ -42,25 +35,21 @@ def add_tgt_end(align, tgttok):
 
 def translate(text, doalign):
     # tokenize
-    print "tokenizing"
     tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
     src_tokenized = tokenizer.tokenize(text)
 
     # translate
-    print "translating"
     p = xmlrpclib.ServerProxy("http://localhost:8080/RPC2")
     translation = p.translate({ "text": text, "align": True })
     align = parse_align(text, translation['text'], translation['align'])
     text = translation['text']
 
     # recase
-    print "recasing"
     r = xmlrpclib.ServerProxy("http://localhost:9000/RPC2")
     text = r.translate({ "text": text })['text']
     tgt_tokenized = ' '.join(text.split())
 
     # detokenize
-    print "detokenizing"
     detokenizer = Detokenizer()
     text = detokenizer.detokenize(text)
 
