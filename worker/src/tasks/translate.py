@@ -1,32 +1,22 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 
 import time
 import uuid
 import xmlrpclib
-from subprocess import Popen, PIPE
 import operator
 import os
-
-SCRIPT_PATH = os.path.split(os.path.dirname(__file__))[0] + '/perl-scripts/'
-
-def ex(text):
-    return text + text[-1]
+from util.tokenize import Tokenizer
+from util.split import Splitter
 
 def paragraph(text, doalign):
-    if not text:
-        return [""]
-    t = text.strip()
-    if not t:
-        return [""]
-    t_utf8 = t.encode('utf-8')
-    p = Popen([SCRIPT_PATH + 'split-sentences.pl', '-l en'], stdin=PIPE, stdout=PIPE, stderr=None)
-    (out, stderr) = p.communicate(ex(t).encode('utf-8'))
-    p.stdin.close()
-    try: p.kill()
-    except Exception, e: pass
-    #
-    lines = filter(None, out.split('\n'))
+#    if not text:
+#        return [""]
+#    t = text.strip()
+#    if not t:
+#        return [""]
+
+    splitter = Splitter()
+    lines = splitter.split(text)
     return [translate(l, doalign) for l in lines]
 
 def parse_align(orig, transl, align):
@@ -50,13 +40,8 @@ def add_tgt_end(align, tgttok):
 
 def translate(text, doalign):
     # tokenize
-    p = Popen([SCRIPT_PATH + 'tokenizer.pl', '-l', 'en'],
-                stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    (text, stderr) = p.communicate((text.lower()))
-    src_tokenized = ' '.join(text.split())
-    p.stdin.close()
-    try: p.kill()
-    except Exception, e: pass
+    tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
+    src_tokenized = tokenizer.tokenize(text)
 
     # translate
     p = xmlrpclib.ServerProxy("http://localhost:8080/RPC2")
@@ -70,11 +55,8 @@ def translate(text, doalign):
     tgt_tokenized = ' '.join(text.split())
 
     # detokenize
-    p = Popen([SCRIPT_PATH + 'detokenizer.pl', '-l', 'en'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    (text, stderr) = p.communicate(text.encode('utf-8'))
-    p.stdin.close()
-    try: p.kill()
-    except Exception, e: pass
+    detokenizer = Deokenizer()
+    text = detokenizer.detokenize(text)
 
     r1 = { 'text': text.strip().decode("utf8"), 'score': 100, 'rank': 0 }
     if doalign:
@@ -98,3 +80,4 @@ def process_task(task):
         }
         ]
     }
+
