@@ -6,6 +6,10 @@ A simple sentence splitter for MT pre-processing.
 
 Library usage:
 
+    from util.split_sentences import SentenceSplitter
+    s = SentenceSplitter()
+    split = s.split_sentences(text)
+    
 Command-line usage:
 
     ./split_sentences.py [-e ENCODING] [input-file output-file]
@@ -34,33 +38,47 @@ class SentenceSplitter(object):
     A simple sentence splitter class.
     """
 
-    SENT_STARTER = '([\'\"\(\[\¿\¡\p{Pi}]* *[\p{Upper}])'
-    SENT_STARTER_PUNCT = '([\'\"\(\[\¿\¡\p{Pi}]+ *[\p{Upper}])'
-    FINAL_PUNCT = ' *[\'\"\)\]\p{IsPf}]+'
+    # TODO look at quote characters, CZ quotes possibly have wrong
+    # Unicode classes!
+
+    # sentence starters (possibly some starting punctuation) + upper-case char.
+    SENT_STARTER = r'([\'\"\(\[\¿\¡\p{Pi}]* *[\p{Upper}])'
+    # sentence starters with compulsory punctuation
+    SENT_STARTER_PUNCT = r'([\'\"\(\[\¿\¡\p{Pi}]+ *[\p{Upper}])'
+    # final punctuation
+    FINAL_PUNCT = r' *[\'\"\)\]\p{Pf}]+'
 
     def __init__(self, options={}):
         """\
         Constructor (pre-compile all needed regexes).
         """
-        # process options
-        self.return_lists = True if options.get('lists') else False
         # compile regexes
-        self.__non_period = Regex('([?!]|\.{2,}) +' +
+        self.__spaces = Regex(r'\s+')
+        self.__space_at_end = Regex(r'(^|\n) ')
+        self.__space_at_begin = Regex(r' ($|\n)')
+        self.__non_period = Regex(r'([?!]|\.{2,}) +' +
                                   self.SENT_STARTER, UNICODE)
-        self.__in_punct = Regex('([?!\.]' + FINAL_PUNCT + ') +' +
+        self.__in_punct = Regex(r'([?!\.]' + self.FINAL_PUNCT + r') +' +
                                 self.SENT_STARTER, UNICODE)
-        self.__punct_follows = Regex('([?!]|\.{2,}) +' +
+        self.__punct_follows = Regex(r'([?!]|\.{2,}) +' +
                                   self.SENT_STARTER_PUNCT, UNICODE)
-        # periods should be done better
-        self.__period = Regex('\. +' + self.SENT_STARTER, UNICODE)
+        # TODO periods should be done better
+        self.__period = Regex(r'(\.) +' + self.SENT_STARTER, UNICODE)
 
     def split_sentences(self, text):
         """\
-        Detokenize the given text using current settings.
+        Split sentences in the given text using current settings.
         """
-        text = ' ' + text + ' '
-        # TODO
-        return text
+        # clean
+        text = self.__spaces.sub(r' ', text)
+        text = self.__space_at_begin.sub(r'\1', text)
+        text = self.__space_at_end.sub(r'\1', text)
+        # split
+        text = self.__non_period.sub(r'\1\n\2', text)
+        text = self.__in_punct.sub(r'\1\n\2', text)
+        text = self.__punct_follows.sub(r'\1\n\2', text)
+        text = self.__period.sub(r'\1\n\2', text)
+        return text.split("\n")
 
 
 def display_usage():
