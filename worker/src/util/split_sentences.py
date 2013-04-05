@@ -6,6 +6,10 @@ A simple sentence splitter for MT pre-processing.
 
 Library usage:
 
+    from util.split_sentences import SentenceSplitter
+    s = SentenceSplitter()
+    split = s.split_sentences(text)
+    
 Command-line usage:
 
     ./split_sentences.py [-e ENCODING] [input-file output-file]
@@ -34,8 +38,14 @@ class SentenceSplitter(object):
     A simple sentence splitter class.
     """
 
+    # TODO look at quote characters, CZ quotes possibly have wrong
+    # Unicode classes!
+
+    # sentence starters (possibly some starting punctuation) + upper-case char.
     SENT_STARTER = r'([\'\"\(\[\¿\¡\p{Pi}]* *[\p{Upper}])'
+    # sentence starters with compulsory punctuation
     SENT_STARTER_PUNCT = r'([\'\"\(\[\¿\¡\p{Pi}]+ *[\p{Upper}])'
+    # final punctuation
     FINAL_PUNCT = r' *[\'\"\)\]\p{Pf}]+'
 
     def __init__(self, options={}):

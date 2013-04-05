@@ -8,6 +8,7 @@ Library usage:
 
     from util.tokenize import Tokenizer
     t = Tokenizer({'lowercase': True, 'moses_escape': True})
+    tokenized = t.tokenize(text)
 
 Command-line usage:
 
