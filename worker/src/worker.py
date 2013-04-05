@@ -21,7 +21,7 @@ def main():
     config = ConfigObj("worker.cfg")
 
     # Create server
-    server = ThreadedXMLRPCServer(("localhost", int(config['PORT'])))
+    server = ThreadedXMLRPCServer((config['HOST'], int(config['PORT'])))
     server.register_introspection_functions()
     
     server.register_function(process_task)
