@@ -123,7 +123,7 @@ def main():
     app = Flask(__name__)
 
     # load config
-    app.config.from_pyfile('server.cfg')
+    app.config.from_pyfile('appserver.cfg')
     
     # Initialize logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
