@@ -5,7 +5,7 @@ import urllib2
 # import httplib
 import json
 
-SERVER = "192.168.0.11"
+SERVER = "195.113.20.53"
 PORT   = "8883"
 
 def logmsg(msg):
