@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import anydbm
@@ -76,7 +76,8 @@ def find_idle_slave(task):
               logger.info('Server %s is idle' % slave)
               return slave
           else:
-              logger.info('Server %s is busy' % slave)
+              logger.info('Server %s is busy (response: "%s")' %
+                          (slave, result))
               sleep(ntry/2 + 1 + random())
             
     raise WorkerNotFoundException()

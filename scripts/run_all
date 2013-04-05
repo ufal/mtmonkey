@@ -1,0 +1,3 @@
+#!/bin/bash
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+$MYDIR/run_moses && $MYDIR/run_worker

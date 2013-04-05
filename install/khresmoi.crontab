@@ -1,0 +1,7 @@
+#
+# Khresmoi Crontab used to periodically check the availability of the service and restart it if needed.
+#
+# Put the crontab line in the crontab of the user khresmoi using the following command:
+# sudo -u khresmoi crontab -e
+
+0 0,2,4,6,8,10,12,14,16,18,20,22 * * * /home/khresmoi/mt-stable/scripts/autorun >> /home/khresmoi/mt-stable/logs/autorun.log 2>&1

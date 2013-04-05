@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# Run Appserver with correct logging and DB setting.
+#
+# Usage: sudo -u khresmoi run_appserver [-r]
+#
+# -r = Force restart
+#
+
+USER=khresmoi
+VERSION=stable
+
+if [ "$1" == '-r' ]; then
+    echo "Killing existing Appserver..."
+    for i in `ps ax | grep "$VERSION.*/appserver.py" | sed 's/\s.*//'`; do 
+        kill $i; 
+    done
+    sleep 5
+fi
+
+. ~$USER/virtualenv/bin/activate
+. ~$USER/mt-$VERSION/config/config_appserver.sh
+
+cd ~$USER/mt-$VERSION/logs
+nohup python ~$USER/mt-$VERSION/appserver/appserver.py >> ~$USER/mt-$VERSION/logs/appserver.log 2>&1 &

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+VERSION=stable
+. ~khresmoi/virtualenv/bin/activate
+. ~khresmoi/mt-$VERSION/config/config_worker.sh
+. ~khresmoi/mt-$VERSION/config/config_moses.sh
+
+WORKER_PORT=`cat $MICROTASK_SETTINGS | grep 'PORT' | sed s'/[^0-9]//g'`
+
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+function test_process {
+    echo "Testing $1"
+    python $MYDIR/test.py $1 -p $2
+    if [ $? -ne 0 ]; then
+        echo "Does not work. Killing..."
+        # process does not work: try to kill it
+        for i in `ps ax | grep "$3" | sed 's/\s.*//'`; do 
+            kill $i; 
+        done
+        sleep 10
+        # start it again and wait
+        echo "Running again..."
+        $MYDIR/$4
+        sleep $5
+        echo "Should be running now."
+    else
+        echo "Working OK."
+    fi
+}
+
+# test if Moses is working
+test_process -m $TRANSL_PORT  "mosesserver.*$VERSION" "run_moses" 5000
+test_process -m $RECASER_PORT  "mosesserver.*$VERSION" "run_moses" 5000
+# test if Worker is working
+test_process -w $WORKER_PORT "$VERSION.*/worker.py" "run_worker" 5

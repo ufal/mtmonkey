@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# Run worker with correct logging and DB setting.
+#
+# Usage: sudo -u khresmoi run_worker [-r]
+#
+# -r = Force restart
+#
+
+
+VERSION=stable
+
+if [ "$1" == '-r' ]; then
+    echo "Killing existing worker..."
+    for i in `ps ax | grep "$VERSION.*/worker.py" | sed 's/\s.*//'`; do 
+        kill $i; 
+    done
+    sleep 5
+fi
+
+. ~khresmoi/virtualenv/bin/activate
+. ~khresmoi/mt-$VERSION/config/config_worker.sh
+
+cd ~khresmoi/mt-$VERSION/logs
+nohup python ~khresmoi/mt-$VERSION/worker/worker.py >> ~khresmoi/mt-$VERSION/logs/worker.log 2>&1 &
