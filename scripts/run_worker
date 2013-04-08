@@ -8,7 +8,8 @@
 #
 
 
-VERSION=stable
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $MYDIR/../config/init.sh
 
 if [ "$1" == '-r' ]; then
     echo "Killing existing worker..."
@@ -18,8 +19,8 @@ if [ "$1" == '-r' ]; then
     sleep 5
 fi
 
-. ~khresmoi/virtualenv/bin/activate
-. ~khresmoi/mt-$VERSION/config/config_worker.sh
+. ~$USER/virtualenv/bin/activate
+. ~$USER/mt-$VERSION/config/config_worker.sh
 
-cd ~khresmoi/mt-$VERSION/logs
-nohup python ~khresmoi/mt-$VERSION/worker/worker.py >> ~khresmoi/mt-$VERSION/logs/worker.log 2>&1 &
+cd ~$USER/mt-$VERSION/logs
+nohup python ~$USER/mt-$VERSION/worker/worker.py >> ~$USER/mt-$VERSION/logs/worker.log 2>&1 &

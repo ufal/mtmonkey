@@ -1,0 +1,2 @@
+VERSION=stable
+USER=khresmoi

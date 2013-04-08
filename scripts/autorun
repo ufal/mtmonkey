@@ -1,13 +1,15 @@
 #!/bin/bash
 
-VERSION=stable
-. ~khresmoi/virtualenv/bin/activate
-. ~khresmoi/mt-$VERSION/config/config_worker.sh
-. ~khresmoi/mt-$VERSION/config/config_moses.sh
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+. $MYDIR/../config/init.sh
+
+. $USER/virtualenv/bin/activate
+. $USER/mt-$VERSION/config/config_worker.sh
+. $USER/mt-$VERSION/config/config_moses.sh
 
 WORKER_PORT=`cat $MICROTASK_SETTINGS | grep 'PORT' | sed s'/[^0-9]//g'`
 
-MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function test_process {
     echo "Testing $1"

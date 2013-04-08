@@ -1,8 +1,11 @@
 #!/bin/sh
 
-. ~khresmoi/mt-stable/scripts/moses_setenv.sh
-. ~khresmoi/mt-stable/config/config_moses.sh
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $MYDIR/../config/init.sh
+
+. ~$USER/mt-$VERSION/scripts/moses_setenv.sh
+. ~$USER/mt-$VERSION/config/config_moses.sh
 
 cd $MODELS_DIR
-nohup mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> ~khresmoi/mt-stable/logs/recaser.log 2>&1 &
-nohup mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> ~khresmoi/mt-stable/logs/translate.log 2>&1 &
+nohup mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> ~$USER/mt-$VERSION/logs/recaser.log 2>&1 &
+nohup mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> ~$USER/mt-$VERSION/logs/translate.log 2>&1 &

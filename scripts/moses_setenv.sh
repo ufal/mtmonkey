@@ -1,11 +1,16 @@
 #!/bin/sh
 
-PREFIX=/home/khresmoi/mt-stable/moses/usr
+MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $MYDIR/../config/init.sh
+
+PREFIX=/home/$USER/mt-$VERSION/moses/usr
+
 if [ -d /lib64 ]; then
 LIBDIR=$PREFIX/lib64
 else
 LIBDIR=$PREFIX/lib
 fi
+
 export PATH=$PREFIX/bin${PATH:+:$PATH}
 export LD_LIBRARY_PATH=$LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 export LIBRARY_PATH=$LIBDIR${LIBRARY_PATH:+:$LIBRARY_PATH}
