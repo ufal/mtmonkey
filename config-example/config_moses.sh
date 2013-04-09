@@ -1,8 +1,7 @@
 
-MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. $MYDIR/init.sh
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
 
-export MODELS_DIR=/home/$USER/mt-$VERSION/models/deen
+export MODELS_DIR=$BASEDIR/models/deen
 
 export RECASER_PORT=9001
 export RECASER_INI=$MODELS_DIR/recaser.moses.ini
