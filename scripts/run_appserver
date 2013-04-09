@@ -7,8 +7,9 @@
 # -r = Force restart
 #
 
-USER=khresmoi
-VERSION=stable
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
+USERHOME=`dirname $BASEDIR`
+VERSION=`basename $BASEDIR`
 
 if [ "$1" == '-r' ]; then
     echo "Killing existing Appserver..."
@@ -18,8 +19,8 @@ if [ "$1" == '-r' ]; then
     sleep 5
 fi
 
-. ~$USER/virtualenv/bin/activate
-. ~$USER/mt-$VERSION/config/config_appserver.sh
+. $USERHOME/virtualenv/bin/activate
+. $BASEDIR/config/config_appserver.sh
 
-cd ~$USER/mt-$VERSION/logs
-nohup python ~$USER/mt-$VERSION/appserver/appserver.py >> ~$USER/mt-$VERSION/logs/appserver.log 2>&1 &
+cd $BASEDIR/logs
+nohup python $BASEDIR/appserver/appserver.py >> $BASEDIR/logs/appserver.log 2>&1 &

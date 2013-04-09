@@ -1,9 +1,8 @@
 #!/bin/sh
 
-MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. $MYDIR/../config/init.sh
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
 
-PREFIX=/home/$USER/mt-$VERSION/moses/usr
+PREFIX=$BASEDIR/moses/usr
 
 if [ -d /lib64 ]; then
 LIBDIR=$PREFIX/lib64

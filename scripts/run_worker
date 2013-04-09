@@ -7,9 +7,9 @@
 # -r = Force restart
 #
 
-
-MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. $MYDIR/../config/init.sh
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
+USERHOME=`dirname $BASEDIR`
+VERSION=`basename $BASEDIR`
 
 if [ "$1" == '-r' ]; then
     echo "Killing existing worker..."
@@ -19,8 +19,8 @@ if [ "$1" == '-r' ]; then
     sleep 5
 fi
 
-. ~$USER/virtualenv/bin/activate
-. ~$USER/mt-$VERSION/config/config_worker.sh
+. $USERHOME/virtualenv/bin/activate
+. $BASEDIR/config/config_worker.sh
 
-cd ~$USER/mt-$VERSION/logs
-nohup python ~$USER/mt-$VERSION/worker/worker.py >> ~$USER/mt-$VERSION/logs/worker.log 2>&1 &
+cd $BASEDIR/logs
+nohup python $BASEDIR/worker/worker.py >> $BASEDIR/logs/worker.log 2>&1 &
