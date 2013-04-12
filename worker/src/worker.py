@@ -3,6 +3,7 @@
 import SimpleXMLRPCServer
 import SocketServer
 import logging
+import os
 from configobj import ConfigObj
 from tasks import translate
 
@@ -26,6 +27,14 @@ def process_task(task):
 def main():
     # load configuration
     config = ConfigObj("worker.cfg")
+
+    # Overwrite default settings by envvar
+    try:
+        logger.info("Merging configuration file: " + os.environ['MICROTASK_SETTINGS'])
+        config.merge(ConfigObj(os.environ['MICROTASK_SETTINGS']))
+    except:
+        pass
+
     logger.info("Loaded configuration file")
 
     # Create server
