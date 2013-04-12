@@ -1,13 +1,15 @@
 #!/bin/bash
 
-VERSION=stable
-. ~khresmoi/virtualenv/bin/activate
-. ~khresmoi/mt-$VERSION/config/config_worker.sh
-. ~khresmoi/mt-$VERSION/config/config_moses.sh
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
+USERHOME=`dirname $BASEDIR`
+VERSION=`basename $BASEDIR`
+
+. $USERHOME/virtualenv/bin/activate
+. $BASEDIR/config/config_worker.sh
+. $BASEDIR/config/config_moses.sh
 
 WORKER_PORT=`cat $MICROTASK_SETTINGS | grep 'PORT' | sed s'/[^0-9]//g'`
 
-MYDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function test_process {
     echo "Testing $1"
@@ -21,7 +23,7 @@ function test_process {
         sleep 10
         # start it again and wait
         echo "Running again..."
-        $MYDIR/$4
+        $BASEDIR/scripts/$4
         sleep $5
         echo "Should be running now."
     else
