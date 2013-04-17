@@ -13,7 +13,7 @@ WORKER_PORT=`cat $MICROTASK_SETTINGS | grep 'PORT' | sed s'/[^0-9]//g'`
 
 function test_process {
     echo "Testing $1"
-    python $MYDIR/test.py $1 -p $2
+    python $BASEDIR/scripts/test.py $1 -p $2
     if [ $? -ne 0 ]; then
         echo "Does not work. Killing..."
         # process does not work: try to kill it
