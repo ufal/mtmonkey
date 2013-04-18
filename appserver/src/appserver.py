@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+import os
 import logging
 import validictory
 import xmlrpclib
@@ -121,17 +122,22 @@ class KhresmoiService:
 def main():
     # Create Flask app
     app = Flask(__name__)
-
-    # load config
-    app.config.from_pyfile('appserver.cfg')
     
     # Initialize logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
     logger = logging.getLogger('server')
+
+    # load config
+    try:
+        app.config.from_pyfile('appserver.cfg')
+        logger.info("Loaded config from file appserver.cfg")
+    except:
+        pass
     
     # Overwrite default settings by envvar
     try:
         app.config.from_envvar('MICROTASK_SETTINGS')
+        logger.info("Loaded config from file " + os.environ['MICROTASK_SETTINGS'])
     except:
         pass
 
