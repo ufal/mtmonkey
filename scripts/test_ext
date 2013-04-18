@@ -9,9 +9,11 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+PORT=8889
+
 for LANG in de fr cs; do
     echo -n $LANG "-> en "
-    ( curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"'$LANG'", "targetLang":"en", "text": "Test" }' http://quest.ms.mff.cuni.cz:8888/khresmoi > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
+    ( curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"'$LANG'", "targetLang":"en", "text": "Test" }' http://quest.ms.mff.cuni.cz:$PORT/khresmoi > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
     echo -n "en ->" $LANG "" 
-    ( curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"'$LANG'", "text": "Test" }' http://quest.ms.mff.cuni.cz:8888/khresmoi > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
+    ( curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"'$LANG'", "text": "Test" }' http://quest.ms.mff.cuni.cz:$PORT/khresmoi > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
 done | grep 'NOT WORKING' | mail -E -s 'MT problem' $1

@@ -76,6 +76,7 @@ class Tokenizer(object):
         """\
         Tokenize the given text using current settings.
         """
+        # pad with spaces so that regexes match everywhere
         text = ' ' + text + ' '
         # spaces to single space
         text = self.__spaces.sub(' ', text)
