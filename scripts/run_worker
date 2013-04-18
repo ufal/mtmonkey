@@ -13,7 +13,8 @@ VERSION=`basename $BASEDIR`
 
 if [ "$1" == '-r' ]; then
     echo "Killing existing worker..."
-    for i in `ps ax | grep "$VERSION.*/worker.py" | sed 's/\s.*//'`; do 
+    for i in `ps ax | grep "$VERSION.*/worker\.py" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do 
+        echo $i;
         kill $i; 
     done
     sleep 5
