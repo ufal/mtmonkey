@@ -57,7 +57,7 @@ def test_worker(port):
       except urllib2.URLError, e:
           continue
       # return true if worker is idle
-      if result['idle']:
+      if result['idle'] == '0':
           logger.info('Worker is idle.')
           return True
       else:
