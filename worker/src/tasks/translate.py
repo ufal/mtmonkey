@@ -36,7 +36,8 @@ def add_tgt_end(align, tgttok):
 def translate(text, doalign):
     # tokenize
     tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
-    src_tokenized = tokenizer.tokenize(text)
+    text = tokenizer.tokenize(text)
+    src_tokenized = text
 
     # translate
     p = xmlrpclib.ServerProxy("http://localhost:8080/RPC2")
