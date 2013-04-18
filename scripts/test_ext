@@ -1,0 +1,17 @@
+#!/bin/bash
+# 
+# Test translation and send a message if necessary.
+#
+# Usage: ./test_ext somebody@somewhere
+
+if [ -z "$1" ]; then
+    echo "No e-mail address specified."
+    exit 1
+fi
+
+for LANG in de fr cs; do
+    echo -n $LANG "-> en "
+    ( curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"'$LANG'", "targetLang":"en", "text": "Test" }' http://quest.ms.mff.cuni.cz:8888/khresmoi > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
+    echo -n "en ->" $LANG "" 
+    ( curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"'$LANG'", "text": "Test" }' http://quest.ms.mff.cuni.cz:8888/khresmoi > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
+done | grep 'NOT WORKING' | mail -E -s 'MT problem' $1
