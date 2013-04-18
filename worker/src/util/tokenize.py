@@ -76,6 +76,7 @@ class Tokenizer(object):
         """\
         Tokenize the given text using current settings.
         """
+        text = ' ' + text + ' '
         # spaces to single space
         text = self.__spaces.sub(' ', text)
         # remove ASCII junk
