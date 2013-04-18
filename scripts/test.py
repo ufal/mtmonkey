@@ -23,6 +23,7 @@ import logging
 import xmlrpclib
 from random import random
 from flask import jsonify
+from time import sleep
 
 __author__ = "Ondřej Dušek"
 __date__ = "2013"
