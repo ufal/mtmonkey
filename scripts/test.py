@@ -32,6 +32,8 @@ logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s - %(name)s - %(message)s")
 logger = logging.getLogger('tester')
 
+TIMEOUT = 15
+
 def test_moses(port):
     url = 'http://localhost:%d/RPC2' % port
     text = None
@@ -53,7 +55,7 @@ def test_worker(port):
       try:
           logger.info('Testing %s ...' % url)
           req = urllib2.Request(url)
-          response = urllib2.urlopen(req)
+          response = urllib2.urlopen(req, timeout=TIMEOUT)
           result = json.loads(response.read())
       except urllib2.URLError, e:
           continue
