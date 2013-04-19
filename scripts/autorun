@@ -17,7 +17,7 @@ function test_process {
     if [ $? -ne 0 ]; then
         echo "Does not work. Killing..."
         # process does not work: try to kill it
-        for i in `ps ax | grep "$3" | sed 's/\s.*//'`; do 
+        for i in `ps ax | grep "$3" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do 
             kill $i; 
         done
         sleep 10
@@ -35,4 +35,4 @@ function test_process {
 test_process -m $TRANSL_PORT  "mosesserver.*$VERSION" "run_moses" 5000
 test_process -m $RECASER_PORT  "mosesserver.*$VERSION" "run_moses" 5000
 # test if Worker is working
-test_process -w $WORKER_PORT "$VERSION.*/worker.py" "run_worker" 5
+test_process -w $WORKER_PORT "$VERSION.*/worker\.py" "run_worker" 5
