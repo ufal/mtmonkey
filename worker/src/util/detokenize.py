@@ -34,21 +34,66 @@ class Detokenizer(object):
     A simple de-tokenizer class.
     """
 
+    # Moses special characters de-escaping
+    ESCAPES = [('&bar;', '|'),
+               ('&lt;', '<'),
+               ('&gt;', '>'),
+               ('&bra;', '['),
+               ('&ket;', ']'),
+               ('&amp;', '&')]  # should go last to prevent double de-escaping
+
     def __init__(self, options={}):
         """\
         Constructor (pre-compile all needed regexes).
         """
         # process options
-        self.lowercase = 'lowercase' in options
+        self.moses_deescape = True if options.get('moses_deescape') else False
+        self.language = options.get('language', 'en')
         # compile regexes
+        self.__currency_or_init_punct = Regex(r'^[\p{Sc}\(\[\{\¿\¡]+$')
+        self.__noprespace_punct = Regex(r'^[\,\.\?\!\:\;\\\%\}\]\)]+$')
+        # language-specific regexes
+        self.__fr_prespace_punct = Regex(r'^[\?\!\:\;\\\%]$')
+        self.__en_contractions = Regex(r'^\p{Alpha}+(\'ll|n\'t)$')
 
     def detokenize(self, text):
         """\
         Detokenize the given text using current settings.
         """
-        # text = ' ' + text + ' '
-        # TODO
-        return text
+        # split text
+        words = text.split(' ')
+        # paste text back, omitting spaces where needed 
+        text = ''
+        pre_spc = ' '
+        for pos, word in enumerate(words):
+            # TODO CJK chars
+            # no space after currency and initial punctuation
+            if self.__currency_or_init_punct.match(word):
+                text += pre_spc + word
+                pre_spc = ''
+            # no space before commas etc. (exclude some punctuation for French)
+            elif self.__noprespace_punct.match(word) and \
+                    (self.language != 'fr' or not
+                     self.__fr_prespace_punct.match(word)):
+                text += word
+                pre_spc = ' '
+            # contractions for English
+            elif self.language == 'en' and word == "'" \
+                    and pos > 0 and pos < len(words) - 1 \
+                    and self.__en_contractions.match(words[pos - 1] + word +
+                                                     words[pos + 1]):
+                text += word
+                pre_spc = ''
+            # TODO rest
+            else:
+                text += pre_spc + word
+                pre_spc = ' '
+        # escape chars that are special to Moses
+        if self.moses_deescape:
+            for char, repl in self.ESCAPES:
+                text = text.replace(char, repl)
+        # return the result (strip leading/trailing space)
+        return text.strip()
 
 
 def display_usage():
