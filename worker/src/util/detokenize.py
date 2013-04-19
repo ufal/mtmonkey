@@ -17,11 +17,12 @@ Command-line usage:
 """
 
 from __future__ import unicode_literals
-from regex import Regex, UNICODE
+from regex import Regex, UNICODE, IGNORECASE
 from fileprocess import process_lines
 import sys
 import logging
 import getopt
+
 
 __author__ = "Ondřej Dušek"
 __date__ = "2013"
@@ -42,6 +43,13 @@ class Detokenizer(object):
                ('&ket;', ']'),
                ('&amp;', '&')]  # should go last to prevent double de-escaping
 
+    # Contractions for different languages
+    CONTRACTIONS = {'en': r'^\p{Alpha}+(\'(ll|ve|re|[dsm])|n\'t)$',
+                    'fr': r'^([cjtmnsdl]|qu)\'\p{Alpha}+$',
+                    'es': r'^[dl]\'\p{Alpha}+$',
+                    'it': r'^\p{Alpha}*(l\'\p{Alpha}+|[cv]\'è)$',
+                    'cs': r'^\p{Alpha}+[-–](mail|li)$', }
+
     def __init__(self, options={}):
         """\
         Constructor (pre-compile all needed regexes).
@@ -54,7 +62,7 @@ class Detokenizer(object):
         self.__noprespace_punct = Regex(r'^[\,\.\?\!\:\;\\\%\}\]\)]+$')
         # language-specific regexes
         self.__fr_prespace_punct = Regex(r'^[\?\!\:\;\\\%]$')
-        self.__en_contractions = Regex(r'^\p{Alpha}+(\'ll|n\'t)$')
+        self.__contract = Regex(self.CONTRACTIONS[self.language], IGNORECASE)
 
     def detokenize(self, text):
         """\
@@ -77,14 +85,13 @@ class Detokenizer(object):
                      self.__fr_prespace_punct.match(word)):
                 text += word
                 pre_spc = ' '
-            # contractions for English
-            elif self.language == 'en' and word == "'" \
-                    and pos > 0 and pos < len(words) - 1 \
-                    and self.__en_contractions.match(words[pos - 1] + word +
-                                                     words[pos + 1]):
+            # contractions with comma or hyphen 
+            elif word in "'-–" and pos > 0 and pos < len(words) - 1 \
+                    and self.__contract.match(''.join(words[pos - 1:pos + 2])):
                 text += word
                 pre_spc = ''
             # TODO rest
+            # keep spaces around normal words
             else:
                 text += pre_spc + word
                 pre_spc = ' '
