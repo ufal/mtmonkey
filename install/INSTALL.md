@@ -9,9 +9,29 @@ Prerequisities:
 ========================
 
 
-Appserver installation:
+Application server installation:
 ========================
 
+* Prepare the needed resources in a separate directory (assuming `$USER/data/`) --
+  Checkout the khresmoi-mt Git repository to `~$USER/data/git-$VERSION`:
+
+  git clone gitolite@redmine.ms.mff.cuni.cz:khresmoi-mt.git ~$USER/data/git-$VERSION
+
+* Install Python virtual environment to `~$USER/data/virtualenv`:
+  Read, adjust, and run `install_virtualenv.sh` from this directory.
+
+* Prepare default directories in `~$USER/mt-$VERSION`:
+
+  mkdir -p ~$USER/mt-$VERSION/{config,logs}
+  ln -s ~$USER/data/git-$VERSION/appserver/src ~$USER/mt-$VERSION/appserver
+  ln -s ~$USER/data/git-$VERSION/appserver/scripts ~$USER/mt-$VERSION/scripts
+
+* Adjust configuration in `~$USER/mt-$VERSION` according to ~$USER/data/config-example
+  (The file `config_appserver.sh` can be copied as-is if using default directory schema,
+  the file `appserver.cfg` must be adjusted for IPs and ports of the workers for the
+  individual languages, as well as the application server port.)
+
+* You may now run the application server via `~$USER/mt-$VERSION/scripts/run_appserver`.
 
 Workers installation:
 ========================
@@ -22,7 +42,7 @@ Prepare the needed resources in the shared directory:
 
 * Checkout the khresmoi-mt Git repository to /mnt/share/git-$VERSION:
 
-  git clone http://quest.ms.mff.cuni.cz/khresmoi/client/git-$VERSION
+  git clone gitolite@redmine.ms.mff.cuni.cz:khresmoi-mt.git /mnt/share/git-$VERSION
 
 * Install Moses to to /mnt/share/moses-$VERSION
 
