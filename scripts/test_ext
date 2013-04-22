@@ -11,9 +11,9 @@
 test_translation () {
     for LANG in de fr cs; do
         echo -n $LANG "-> en "
-        ( curl -m $TIMEOUT -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"'$LANG'", "targetLang":"en", "text": "'$TEXT'" }' $SITE:$PORT$REQ_ADDR > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
+        ( curl -m $TIMEOUT -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"'$LANG'", "targetLang":"en", "text": "'$TEXT'" }' $SITE:$PORT$REQ_ADDR 2>&1 | grep '"errorCode": 0' > /dev/null && echo 'OK' ) || echo 'NOT WORKING'
         echo -n "en ->" $LANG "" 
-        ( curl -m $TIMEOUT -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"'$LANG'", "text": "'$TEXT'" }' $SITE:$PORT$REQ_ADDR > /dev/null 2>&1 && echo 'OK' ) || echo 'NOT WORKING'
+        ( curl -m $TIMEOUT -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"'$LANG'", "text": "'$TEXT'" }' $SITE:$PORT$REQ_ADDR 2>&1 | grep '"errorCode": 0' > /dev/null && echo 'OK' ) || echo 'NOT WORKING'
     done
 }
 
