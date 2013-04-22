@@ -22,7 +22,7 @@ def process_task(task):
         return translate.process_task(task)
     else:
         logger.warning("Unknown task " + task['action'])
-        return { 'error' : 'Uknown task ' + task['action'] }
+        return { 'error' : 'Unknown task ' + task['action'] }
 
 def main():
     # load configuration
@@ -41,10 +41,10 @@ def main():
     logger.info("Starting XML-RPC server...")
     server = ThreadedXMLRPCServer((config['HOST'], int(config['PORT'])))
     server.register_introspection_functions()
-    
+
     server.register_function(process_task)
     logger.info("Server started")
-    
+
     # Run the server's main loop
     server.serve_forever()
 
