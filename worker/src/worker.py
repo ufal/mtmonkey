@@ -24,6 +24,10 @@ def process_task(task):
         logger.warning("Unknown task " + task['action'])
         return { 'error' : 'Unknown task ' + task['action'] }
 
+def alive_check():
+    """Just checking that the server is up and running."""
+    return 1
+
 def main():
     # load configuration
     config = ConfigObj("worker.cfg")
@@ -38,11 +42,12 @@ def main():
     logger.info("Loaded configuration file")
 
     # Create server
-    logger.info("Starting XML-RPC server...")
+    logger.info("Starting XML-RPC server on %s:%s..." % (config['HOST'], config['PORT']))
     server = ThreadedXMLRPCServer((config['HOST'], int(config['PORT'])))
     server.register_introspection_functions()
 
     server.register_function(process_task)
+    server.register_function(alive_check)
     logger.info("Server started")
 
     # Run the server's main loop
