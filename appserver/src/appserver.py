@@ -95,7 +95,9 @@ class KhresmoiService:
     
     """Wrap the output in JSON"""
     def _wrap_result(self, result):
-        return json.dumps(result, encoding='utf-8', ensure_ascii=False, indent=4)
+        return Response(json.dumps(result, encoding='utf-8', 
+                                   ensure_ascii=False, indent=4), 
+                        mimetype='application/javascript')
         
     """Validate task according to schema"""
     def _validate(self, task):
