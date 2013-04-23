@@ -13,7 +13,7 @@ VERSION=`basename $BASEDIR`
 
 if [ "$1" == '-r' ]; then
     echo "Killing existing Appserver..."
-    for i in `ps ax | grep "$VERSION.*/appserver.py" | sed 's/\s.*//'`; do 
+    for i in `ps ax | grep "$VERSION.*/appserver\.py" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do 
         kill $i; 
     done
     sleep 5
