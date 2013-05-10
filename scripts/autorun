@@ -15,9 +15,9 @@ function test_process {
     echo "Testing $1"
     python $BASEDIR/scripts/test.py $1 -p $2
     RESULT=$?
-    if [ $RESULT -ne 0 -a -n "$5"-a -n "`find "$BASEDIR/logs/$5" -mmin 120`" -a ps ax | grep `cat $BASEDIR/logs/$5` ]; then
+    if [[ $RESULT -ne 0 && -n "$5" && -n "`find "$BASEDIR/logs/$5" -mmin -120`" && $( ps ax | grep "^\\s*`cat $BASEDIR/logs/$5`") ]]; then
         echo "Program is loading, will check again next time."
-    elif [ $RESULT -ne 0 ]; then
+    elif [[ $RESULT -ne 0 ]]; then
         echo "Does not work. Killing..."
         # process does not work: try to kill it
         for i in `ps ax | grep "$3" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do 
@@ -34,7 +34,7 @@ function test_process {
 }
 
 # test if Moses is working
-test_process -m $TRANSL_PORT  "mosesserver.*$VERSION" "run_moses" .moses_loading
-test_process -m $RECASER_PORT  "mosesserver.*$VERSION" "run_moses" .moses_loading
+test_process -m $TRANSL_PORT  "mosess[e]rver.*$VERSION" "run_moses" .moses_loading
+test_process -m $RECASER_PORT  "mosess[e]rver.*$VERSION" "run_moses" .moses_loading
 # test if Worker is working
 test_process -w $WORKER_PORT "$VERSION.*/worker\.py" "run_worker"
