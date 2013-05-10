@@ -8,6 +8,17 @@ that will own and run the services (user 'khresmoi' by default).
 Prerequisities:
 ========================
 
+We assume Ubuntu 12.04 (but any Linux with all the required packages should be OK).
+Before installing Khresmoi MT Services, you must have the following packages installed:
+
+* On the application server:
+
+    <none>
+
+* On workers:
+ 
+    netcat
+
 
 Application server installation:
 ========================
