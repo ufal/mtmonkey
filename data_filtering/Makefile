@@ -24,14 +24,14 @@ $(HON_DATA_DIR)/all.docs :
 	curl 'http://khresmoi:KhresmoiForEurope2012@khresmoi.honservices.org:5984/khresmoi_docs/_all_docs?include_docs=true' > $@
 	sed -i '1d;$$d;s/\r//;s/,$$//' $@
 
-hon_prepare_to_split: $(HON_DATA_DIR)/all.docs.to_split
-$(HON_DATA_DIR)/all.docs.to_split : $(HON_DATA_DIR)/all.docs.gz
-	zcat $< | sed '1d;$$d;s/,\r$$//' > $@
+hon_prepare_to_split: $(HON_DATA_DIR)/all.docs.to_split.gz
+$(HON_DATA_DIR)/all.docs.to_split.gz : $(HON_DATA_DIR)/all.docs.gz
+	zcat $< | sed '1d;$$d;s/,\r$$//' | gzip -c > $@
 
 hon_split: $(HON_DATA_DIR)/all.docs.split.list
-$(HON_DATA_DIR)/all.docs.split.list : $(HON_DATA_DIR)/all.docs.to_split
+$(HON_DATA_DIR)/all.docs.split.list : $(HON_DATA_DIR)/all.docs.to_split.gz
 	mkdir -p $(HON_DATA_DIR)/all.docs.split
-	qsubmit --jobname="hon_split" --sync 'cat $< | scripts/gzip_split.pl -l 100000 $(HON_DATA_DIR)/all.docs.split/part_'
+	qsubmit --jobname="hon_split" --sync 'zcat $< | scripts/gzip_split.pl -l 100000 $(HON_DATA_DIR)/all.docs.split/part_'
 	find $(HON_DATA_DIR)/all.docs.split -name 'part_*' | sort > $@
 
 hon_filter: $(HON_DATA_DIR)/all.docs.split.filtered.list
