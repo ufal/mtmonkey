@@ -68,20 +68,20 @@ $(HON_DATA_DIR)/all.docs.split.info.list : $(HON_DATA_DIR)/all.docs.split.filter
 
 LANGUAGE=en
 
-hon_sent_lang : $(HON_DATA_DIR)/all.docs.split.$(LANGUAGE).sent_lang.list 
-$(HON_DATA_DIR)/all.docs.split.$(LANGUAGE).sent_lang.list : $(HON_DATA_DIR)/all.docs.split.info.list
-	mkdir -p $(HON_DATA_DIR)/all.docs.split.$(LANGUAGE).sent_lang
+hon_lang : $(HON_DATA_DIR)/all.docs.split.lang.$(LANGUAGE).list 
+$(HON_DATA_DIR)/all.docs.split.lang.$(LANGUAGE).list : $(HON_DATA_DIR)/all.docs.split.info.list
+	mkdir -p $(HON_DATA_DIR)/all.docs.split.lang.$(LANGUAGE)
 	for i in `cat $<`; do \
 		filename=`echo $$i | tail -c 12`; \
-		qsubmit --jobname="hon_sent_lang-$(LANGUAGE)_$$filename" --logdir='log' \
-			"zcat $$i | scripts/print_text.pl -l $(LANGUAGE) | ../worker/src/perl-scripts/split-sentences.pl -l $(LANGUAGE) | gzip -c > $(HON_DATA_DIR)/all.docs.split.$(LANGUAGE).sent_lang/$$filename"; \
+		qsubmit --jobname="hon_lang-$(LANGUAGE)_$$filename" --logdir='log' \
+			"zcat $$i | scripts/print_text.pl -l $(LANGUAGE) | gzip -c > $(HON_DATA_DIR)/all.docs.split.lang.$(LANGUAGE)/$$filename"; \
 		sleep 2; \
 	done
-	while qstat -r -j "hon_sent_lang-$(LANGUAGE)_"'*' > /dev/null 2>&1; do sleep 2 ; done
-	find $(HON_DATA_DIR)/all.docs.split.$(LANGUAGE).sent_lang -name 'part_*' | sort > $@
+	while qstat -r -j "hon_lang-$(LANGUAGE)_"'*' > /dev/null 2>&1; do sleep 2 ; done
+	find $(HON_DATA_DIR)/all.docs.split.lang.$(LANGUAGE) -name 'part_*' | sort > $@
 
 hon_merge: /net/data/khresmoi/hon-2013-05/hon.lm.$(LANGUAGE).gz
-/net/data/khresmoi/hon-2013-05/hon.lm.$(LANGUAGE).gz : $(HON_DATA_DIR)/all.docs.split.$(LANGUAGE).sent_lang.list
+/net/data/khresmoi/hon-2013-05/hon.lm.$(LANGUAGE).gz : $(HON_DATA_DIR)/all.docs.split.lang.$(LANGUAGE).list
 	mkdir -p /net/data/khresmoi/hon-2013-05
 	qsubmit --jobname="hon_merge_$(LANGUAGE)" --logdir='log' --sync \
 		"cat $< | xargs --verbose -I{} zcat {} | gzip -c > $@"
