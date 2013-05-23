@@ -74,7 +74,9 @@ $(HON_DATA_DIR)/all.docs.split.sent_lang.$(LANGUAGE).list : $(HON_DATA_DIR)/all.
 	for i in `cat $<`; do \
 		filename=`echo $$i | tail -c 12`; \
 		qsubmit --jobname="hon_sent_lang-$(LANGUAGE)_$$filename" --logdir='log' \
-			"zcat $$i | scripts/print_text.pl -l $(LANGUAGE) | ../worker/src/perl-scripts/split-sentences.pl -l $(LANGUAGE) | gzip -c > $(HON_DATA_DIR)/all.docs.split.sent_lang.$(LANGUAGE)/$$filename"; \
+			"zcat $$i | scripts/print_text.pl -l $(LANGUAGE) | \
+			sed 's/$$/\n/' | ../worker/src/perl-scripts/split-sentences.pl -l $(LANGUAGE) | sed '/^<P>$$/d' | \
+			gzip -c > $(HON_DATA_DIR)/all.docs.split.sent_lang.$(LANGUAGE)/$$filename"; \
 		sleep 2; \
 	done
 	while qstat -r -j "hon_sent_lang-$(LANGUAGE)_"'*' > /dev/null 2>&1; do sleep 2 ; done
@@ -85,5 +87,3 @@ hon_merge: /net/data/khresmoi/hon-2013-05/hon.lm.$(LANGUAGE).gz
 	mkdir -p /net/data/khresmoi/hon-2013-05
 	qsubmit --jobname="hon_merge_$(LANGUAGE)" --logdir='log' --sync \
 		"cat $< | xargs --verbose -I{} zcat {} | gzip -c > $@"
-	#qsubmit --jobname="hon_segm_$(LANGUAGE)" --logdir='log' --sync \
-	#	"zcat $@.docs.gz | ../worker/src/perl-scripts/split-sentences.pl -l $(LANGUAGE) | gzip -c > $@"
