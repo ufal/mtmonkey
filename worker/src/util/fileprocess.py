@@ -9,12 +9,10 @@ import codecs
 import sys
 
 
-def process_lines(func, filenames, encoding):
+def open_handles(filenames, encoding):
     """\
-    Stream process given files or STDIN/STDOUT with the given function
-    and encoding.
+    Open given files or STDIN/STDOUT in the given encoding.
     """
-    # open input and output streams
     if len(filenames) == 2:
         fh_out = codecs.open(filenames[1], 'w', encoding)
     else:
@@ -23,6 +21,15 @@ def process_lines(func, filenames, encoding):
         fh_in = codecs.open(filenames[0], 'r', encoding)
     else:
         fh_in = codecs.getreader(encoding)(sys.stdin)
+    return fh_in, fh_out
+
+
+def process_lines(func, filenames, encoding):
+    """\
+    Stream process given files or STDIN/STDOUT with the given function
+    and encoding.
+    """
+    fh_in, fh_out = open_handles(filenames, encoding)
     for line in fh_in:
         line = func(line)
         print >> fh_out, line
