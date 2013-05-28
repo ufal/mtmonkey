@@ -76,7 +76,17 @@ Prepare configuration (do this for all workers):
   to the used language pair and models.
 
 * If you need the MT service to be started on the machine startup, add the
-  file khresmoi.conf from this directory to /etc/init.
+  file khresmoi from this directory to /etc/init.d and link it to the individual runlevels
+  as the very last service to be started. Then prepare a directory for startup logs:
+
+  cp /mnt/share/git-$VERSION/install/khresmoi /etc/init.d
+
+  cd /etc/rc2.d; ln -s ../init.d/khresmoi S99z_khresmoi; 
+  cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_khresmoi rc$r.d; done
+  cd /etc/rc6.d; ln -s ../init.d/khresmoi K99z_khresmoi; 
+  cd ..; for r in 0 1; do cp -P rc6.d/K99z_khresmoi rc$r.d; done
+
+  mkdir /var/log/khresmoi; chown khresmoi /var/log/khresmoi
 
 * If you want the MT service to be checked periodically and restarted on fail,
   adjust the crontab of $USER according to the khresmoi.crontab file.
