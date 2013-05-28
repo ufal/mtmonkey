@@ -2,8 +2,8 @@
 
 ### BEGIN INIT INFO
 # Provides:          Khresmoi
-# Required-Start:    $remote_fs $syslog $all
-# Required-Stop:     $remote_fs $syslog $all
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Khresmoi MT services
@@ -30,16 +30,32 @@ case "`whoami`" in
         ;;
 esac
 
+# Wait for NFS share to be accessible, return success status
+wait_for_nfs() {
+    CTR=50
+    while [ $CTR -gt 0 ]; do
+        if [ -d ~/mt-$VERSION/scripts ]; then
+            return 0
+        fi
+        sleep 5
+        CTR=`expr $CTR - 1`
+    done
+    return 1
+}
+
 # Start the Khresmoi service
 start() {
+    echo `date` "Waiting for NFS..." >> /var/log/khresmoi/startup_worker.log
+    wait_for_nfs || { echo `date` "Timeout." >> /var/log/khresmoi/startup_worker.log; exit 1; }
+
     echo `date` "Starting Khresmoi services using init scripts..." | tee -a ~/mt-$VERSION/logs/autorun.log
     echo "Running as user $USER: ~/mt-$VERSION/scripts/run_{worker,moses}" | tee -a ~/mt-$VERSION/logs/autorun.log
 
     echo `date` "Khresmoi startup PHASE1: user $USER: ~/mt-$VERSION/scripts/run_worker..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    nohup ~/mt-$VERSION/scripts/run_worker >> /var/log/khresmoi/startup_worker.log &
+    nohup ~/mt-$VERSION/scripts/run_worker >> /var/log/khresmoi/startup_worker.log 2>&1 &
 
     echo `date` "Khresmoi startup PHASE2: user $USER: ~/mt-$VERSION/scripts/run_moses..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    nohup ~/mt-$VERSION/scripts/run_moses >> /var/log/khresmoi/startup_moses.log &
+    nohup ~/mt-$VERSION/scripts/run_moses >> /var/log/khresmoi/startup_moses.log 2>&1 &
 }
 
 # Stop the Khresmoi service
@@ -51,9 +67,9 @@ stop() {
 }
 
 status() {
-    echo "Khresmoi init - khresmoi user procces list:"
+    echo "Khresmoi init - khresmoi user proccess list:"
     ps -u khresmoi
-    }
+}
 
 ### main logic ###
 case "$1" in
