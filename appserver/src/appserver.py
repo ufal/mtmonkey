@@ -20,8 +20,8 @@ class WorkerCollection:
         self.nextworker = dict((pair_id, 0) for pair_id in workers)
         self.lock = Lock()
 
-    """Get a worker for the given language pair"""
     def get(self, pair_id):
+        """Get a worker for the given language pair"""
         if not pair_id in self.workers:
             raise WorkerNotFoundException
         with self.lock:
@@ -37,16 +37,16 @@ class KhresmoiService:
         self.workers = workers
         self.logger  = logger
 
-    """Handle POST requests"""
     def post(self):
+        """Handle POST requests"""
         if not request.json:
             abort(400)
         self.logger.info('Received new task [POST]')
         result = self._dispatch_task(request.json)
         return self._wrap_result(result)
     
-    """Handle GET requests"""
     def get(self):
+        """Handle GET requests"""
         result = self._dispatch_task({
             'action': 'translate',
             'sourceLang': request.args.get('sourceLang', None),
@@ -56,8 +56,8 @@ class KhresmoiService:
         self.logger.info('Received new task [GET]')
         return self._wrap_result(result)
 
-    """Dispatch task to worker and return its output (and/or error code)"""
     def _dispatch_task(self, task):
+        """Dispatch task to worker and return its output (and/or error code)"""
         pair_id = "%s-%s" % (task['sourceLang'], task['targetLang'])
     
         # validate the task
@@ -93,14 +93,14 @@ class KhresmoiService:
         result["errorMessage"] = "OK"
         return result
     
-    """Wrap the output in JSON"""
     def _wrap_result(self, result):
-        return Response(json.dumps(result, encoding='utf-8', 
-                                   ensure_ascii=False, indent=4), 
+        """Wrap the output in JSON"""
+        return Response(json.dumps(result, encoding='utf-8',
+                                   ensure_ascii=False, indent=4),
                         mimetype='application/javascript')
         
-    """Validate task according to schema"""
     def _validate(self, task):
+        """Validate task according to schema"""
         schema = {
             "type": "object",
             "properties": {

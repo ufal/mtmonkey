@@ -17,11 +17,17 @@ if [ "$1" == '-r' ]; then
         echo $i;
         kill $i; 
     done
-    sleep 5
+    sleep 2
 fi
 
 . $USERHOME/virtualenv/bin/activate
 . $BASEDIR/config/config_worker.sh
+WORKER_PORT=`cat $MICROTASK_SETTINGS | grep 'PORT' | sed s'/[^0-9]//g'`
 
 cd $BASEDIR/logs
 nohup python $BASEDIR/worker/worker.py >> $BASEDIR/logs/worker.log 2>&1 &
+
+until nc -z localhost $WORKER_PORT; do
+    sleep 2;
+done
+

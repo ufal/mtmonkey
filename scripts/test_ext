@@ -1,0 +1,52 @@
+#!/bin/bash
+# 
+# Test translation and send a message if necessary.
+#
+# Usage: ./test_ext [-p PORT] [-s SITE] [-r REQUEST_ADDR] [-m TIMEOUT] [-t "Text to translate"] [somebody@somewhere]
+#
+# If an e-mail address is given, sends an e-mail to the specified address if a problem is found.
+# Otherwise just prints the results to STDOUT.
+#
+
+test_translation () {
+    for LANG in de fr cs; do
+        echo -n $LANG "-> en "
+        ( curl -m $TIMEOUT -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"'$LANG'", "targetLang":"en", "text": "'$TEXT'" }' $SITE:$PORT$REQ_ADDR 2>&1 | grep '"errorCode": 0' > /dev/null && echo 'OK' ) || echo 'NOT WORKING'
+        echo -n "en ->" $LANG "" 
+        ( curl -m $TIMEOUT -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"'$LANG'", "text": "'$TEXT'" }' $SITE:$PORT$REQ_ADDR 2>&1 | grep '"errorCode": 0' > /dev/null && echo 'OK' ) || echo 'NOT WORKING'
+    done
+}
+
+PORT=8888
+TIMEOUT=15
+SITE=http://quest.ms.mff.cuni.cz
+REQ_ADDR=/khresmoi
+TEXT="Test"
+
+while getopts "p:m:t:s:r:" OPT; do
+    case $OPT in
+        p)
+        PORT=$OPTARG
+        ;;
+        m)
+        TIMEOUT=$OPTARG
+        ;;
+        t)
+        TEXT=$OPTARG
+        ;;
+        s)
+        SITE=$OPTARG
+        ;;
+        r)
+        REQ_ADDR=$OPTARG
+    esac
+done
+shift $((OPTIND - 1))
+
+RES=$( test_translation )
+
+if [ -n "$1" ]; then
+    echo "$RES" | grep "NOT WORKING" | mail -E -s "MT Problem" $1
+else 
+    echo "$RES"
+fi

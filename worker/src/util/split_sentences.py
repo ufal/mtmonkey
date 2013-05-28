@@ -20,6 +20,7 @@ Library usage:
 
 Command-line usage:
 
+    ./split_sentences.py [-h]
     ./split_sentences.py [-e ENCODING] [-l language|-b no-break-file] \\
                          [input-file output-file]
     
@@ -27,6 +28,7 @@ Command-line usage:
     -l = use the default non-breaking prefixes for the given language
          (the argument should be the ISO-639-2 two-letter code of the language)
     -b = use the given file path to read non-breaking prefixes
+    -h = show this help
       
     If no language and no no-break prefixes are given, an empty set of prefixes
     will be used.
@@ -38,7 +40,7 @@ Command-line usage:
 from __future__ import unicode_literals
 from regex import Regex, UNICODE
 import regex
-from fileprocess import process_lines
+from fileprocess import open_handles
 import sys
 import logging
 import getopt
@@ -84,10 +86,9 @@ class SentenceSplitter(object):
         self.__non_period = Regex(r'([?!]|\.{2,}) +' + self.SENT_STARTER)
         self.__in_punct = Regex(r'([?!\.] *' + self.FINAL_PUNCT + r') +' +
                                 self.SENT_STARTER)
-        self.__punct_follows = Regex(r'([?!]|\.{2,}) +' +
-                                     self.SENT_STARTER_PUNCT)
+        self.__punct_follows = Regex(r'([?!\.]) +' + self.SENT_STARTER_PUNCT)
         self.__period = Regex(r'([\p{Alnum}\.\-]+)(' + self.FINAL_PUNCT +
-                              r')?$')
+                              r')? *$')
         self.__ucase_acronym = Regex(r'\.[\p{Upper}\-]+$')
         self.__numbers = Regex(r'^\p{N}')
         self.__sent_starter = Regex(self.SENT_STARTER)
@@ -170,7 +171,7 @@ def display_usage():
 
 if __name__ == '__main__':
     # parse options
-    opts, filenames = getopt.getopt(sys.argv[1:], 'e:l:b:')
+    opts, filenames = getopt.getopt(sys.argv[1:], 'e:l:b:h')
     options = {}
     help = False
     encoding = DEFAULT_ENCODING
@@ -181,11 +182,22 @@ if __name__ == '__main__':
             options['language'] = arg
         elif opt == '-b':
             options['nobreak_file'] = arg
+        elif opt == '-h':
+            help = True
     # display help
     if len(filenames) > 2 or help:
         display_usage()
         sys.exit(1)
     # process the input
     splitter = SentenceSplitter(options)
-    process_lines(lambda text: "\n".join(splitter.split_sentences(text)),
-                  filenames, encoding)
+    fh_in, fh_out = open_handles(filenames, encoding)
+    buf = []
+    for line in fh_in:
+        line = line.rstrip("\r\n")
+        if line != '':
+            buf.append(line)
+        else:
+            print >> fh_out, "\n".join(splitter.split_sentences(' '.join(buf)))
+            buf = []
+    print >> fh_out, "\n".join(splitter.split_sentences(' '.join(buf)))
+

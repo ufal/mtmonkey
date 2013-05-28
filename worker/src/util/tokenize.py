@@ -12,12 +12,15 @@ Library usage:
 
 Command-line usage:
 
-    ./tokenize.py [-h] [-l] [-e ENCODING] [-m] [input-file output-file]
+    ./tokenize.py [-h] [-l] [-e ENCODING] [-m] [-f FACTOR-NUM] \\ 
+                  [input-file output-file]
     
     -h = display this help
     -l = lowercase everything
     -e = use the given encoding (default: UTF-8)
     -m = escape characters that are special to Moses
+    -f = treat input as pre-tokenized factors (separated by `|'), 
+         split it further according to the given factor (numbered from 0)
     
     If no input and output files are given, the tokenizer will read
     STDIN and write to STDOUT.
@@ -72,10 +75,38 @@ class Tokenizer(object):
         self.__pre_notnum = Regex(r'(-)([^\p{N}])')
         self.__post_num_or_nospace = Regex(r'(\p{N} *|[^ ])(-)')
 
+
+    def tokenize_factors(self, pretoks, factor_no=0):
+        """\
+        Further tokenize a list of factored tokens (separated by `|'), 
+        separating the given factor and copying the other factor to all its
+        parts.    
+        """
+        out = []
+        for pretok in pretoks:
+            factors = pretok.split('|')
+            tokens = ['|'.join(factors[:factor_no] + [token] +
+                               factors[factor_no + 1:])
+                      for token in
+                      self.tokenize(factors[factor_no]).split(' ')]
+            out.extend(tokens)
+        return out
+
+    def tokenize_factored_text(self, factored_text, factor_no=0):
+        """\
+        Further tokenize pre-tokenized text composed of several factors
+        (separated by `|'). Tokenize further the given factor and copy all
+        other factors.
+        """
+        pretoks = self.__spaces.split(factored_text)
+        return ' '.join(self.tokenize_factors(pretoks, factor_no))
+
     def tokenize(self, text):
         """\
         Tokenize the given text using current settings.
         """
+        # pad with spaces so that regexes match everywhere
+        text = ' ' + text + ' '
         # spaces to single space
         text = self.__spaces.sub(' ', text)
         # remove ASCII junk
@@ -115,10 +146,11 @@ def display_usage():
 
 if __name__ == '__main__':
     # parse options
-    opts, filenames = getopt.getopt(sys.argv[1:], 'hle:m')
+    opts, filenames = getopt.getopt(sys.argv[1:], 'hle:mf:')
     options = {}
     help = False
     encoding = DEFAULT_ENCODING
+    factor = None
     for opt, arg in opts:
         if opt == '-l':
             options['lowercase'] = True
@@ -128,10 +160,14 @@ if __name__ == '__main__':
             encoding = arg
         elif opt == '-m':
             options['moses_escape'] = True
+        elif opt == '-f':
+            factor = int(arg)
     # display help
     if len(filenames) > 2 or help:
         display_usage()
         sys.exit(1)
     # process the input
     tok = Tokenizer(options)
-    process_lines(tok.tokenize, filenames, encoding)
+    proc_func = tok.tokenize if factor is None else \
+            lambda text: tok.tokenize_factored_text(text, factor)
+    process_lines(proc_func, filenames, encoding)
