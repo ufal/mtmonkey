@@ -9,10 +9,10 @@ from util.tokenize import Tokenizer
 from util.detokenize import Detokenizer
 from util.split_sentences import SentenceSplitter
 
-def paragraph(text, doalign):
+def translate_paragraph(text, do_align, do_detok):
     splitter = SentenceSplitter()
-    lines = splitter.split_sentences(text)
-    return [translate(l, doalign) for l in lines]
+    sents = splitter.split_sentences(text)
+    return [translate_sentence(s, do_align, do_detok) for s in sents]
 
 def parse_align(orig, transl, align):
     p = orig.split()
@@ -33,46 +33,61 @@ def add_tgt_end(align, tgttok):
         align[i]['tgt-end'] = ks[i + 1] - 1
     return align
 
-def translate(text, doalign):
+def translate_sentence(sent, do_align=False, do_detok=True):
     # tokenize
     tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
-    text = tokenizer.tokenize(text)
-    src_tokenized = text
+    sent = tokenizer.tokenize(sent)
+    src_tokenized = sent
 
-    # translate
+    # translate_sentence
     p = xmlrpclib.ServerProxy("http://localhost:8080/RPC2")
-    translation = p.translate({ "text": text, "align": True })
-    align = parse_align(text, translation['text'], translation['align'])
-    text = translation['text']
+    translation = p.translate({ "sent": sent, "align": True })
+    align = parse_align(sent, translation['sent'], translation['align'])
+    sent = translation['sent']
 
     # recase
     r = xmlrpclib.ServerProxy("http://localhost:9000/RPC2")
-    text = r.translate({ "text": text })['text']
-    tgt_tokenized = ' '.join(text.split())
+    sent = r.translate({ "sent": sent })['sent']
+    tgt_tokenized = ' '.join(sent.split())
 
     # detokenize
-    detokenizer = Detokenizer()
-    text = detokenizer.detokenize(text)
+    if do_detok:
+        detokenizer = Detokenizer()
+        sent = detokenizer.detokenize(sent)
 
-    r1 = { 'text': text.strip(), 'score': 100, 'rank': 0 }
+    r1 = { 'sent': sent.strip(), 'score': 100, 'rank': 0 }
     if doalign:
 ##  'alignment': align,
-        r1 = dict(r1.items() + {
-            'src-tokenized': src_tokenized,
-            'tgt-tokenized': tgt_tokenized,
-            'alignment-raw': add_tgt_end(translation['align'], tgt_tokenized), }.items())
+        r1 = dict(r1.items() +
+                  {
+                   'src-tokenized': src_tokenized,
+                   'tgt-tokenized': tgt_tokenized,
+                   'alignment-raw': add_tgt_end(translation['align'],
+                                                tgt_tokenized),
+                   }.items())
     return r1
 
+
 def process_task(task):
-    f = task['sourceLang']
-    e = task['targetLang']
-    t = task['text']
-    a = ('alignmentInfo' in task) and (task['alignmentInfo'] == 'true')
+    """\
+    Main entry point for translation. Process the task specified in a dict
+    and return the results.
+    """
+    # language settings are ignored, for now
+    #f = task['sourceLang']
+    #e = task['targetLang']
+
+    # obtain text and settings 
+    text = task['text']
+    do_align = task.get('alignmentInfo', '').lower() == 'true'
+    do_detok = task.get('detokenize', 'true').lower() == 'true'
     return {
         'translation': [
         {
+            # generate id
             "translationId": uuid.uuid4().hex,
-            "translated": paragraph(t, a),
+            # run the translation
+            "translated": translate_paragraph(text, do_align, do_detok),
         }
         ]
     }
