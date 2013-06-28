@@ -12,7 +12,7 @@ sub get_text_annot {
     $text .= "$ord: $src_line\n";
     for (my $i = 0; $i < @$keys; $i++) {
         $text .= chr(ord('a')+$i) . ") ";
-        $text .= $lines->{$keys->[$i]};
+        $text .= lc($lines->{$keys->[$i]});
         $text .= "\n";
     }
     $text .= "\n";
@@ -33,7 +33,7 @@ srand(hex(substr(md5_hex($src_lang),0,4)));
 my %tst_paths = (
     'b0' => "$filestem-b0.$src_lang-en",
     'gt' => "$filestem-gt.$src_lang-en",
-    'ms' => "$filestem-ms.$src_lang-en",
+#    'ms' => "$filestem-ms.$src_lang-en",
     'v1' => "$filestem-v1.$src_lang-en",
     'ref' => "$filestem.en",
 );

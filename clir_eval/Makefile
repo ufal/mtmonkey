@@ -17,3 +17,10 @@ $(DATA_DIR)/annot.prepared :
 	./prepare_to_annot.pl de data/eHealth-test
 	./prepare_to_annot.pl fr data/eHealth-test
 	touch $@
+
+ANNOT_DIR=/net/data/khresmoi/queries_eval
+copy :
+	cp -n $(DATA_DIR)/eHealth-test.cs.to_annot /net/data/khresmoi/queries_eval/
+	cp -n $(DATA_DIR)/eHealth-test.de.to_annot /net/data/khresmoi/queries_eval/
+	cp -n $(DATA_DIR)/eHealth-test.fr.to_annot /net/data/khresmoi/queries_eval/
+	
