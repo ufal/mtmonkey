@@ -23,4 +23,9 @@ copy :
 	cp -n $(DATA_DIR)/eHealth-test.cs.to_annot /net/data/khresmoi/queries_eval/
 	cp -n $(DATA_DIR)/eHealth-test.de.to_annot /net/data/khresmoi/queries_eval/
 	cp -n $(DATA_DIR)/eHealth-test.fr.to_annot /net/data/khresmoi/queries_eval/
-	
+
+man_eval_stats:
+	mkdir -p stats
+	./annot_stats.pl cs > stats/eHealth-test.cs.stats
+	./annot_stats.pl de > stats/eHealth-test.de.stats
+	./annot_stats.pl fr > stats/eHealth-test.fr.stats
