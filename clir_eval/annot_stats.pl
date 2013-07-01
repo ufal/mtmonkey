@@ -4,8 +4,10 @@ use strict;
 use warnings;
 use Math::Combinatorics;
 use Data::Dumper;
+
+use List::Util qw/sum/;
     
-my @systems = ('b0','gt','ref','v1');    
+my @systems = ('b0','v1','gt','ref');    
 my @sys_pairs = combine(2, @systems);
 
 sub update_annot_stats {
@@ -26,6 +28,58 @@ sub update_annot_stats {
     #print STDERR "\n";
     #print STDERR Dumper($stats);
 
+}
+
+sub print_normal {
+    my ($stats) = @_;
+
+    print "s1-s2\ts1>s2\ts1=s2\ts1<s2\n";
+    print "-----------------------------\n";
+    foreach my $key (keys %$stats) {
+        print $key . "\t";
+        print join "\t", @{$stats->{$key}};
+        print "\n";
+    }
+}
+
+sub print_tex {
+    my ($stats) = @_;
+
+#    print " & ". (join " & ", @systems) . "\n";
+    foreach my $s1 (@systems) {
+#        print $s1;
+        foreach my $s2 (@systems) {
+            if ($s1 eq $s2) {
+                print " & --";
+                next;
+            }
+            my $better;
+            my $count;
+            if (defined $stats->{"$s1-$s2"}) {
+                $better = $stats->{"$s1-$s2"}->[2];
+                $count = sum @{$stats->{"$s1-$s2"}};
+            }
+            else {
+                $better = $stats->{"$s2-$s1"}->[0];
+                $count = sum @{$stats->{"$s2-$s1"}};
+            }
+            printf " & %.4f", $better / $count;
+        }
+        print "\n";
+    }
+    my %sum_stats = map {$_ => [0, 0]} @systems;
+    foreach my $key (keys %$stats) {
+        my ($s1, $s2) = split /-/, $key;
+        $sum_stats{$s1}->[0] += $stats->{$key}->[0];
+        $sum_stats{$s2}->[0] += $stats->{$key}->[2];
+        $sum_stats{$s1}->[1] += $stats->{$key}->[2];
+        $sum_stats{$s2}->[1] += $stats->{$key}->[0];
+    }
+#    print "> others";
+    foreach my $s1 (@systems) {
+        printf " & %.4f", $sum_stats{$s1}->[0] / sum @{$sum_stats{$s1}};
+    }
+    print "\n";
 }
 
 
@@ -67,12 +121,6 @@ while (my $annot_line = <$annot_file>) {
 }
 close $clue_file;
 close $annot_file;
-
-print "s1-s2\ts1>s2\ts1=s2\ts1<s2\n";
-print "-----------------------------\n";
-foreach my $key (keys %$stats) {
-    print $key . "\t";
-    print join "\t", @{$stats->{$key}};
-    print "\n";
-}
+#print_normal($stats);
+print_tex($stats);
 #print Dumper($stats);
