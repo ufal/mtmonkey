@@ -159,7 +159,7 @@ def main():
     app.route('/khresmoi')(khresmoi.get)
 
     # run
-    app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=True)
+    app.run(host="", port=app.config['PORT'], threaded=True)
 
 if __name__ == "__main__":
     main()

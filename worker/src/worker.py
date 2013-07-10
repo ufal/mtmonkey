@@ -18,7 +18,7 @@ class KhresmoiWorker:
     """Processes tasks"""
 
     def __init__(self, config, logger):
-        self._translator = Translator(config['TRANSLATE_PORT'], config['RECASE_PORT'])
+        self._translator = translate.Translator(config['TRANSLATE_PORT'], config['RECASE_PORT'])
         self._logger = logger
 
     def process_task(task):
@@ -54,10 +54,10 @@ def main():
     logger.info("Configuration loaded")
 
     # Create server
-    logger.info("Starting XML-RPC server on port " + config['PORT']))
-    server = ThreadedXMLRPCServer("", int(config['PORT'])))
+    logger.info("Starting XML-RPC server on port " + config['PORT'])
+    server = ThreadedXMLRPCServer(("", int(config['PORT'])))
     server.register_introspection_functions()
-    server.register_instance(KhresmoiWorker(config))
+    server.register_instance(KhresmoiWorker(config, logger))
 
     logger.info("Server started")
 
