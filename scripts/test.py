@@ -22,7 +22,7 @@ import json
 import logging
 import xmlrpclib
 from random import random
-from flask import jsonify
+from time import sleep
 
 __author__ = "Ondřej Dušek"
 __date__ = "2013"
@@ -46,25 +46,14 @@ def test_moses(port):
 
 
 def test_worker(port):
-    url = 'http://localhost:%d/idle-check' % port
-    # Send idle check and parse response (JSON)
-    for ntry in xrange(7):
-      try:
-          logger.info('Testing %s ...' % url)
-          req = urllib2.Request(url)
-          response = urllib2.urlopen(req)
-          result = json.loads(response.read())
-      except urllib2.URLError, e:
-          continue
-      # return true if worker is idle
-      if result['idle']:
-          logger.info('Worker is idle.')
-          return True
-      else:
-          logger.info('Sleeping ...')
-          sleep(ntry / 2 + 1 + random())
-    # all trials ended with busy or error:
-    logger.info('Failed: Worker is busy.')
+    url = 'http://localhost:%d' % port
+    try:
+        worker = xmlrpclib.ServerProxy(url)
+        result = worker.alive_check()
+        logger.info('Worker alive check -- result: %s' % result)
+        return result == 1
+    except Exception, e:
+        logger.info('Failed: Worker is busy (%s).' % e)
     return False
 
 

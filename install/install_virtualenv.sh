@@ -26,7 +26,7 @@ python virtualenv.py virtualenv
 
 # Activate virtualenv and install needed libraries
 source virtualenv/bin/activate
-pip install flask validictory regex
+pip install flask validictory regex configobj
 
 # clean up
 rm virtualenv.pyc virtualenv.py

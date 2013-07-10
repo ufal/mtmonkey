@@ -1,227 +1,160 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-import anydbm
-import urllib2
-import urlparse
 import json
+import os
 import logging
 import validictory
-
-from functools import wraps
-from flask import Flask, request, jsonify, abort, Response
-from random import choice, random
-from tasks import hello, wait, translate
-from time import sleep
-
-# Create Flask app
-app = Flask(__name__)
-app.config.from_pyfile('appserver.cfg')
-
-# Logging initialization
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
-logger = logging.getLogger('microtask')
-
-# Overwrite default settings by envvar
-try:
-    app.config.from_envvar('MICROTASK_SETTINGS')
-except:
-    pass
-
-# DBM for saving status
-db = anydbm.open(app.config['DB'], 'c')
-db['idle'] = '0'
+import xmlrpclib
+from threading import Lock
+from flask import Flask, request, abort, Response
+from socket import error as socket_err
 
 class WorkerNotFoundException(Exception): pass
 
+class WorkerCollection:
+    """Collection of MT workers; provides thread-safe round-robin selection among
+    available workers."""
 
-###############################################################################
-# Task processing
-###############################################################################
+    def __init__(self, workers):
+        self.workers = workers
+        self.nextworker = dict((pair_id, 0) for pair_id in workers)
+        self.lock = Lock()
 
-def process_task_locally(task):
-    """Dispatch tasks by their action"""
-    # Run hello world task
-    if task['action'] == 'hello':
-        return hello.process_task(task)
-    # Run wait task
-    elif task['action'] == 'wait':
-        return wait.process_task(task)
-    elif task['action'] == 'translate':
-        return translate.process_task(task)
+    def get(self, pair_id):
+        """Get a worker for the given language pair"""
+        if not pair_id in self.workers:
+            raise WorkerNotFoundException
+        with self.lock:
+            worker_id = self.nextworker[pair_id]
+            self.nextworker[pair_id] = (worker_id + 1) % len(self.workers[pair_id])
+            return self.workers[pair_id][worker_id]
+
+class KhresmoiService:
+    """Khresmoi web service; calls workers which process individual language pairs
+    and returns their outputs in JSON"""
+
+    def __init__(self, workers, logger):
+        self.workers = workers
+        self.logger  = logger
+
+    def post(self):
+        """Handle POST requests"""
+        if not request.json:
+            abort(400)
+        self.logger.info('Received new task [POST]')
+        result = self._dispatch_task(request.json)
+        return self._wrap_result(result)
     
+    def get(self):
+        """Handle GET requests"""
+        result = self._dispatch_task({
+            'action': 'translate',
+            'sourceLang': request.args.get('sourceLang', None),
+            'targetLang': request.args.get('targetLang', None),
+            'text': request.args.get('text', None)
+        })
+        self.logger.info('Received new task [GET]')
+        return self._wrap_result(result)
+
+    def _dispatch_task(self, task):
+        """Dispatch task to worker and return its output (and/or error code)"""
+        pair_id = "%s-%s" % (task['sourceLang'], task['targetLang'])
     
-###############################################################################
-# Server methods
-###############################################################################
-    
-def find_idle_slave(task):
-    for slave in app.config['WORKERS']:
-        # Create url for idle action
-        langs = task['sourceLang'] + task['targetLang']
-        slave_url = urlparse.urlunparse(('http', slave, 'idle-flip/%s' % langs, '', '', ''))
-        logger.info('Asking if %s is idle, url=%s' % (slave, slave_url))
-        
-        for ntry in xrange(7):
-          # Send request and parse response (json)
-          try:
-              req = urllib2.Request(slave_url)
-              response = urllib2.urlopen(req)
-              result = json.loads(response.read())
-          except urllib2.URLError, e:
-              logger.error(e)
-              continue
-
-          if result['idle']:
-              logger.info('Server %s is idle' % slave)
-              return slave
-          else:
-              logger.info('Server %s is busy (response: "%s")' %
-                          (slave, result))
-              sleep(ntry/2 + 1 + random())
-            
-    raise WorkerNotFoundException()
-    # All slaves are busy, choose random one
-    return choice(app.config['WORKERS'])
-
-
-def send_task_to_slave(task):
-    """Send task to slave and wait for response"""
-    # Choose one slave server and create its url
-    try:
-        slave_hostname = find_idle_slave(task)
-    except WorkerNotFoundException:
-        return { "errorCode": 3,
-                 "errorMessage": "No worker found."
-        }
-    logger.info('Sending task to %s' % slave_hostname)
-    slave_url = urlparse.urlunparse(('http', slave_hostname, 'khresmoi', '', '', ''))
-
-    # Create a new request from the task
-    json_task = json.dumps(task)
-    print json_task
-    req_headers = {'Content-Type': 'application/json'}
-    req = urllib2.Request(slave_url, headers=req_headers, data=json_task)
-
-    # Send the request
-    try:
-        result = urllib2.urlopen(req)
-    except urllib2.URLError, e:
-        logger.error(e)
-        abort(500)
-
-    # Parse returned data
-    txt = result.read()
-    result_data = json.loads(txt)
-
-    # Everything went fine
-    result_data["errorCode"] = 0
-    result_data["errorMessage"] = "OK"
-    return result_data
-
-
-def dispatch_task(task):
-    """Send task to slave or process it"""
-    # Check if this app is master
-    if True:
-        # Send the task to one of the slaves
-        logger.info('Task will be sent to one of the slaves.')
+        # validate the task
         try:
-            validate(task)
-        except ValueError, e:
+            self._validate(task)
+        except ValueError as e:
             return { "errorCode": 5, "errorMessage": str(e) }
-        result = send_task_to_slave(task)
-    else:
-        # Process the task
-        logger.info('Task will be processed locally')
-        try:
-            result = process_task_locally(task)
-        finally:
-            db['idle'] = str(int(db['idle']) - 1)
     
-    logger.info('Task finished')
-
-    return result
-
-def validate(task):
-    schema = {
-        "type": "object",
-        "properties": {
-            "action": {"type": "string"},
-            "userId": {"type": "string", "required": False},
-            "sourceLang": {"type": "string"},
-            "targetLang": {"type": "string"},
-            "text": {"type": "string"},
-            "nBestSize": {"type": "integer", "required": False},
-            "alignmentInfo": {"type": "string", "required": False},
-            "docType": {"type": "string", "required": False},
-            "profileType": {"type": "string", "required": False},
-        },
-    }
-    validictory.validate(task, schema)
-
-
-###############################################################################
-# Routes
-###############################################################################
-
-def check_auth(username, password):
-    return username == "test" and password == "test123"
-
-def authenticate():
-    return Response(
-    'Bad login or password or not used at all.\n'
-    'You have to login with proper credentials.', 401,
-    {'WWW-Authenticate': 'Basic realm="Login Required"'})
-
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
-    return decorated
-
-@app.route('/khresmoi', methods=['POST'])
-#@requires_auth
-def khresmoi():
-    return new_task()
-
-@app.route('/khresmoi')
-def khresmoi_get():
-    return new_task_direct(
-        request.args.get('sourceLang', None),
-        request.args.get('targetLang', None),
-        request.args.get('text', None))
-
-#@app.route('/khresmoi-get-dev/<sourceLang>/<targetLang>/<text>')
-#def khresmoi_get(sourceLang, targetLang, text):
-#    return new_task_direct(sourceLang, targetLang, text)
-
-def new_task():
-    # Request must have type 'application/json'
-    if request.json:
-        logger.info('Received new task')
-        result = dispatch_task(request.json)
-        #return jsonify(**result)
-        return json.dumps(result, encoding='utf-8', ensure_ascii=False, indent=4)
-    else:
-        abort(405)
-
-def new_task_direct(sourceLang, targetLang, text):
-    q = { 'action': 'translate', 'sourceLang': sourceLang, 'targetLang': targetLang, 'text': text }
-    result = dispatch_task(q)
-    return jsonify(**result)
+        # acquire a worker
+        try:
+            worker = self.workers.get(pair_id)
+        except WorkerNotFoundException:
+            self.logger.warning("Requested unknown language pair " + pair_id)
+            return {
+                "errorCode": 6,
+                "errorMessage": "Language pair not supported: " + pair_id
+            }
+    
+        # call the worker
+        worker_proxy = xmlrpclib.ServerProxy("http://" + worker + "/")
+        try:
+            result = worker_proxy.process_task(task)
+        except (socket_err, xmlrpclib.Fault,
+                xmlrpclib.ProtocolError, xmlrpclib.ResponseError) as e:
+            self.logger.error("Call to worker %s failed: %s" % (worker, task))
+            return {
+                "errorCode": 7,
+                "errorMessage": str(e)
+            }
+    
+        # OK, return output of the worker
+        result["errorCode"] = 0
+        result["errorMessage"] = "OK"
+        return result
+    
+    def _wrap_result(self, result):
+        """Wrap the output in JSON"""
+        return Response(json.dumps(result, encoding='utf-8',
+                                   ensure_ascii=False, indent=4),
+                        mimetype='application/javascript')
         
-@app.route('/idle-flip')
-def is_idle():
-    db['idle'] = str(int(db['idle']) + 1)
-    if db['idle'] == '1':
-        return jsonify(idle=True)
-    else:
-        db['idle'] = str(int(db['idle']) - 1)
-        return jsonify(idle=False)
+    def _validate(self, task):
+        """Validate task according to schema"""
+        schema = {
+            "type": "object",
+            "properties": {
+                "action": {"type": "string"},
+                "userId": {"type": "string", "required": False},
+                "sourceLang": {"type": "string"},
+                "targetLang": {"type": "string"},
+                "text": {"type": "string"},
+                "nBestSize": {"type": "integer", "required": False},
+                "alignmentInfo": {"type": "string", "required": False},
+                "docType": {"type": "string", "required": False},
+                "profileType": {"type": "string", "required": False},
+            },
+        }
+        validictory.validate(task, schema)
+
+#
+# main
+#
+
+def main():
+    # Create Flask app
+    app = Flask(__name__)
+    
+    # Initialize logging
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
+    logger = logging.getLogger('server')
+
+    # load config
+    try:
+        app.config.from_pyfile('appserver.cfg')
+        logger.info("Loaded config from file appserver.cfg")
+    except:
+        pass
+    
+    # Overwrite default settings by envvar
+    try:
+        app.config.from_envvar('MICROTASK_SETTINGS')
+        logger.info("Loaded config from file " + os.environ['MICROTASK_SETTINGS'])
+    except:
+        pass
+
+    # initialize workers collection
+    workers = WorkerCollection(app.config['WORKERS'])  
+
+    # initialize Khresmoi service
+    khresmoi = KhresmoiService(workers, logger)
+
+    # register routes
+    app.route('/khresmoi', methods=['POST'])(khresmoi.post)
+    app.route('/khresmoi')(khresmoi.get)
+
+    # run
+    app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=True)
 
 if __name__ == "__main__":
-    app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=True)
+    main()

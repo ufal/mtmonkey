@@ -1,8 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
-. ~khresmoi/mt-stable/scripts/moses_setenv.sh
-. ~khresmoi/mt-stable/config/config_moses.sh
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
+
+echo $$ > $BASEDIR/logs/.moses_loading
+
+. $BASEDIR/scripts/moses_setenv.sh
+. $BASEDIR/config/config_moses.sh
 
 cd $MODELS_DIR
-nohup mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> ~khresmoi/mt-stable/logs/recaser.log 2>&1 &
-nohup mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> ~khresmoi/mt-stable/logs/translate.log 2>&1 &
+nohup mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> $BASEDIR/logs/recaser.log 2>&1 &
+RECASER_PID=$!
+nohup mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> $BASEDIR/logs/translate.log 2>&1 &
+TRANSL_PID=$!
+
+until nc -z localhost $RECASER_PORT && nc -z localhost $TRANSL_PORT; do
+    sleep 10;
+    kill -0 $RECASER_PID $TRANSL_PID || { echo "Moses processes dead!"; exit 1; }
+done
+
+rm $BASEDIR/logs/.moses_loading
