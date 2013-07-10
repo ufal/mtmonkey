@@ -9,12 +9,69 @@ from util.tokenize import Tokenizer
 from util.detokenize import Detokenizer
 from util.split_sentences import SentenceSplitter
 
-def paragraph(text, doalign):
-    splitter = SentenceSplitter()
-    lines = splitter.split_sentences(text)
-    return [translate(l, doalign) for l in lines]
+class Translator:
+    """Handles the 'translate' task for KhresmoiWorker"""
 
-def parse_align(orig, transl, align):
+    def __init__(self, translate_port, recase_port):
+        self.translate_proxy = xmlrpclib.ServerProxy("http://localhost:" + translate_port +  "/RPC2")
+        self.recase_proxy = xmlrpclib.ServerProxy("http://localhost:" + recase_port +  "/RPC2")
+        self.tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
+        self.detokenizer = Detokenizer()
+        self.splitter = SentenceSplitter()
+
+    def process_task(task):
+        """Process translation task. Splits request into sentences, then translates and
+        recases each sentence."""
+        doalign = ('alignmentInfo' in task) and (task['alignmentInfo'] == 'true')
+        src_lines = self.splitter.split_sentences(task['text'])
+        translated = [self._translate(line, doalign) for line in src_lines]
+        return {
+            'translation': [
+            {
+                "translationId": uuid.uuid4().hex,
+                "translated": translated
+            }
+            ]
+        }
+    
+    def _translate(src, doalign):
+        """Translate and recase one sentence. Optionally, word alignment
+        between source and target is included in output."""
+
+        # tokenize
+        src_tokenized = self.tokenizer.tokenize(text)
+
+        # translate
+        translation = self.translate_proxy.translate({
+            "text": src_tokenized,
+            "align": doalign
+        })
+        
+        # recase
+        tgt_tokenized = self.recase_proxy.translate({
+            "text": translation['text'] })['text'].strip()
+
+        # detokenize
+        tgt = detokenizer.detokenize(tgt_tokenized)
+    
+        result = {
+            'text': tgt,
+            'score': 100, # TODO actual score
+            'rank': 0 # TODO
+        }
+
+        # optionally add word-alignment information
+        if doalign:
+            result.update({
+                'src-tokenized': src_tokenized,
+                'tgt-tokenized': tgt_tokenized,
+                'alignment-raw': _add_tgt_end(translation['align'], tgt_tokenized)
+            })
+
+        return result
+    
+def _parse_align(orig, transl, align):
+    """not used for now"""
     p = orig.split()
     b = [' '.join(p[a['src-start']:a['src-end'] + 1]) for a in align]
 
@@ -25,55 +82,10 @@ def parse_align(orig, transl, align):
 
     return zip(a, b)
 
-def add_tgt_end(align, tgttok):
+def _add_tgt_end(align, tgttok):
     ks = map(lambda x: x['tgt-start'], align)
     n = len(tgttok.split())
     ks.append(n)
     for i in xrange(len(align)):
         align[i]['tgt-end'] = ks[i + 1] - 1
     return align
-
-def translate(text, doalign):
-    # tokenize
-    tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
-    text = tokenizer.tokenize(text)
-    src_tokenized = text
-
-    # translate
-    p = xmlrpclib.ServerProxy("http://localhost:8080/RPC2")
-    translation = p.translate({ "text": text, "align": True })
-    align = parse_align(text, translation['text'], translation['align'])
-    text = translation['text']
-
-    # recase
-    r = xmlrpclib.ServerProxy("http://localhost:9000/RPC2")
-    text = r.translate({ "text": text })['text']
-    tgt_tokenized = ' '.join(text.split())
-
-    # detokenize
-    detokenizer = Detokenizer()
-    text = detokenizer.detokenize(text)
-
-    r1 = { 'text': text.strip(), 'score': 100, 'rank': 0 }
-    if doalign:
-##  'alignment': align,
-        r1 = dict(r1.items() + {
-            'src-tokenized': src_tokenized,
-            'tgt-tokenized': tgt_tokenized,
-            'alignment-raw': add_tgt_end(translation['align'], tgt_tokenized), }.items())
-    return r1
-
-def process_task(task):
-    f = task['sourceLang']
-    e = task['targetLang']
-    t = task['text']
-    a = ('alignmentInfo' in task) and (task['alignmentInfo'] == 'true')
-    return {
-        'translation': [
-        {
-            "translationId": uuid.uuid4().hex,
-            "translated": paragraph(t, a),
-        }
-        ]
-    }
-

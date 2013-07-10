@@ -4,50 +4,60 @@ import SimpleXMLRPCServer
 import SocketServer
 import logging
 import os
+import getopt
 from configobj import ConfigObj
 from tasks import translate
-
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
-logger = logging.getLogger('worker')
 
 class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
                            SimpleXMLRPCServer.SimpleXMLRPCServer):
     """Multithreaded SimpleXMLRPCServer"""
     pass
 
-def process_task(task):
-    """Process one task. Only 'translate' action is currently implemented."""
-    if task['action'] == 'translate':
-        logger.info("New translate task")
-        return translate.process_task(task)
-    else:
-        logger.warning("Unknown task " + task['action'])
-        return { 'error' : 'Unknown task ' + task['action'] }
+class KhresmoiWorker:
+    """Processes tasks"""
 
-def alive_check():
-    """Just checking that the server is up and running."""
-    return 1
+    def __init__(self, config, logger):
+        self._translator = Translator(config['TRANSLATE_PORT'], config['RECASE_PORT'])
+        self._logger = logger
+
+    def process_task(task):
+        """Process one task. Only 'translate' action is currently implemented."""
+        if task['action'] == 'translate':
+            self._logger.info("New translate task")
+            return self._translator.process_task(task)
+        else:
+            self._logger.warning("Unknown task " + task['action'])
+            return { 'error' : 'Unknown task ' + task['action'] }
+    
+    def alive_check():
+        """Just checking that the server is up and running."""
+        return 1
 
 def main():
+    # set up logging
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
+    logger = logging.getLogger('worker')
+
     # load configuration
     config = ConfigObj("worker.cfg")
 
-    # Overwrite default settings by envvar
-    try:
-        logger.info("Merging configuration file: " + os.environ['MICROTASK_SETTINGS'])
-        config.merge(ConfigObj(os.environ['MICROTASK_SETTINGS']))
-    except:
-        pass
+    # read command-line options
+    opts, args = getopt.getopt(sys.argv[1:], 'c:')
+    for opt, arg in opts:
+        if opt == '-c':
+            config.merge(ConfigObj(arg))
+            logger.info("Merged configuration file: " + arg)
+        else:
+            logger.error("Unknown command-line option: " + opt)
 
-    logger.info("Loaded configuration file")
+    logger.info("Configuration loaded")
 
     # Create server
     logger.info("Starting XML-RPC server on %s:%s..." % (config['HOST'], config['PORT']))
     server = ThreadedXMLRPCServer((config['HOST'], int(config['PORT'])))
     server.register_introspection_functions()
+    server.register_instance(KhresmoiWorker(config))
 
-    server.register_function(process_task)
-    server.register_function(alive_check)
     logger.info("Server started")
 
     # Run the server's main loop
