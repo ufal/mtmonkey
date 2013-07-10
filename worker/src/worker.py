@@ -21,7 +21,7 @@ class KhresmoiWorker:
         self._translator = translate.Translator(config['TRANSLATE_PORT'], config['RECASE_PORT'])
         self._logger = logger
 
-    def process_task(task):
+    def process_task(self, task):
         """Process one task. Only 'translate' action is currently implemented."""
         if task['action'] == 'translate':
             self._logger.info("New translate task")
@@ -30,7 +30,7 @@ class KhresmoiWorker:
             self._logger.warning("Unknown task " + task['action'])
             return { 'error' : 'Unknown task ' + task['action'] }
     
-    def alive_check():
+    def alive_check(self):
         """Just checking that the server is up and running."""
         return 1
 

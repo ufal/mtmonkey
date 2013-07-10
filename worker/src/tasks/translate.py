@@ -19,7 +19,7 @@ class Translator:
         self.detokenizer = Detokenizer()
         self.splitter = SentenceSplitter()
 
-    def process_task(task):
+    def process_task(self, task):
         """Process translation task. Splits request into sentences, then translates and
         recases each sentence."""
         doalign = ('alignmentInfo' in task) and (task['alignmentInfo'] == 'true')
@@ -34,12 +34,12 @@ class Translator:
             ]
         }
     
-    def _translate(src, doalign):
+    def _translate(self, src, doalign):
         """Translate and recase one sentence. Optionally, word alignment
         between source and target is included in output."""
 
         # tokenize
-        src_tokenized = self.tokenizer.tokenize(text)
+        src_tokenized = self.tokenizer.tokenize(src)
 
         # translate
         translation = self.translate_proxy.translate({
@@ -52,7 +52,7 @@ class Translator:
             "text": translation['text'] })['text'].strip()
 
         # detokenize
-        tgt = detokenizer.detokenize(tgt_tokenized)
+        tgt = self.detokenizer.detokenize(tgt_tokenized)
     
         result = {
             'text': tgt,
