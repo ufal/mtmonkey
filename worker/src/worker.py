@@ -7,7 +7,7 @@ import os
 import sys
 import getopt
 from configobj import ConfigObj
-from tasks import translate
+from tasks.translate import Translator
 
 class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
                            SimpleXMLRPCServer.SimpleXMLRPCServer):
@@ -18,7 +18,7 @@ class KhresmoiWorker:
     """Processes tasks"""
 
     def __init__(self, config, logger):
-        self._translator = translate.Translator(config['TRANSLATE_PORT'], config['RECASE_PORT'])
+        self._translator = Translator(config['TRANSLATE_PORT'], config['RECASE_PORT'])
         self._logger = logger
 
     def process_task(self, task):
