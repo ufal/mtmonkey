@@ -10,14 +10,15 @@
 # moses-$VERSION/ = Moses installation directory
 # virtualenv/ = Python virtual environment
 
-if [ -z $VERSION -o -z $SHARE ]; then
-    print "Usage: VERSION=<stable|dev> SHARE=/export/NFS-SHARE/projects/khresmoi link_dirs.sh"
+if [ -z $VERSION -o -z $SHARE -o -z $USER ]; then
+    print "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share link_dirs.sh"
     exit 1
 fi
 
-cd ~khresmoi
+cd ~$USER
 # link to shared dir
 ln -s $SHARE share
+ln -s $SHARE/virtualenv virtualenv
 
 # create the main MT directory
 mkdir mt-$VERSION
