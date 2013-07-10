@@ -4,6 +4,7 @@ import SimpleXMLRPCServer
 import SocketServer
 import logging
 import os
+import sys
 import getopt
 from configobj import ConfigObj
 from tasks import translate
@@ -53,8 +54,8 @@ def main():
     logger.info("Configuration loaded")
 
     # Create server
-    logger.info("Starting XML-RPC server on %s:%s..." % (config['HOST'], config['PORT']))
-    server = ThreadedXMLRPCServer((config['HOST'], int(config['PORT'])))
+    logger.info("Starting XML-RPC server on port " + config['PORT']))
+    server = ThreadedXMLRPCServer("", int(config['PORT'])))
     server.register_introspection_functions()
     server.register_instance(KhresmoiWorker(config))
 

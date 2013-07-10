@@ -6,6 +6,7 @@ import logging
 import validictory
 import xmlrpclib
 import getopt
+import sys
 from threading import Lock
 from flask import Flask, request, abort, Response
 from socket import error as socket_err
