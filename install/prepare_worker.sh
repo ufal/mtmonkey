@@ -6,9 +6,9 @@
 # and a shared directory $SHARE to be linked to, containing
 # the following directories:
 #
-# git-$VERSION/ = Git checkout
 # moses-$VERSION/ = Moses installation directory
 # virtualenv/ = Python virtual environment
+#
 
 if [ -z $VERSION -o -z $SHARE -o -z $USER ]; then
     print "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share link_dirs.sh"
@@ -16,21 +16,26 @@ if [ -z $VERSION -o -z $SHARE -o -z $USER ]; then
 fi
 
 cd ~$USER
-# link to shared dir
-ln -s $SHARE share
-ln -s $SHARE/virtualenv virtualenv
+# copy virtualenv
+cp -r $SHARE/virtualenv virtualenv
+
 
 # create the main MT directory
 mkdir mt-$VERSION
 cd mt-$VERSION
 
+# Clone worker Git
+git clone http://redmine.ms.mff.cuni.cz/khresmoi-mt.git git
+
+# copy Moses
+cp -r $SHARE/moses-$VERSION moses
+
 # create worker-local directories
 mkdir config logs models
 
-# link to shared directories
-ln -s $SHARE/moses-$VERSION moses
-ln -s $SHARE/git-$VERSION/scripts
-ln -s $SHARE/git-$VERSION/worker/src worker
+# link to Git directories
+ln -s git/scripts
+ln -s git/worker/src worker
 
 # copy default config
 cp $SHARE/git-$VERSION/config-example/* config
