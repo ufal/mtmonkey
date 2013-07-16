@@ -104,16 +104,17 @@ Autostart and automatic updates
   lines.
 
 * If you need automatic model distribution (to be checked with updates), place
-  trained Moses models into `/mnt/share/models` and create the file
+  trained Moses models into `/mnt/share/models-$VERSION` and create the file
   `/mnt/share/index.cfg` that will contain the assignment of models to
   machines, in the form:
 
-  <IP-or-hostname>:subpath
+  <IP-or-hostname>:$VERSION:subpath
 
-  E.g.: `192.168.1.10:en-de` if the models to be used on `192.168.1.10`
-  are located in `/mnt/share/models/en-de`. 
+  E.g.: `192.168.1.10:stable:en-de` if the models to be used on `192.168.1.10`
+  are located in `/mnt/share/models-stable/en-de`. 
 
-  The model directorise must contain `moses.ini` for translation model and 
+  The model directories must contain `moses.ini` for translation model and 
   `recaser.moses.ini` for recasing  model; both files must contain 
-  *relative* paths to other files.
+  *relative* paths to other files. If you need to use a different setting, you
+  must modify workers configuration in the `~$USER/mt-$VERSION/config` directory.
 
