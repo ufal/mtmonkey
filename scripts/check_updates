@@ -24,7 +24,9 @@ if [ -z "$MODELS_DIR" ]; then
     exit 1;
 fi
 
+
 rsync -avs --delete $REMOTE/models-$VERSION/$MODELS_DIR $BASEDIR/models || { echo "Updating models failed."; exit 1; } 
-grep "MODELS_DIR.*models/$MODELS_DIR *$" $BASEDIR/config/config_moses.sh > /dev/null || sed -i "s/\(MODELS_DIR.*models\/\).*$/\1$MODELS_DIR/" $BASEDIR/config/config_moses.sh
+MODELS_LOCDIR=`basename $MODELS_DIR`
+grep "MODELS_DIR.*models/$MODELS_LOCDIR *$" $BASEDIR/config/config_moses.sh > /dev/null || sed -i "s/\(MODELS_DIR.*models\/\).*$/\1$MODELS_LOCDIR/" $BASEDIR/config/config_moses.sh
 
 
