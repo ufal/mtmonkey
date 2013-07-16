@@ -20,11 +20,11 @@ HOST=`hostname -s`
 MODELS_DIR=`grep -E "^($MYIP|$HOST):$VERSION" -m 1 $REMOTE/index.cfg | sed 's/^[^:]*:[^:]*://;s/ *$//;'`
 
 if [ -z "$MODELS_DIR" ]; then
-    echo "Cannot update models - no models directory has been set for $MYIP / $HOST."
+    echo "Cannot update models - no models directory has been set for $MYIP / $HOST & $VERSION."
     exit 1;
 fi
 
 rsync -avs --delete $REMOTE/models-$VERSION/$MODELS_DIR $BASEDIR/models || { echo "Updating models failed."; exit 1; } 
-grep "MODELS_DIR.*models/$MODELS_DIR *$" $BASEDIR/config/config_moses.sh || sed -i "s/\(MODELS_DIR.*models\/\).*$/\1$MODELS_DIR/" $BASEDIR/config/config_moses.sh
+grep "MODELS_DIR.*models/$MODELS_DIR *$" $BASEDIR/config/config_moses.sh > /dev/null || sed -i "s/\(MODELS_DIR.*models\/\).*$/\1$MODELS_DIR/" $BASEDIR/config/config_moses.sh
 
 
