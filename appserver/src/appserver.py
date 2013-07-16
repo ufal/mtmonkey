@@ -5,6 +5,8 @@ import os
 import logging
 import validictory
 import xmlrpclib
+import getopt
+import sys
 from threading import Lock
 from flask import Flask, request, abort, Response
 from socket import error as socket_err
@@ -136,12 +138,15 @@ def main():
     except:
         pass
     
-    # Overwrite default settings by envvar
-    try:
-        app.config.from_envvar('MICROTASK_SETTINGS')
-        logger.info("Loaded config from file " + os.environ['MICROTASK_SETTINGS'])
-    except:
-        pass
+    # read command-line options
+    opts, args = getopt.getopt(sys.argv[1:], 'c:')
+    for opt, arg in opts:
+        if opt == '-c':
+            # Overwrite default settings
+            app.config.from_pyfile(arg)
+            logger.info("Loaded config from file " + arg)
+        else:
+            logger.error("Unknown command-line option: " + opt)
 
     # initialize workers collection
     workers = WorkerCollection(app.config['WORKERS'])  
@@ -154,7 +159,7 @@ def main():
     app.route('/khresmoi')(khresmoi.get)
 
     # run
-    app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=True)
+    app.run(host="", port=app.config['PORT'], threaded=True)
 
 if __name__ == "__main__":
     main()
