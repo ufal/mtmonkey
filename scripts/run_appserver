@@ -20,7 +20,6 @@ if [ "$1" == '-r' ]; then
 fi
 
 . $USERHOME/virtualenv/bin/activate
-. $BASEDIR/config/config_appserver.sh
 
 cd $BASEDIR/logs
-nohup python $BASEDIR/appserver/appserver.py >> $BASEDIR/logs/appserver.log 2>&1 &
+nohup python $BASEDIR/appserver/appserver.py -c $BASEDIR/config/appserver.cfg >> $BASEDIR/logs/appserver.log 2>&1 &
