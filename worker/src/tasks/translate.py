@@ -22,9 +22,10 @@ class Translator:
     def process_task(self, task):
         """Process translation task. Splits request into sentences, then translates and
         recases each sentence."""
-        doalign = ('alignmentInfo' in task) and (task['alignmentInfo'] == 'true')
+        doalign = bool(task.get('alignmentInfo', False))
+        dodetok = bool(task.get('detokenize', True))
         src_lines = self.splitter.split_sentences(task['text'])
-        translated = [self._translate(line, doalign) for line in src_lines]
+        translated = [self._translate(line, doalign, dodetok) for line in src_lines]
         return {
             'translation': [
             {
@@ -34,7 +35,7 @@ class Translator:
             ]
         }
     
-    def _translate(self, src, doalign):
+    def _translate(self, src, doalign, dodetok):
         """Translate and recase one sentence. Optionally, word alignment
         between source and target is included in output."""
 
@@ -52,7 +53,8 @@ class Translator:
             "text": translation['text'] })['text'].strip()
 
         # detokenize
-        tgt = self.detokenizer.detokenize(tgt_tokenized)
+        if dodetok:
+            tgt = self.detokenizer.detokenize(tgt_tokenized)
     
         result = {
             'text': tgt,
