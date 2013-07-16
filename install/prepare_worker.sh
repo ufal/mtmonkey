@@ -11,7 +11,7 @@
 #
 
 if [ -z $VERSION -o -z $SHARE -o -z $USER ]; then
-    print "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share link_dirs.sh"
+    print "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share prepare_worker.sh"
     exit 1
 fi
 
