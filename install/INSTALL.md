@@ -26,7 +26,7 @@ Application server installation:
 * Prepare the needed resources in a separate directory (assuming `$USER/data/`) --
   Checkout the khresmoi-mt Git repository to `~$USER/data/git-$VERSION`:
 
-  git clone gitolite@redmine.ms.mff.cuni.cz:khresmoi-mt.git ~$USER/data/git-$VERSION
+  git clone http://redmine.ms.mff.cuni.cz/khresmoi-mt.git ~$USER/mt-$VERSION/git
 
 * Install Python virtual environment to `~$USER/data/virtualenv`:
   Read, adjust, and run `install_virtualenv.sh` from this directory.
@@ -34,10 +34,11 @@ Application server installation:
 * Prepare default directories in `~$USER/mt-$VERSION`:
 
   mkdir -p ~$USER/mt-$VERSION/{config,logs}
-  ln -s ~$USER/data/git-$VERSION/appserver/src ~$USER/mt-$VERSION/appserver
-  ln -s ~$USER/data/git-$VERSION/appserver/scripts ~$USER/mt-$VERSION/scripts
+  ln -s ~$USER/mt-$VERSION/git/appserver/src ~$USER/mt-$VERSION/appserver
+  ln -s ~$USER/mt-$VERSION/git/scripts ~$USER/mt-$VERSION/scripts
 
-* Adjust configuration in `~$USER/mt-$VERSION` according to ~$USER/data/config-example
+* Adjust configuration in `~$USER/mt-$VERSION/config` according to 
+  `~$USER/data/config-example`
   (The file `config_appserver.sh` can be copied as-is if using default directory schema,
   the file `appserver.cfg` must be adjusted for IPs and ports of the workers for the
   individual languages, as well as the application server port.)
@@ -48,35 +49,45 @@ Workers installation:
 ========================
 
 We assume that we have a NFS share accessible from all workers in /mnt/share
-(if not, you must copy these resources to all workers).
+where Moses binaries and Python virtualenv will be put (if not, you must copy 
+these resources to all workers by hand).
+
 Prepare the needed resources in the shared directory:
+-----------------------------------------------------
 
-* Checkout the khresmoi-mt Git repository to /mnt/share/git-$VERSION:
+* Install Moses to to `/mnt/share/moses-$VERSION`
 
-  git clone gitolite@redmine.ms.mff.cuni.cz:khresmoi-mt.git /mnt/share/git-$VERSION
-
-* Install Moses to to /mnt/share/moses-$VERSION
-
-* Install Python virtual environment to /mnt/share/virtualenv: 
+* Install Python virtual environment to `/mnt/share/virtualenv`: 
   Read, adjust, and run install_virtualenv.sh from this directory.
 
 Prepare configuration (do this for all workers):
+------------------------------------------------
 
-* Prepare directories by linking from the NFS share and copying configuration
-  examples from Git:
-  Read, adjust, and run link_dirs.sh from this directory.
+* Copy all required data fron the NFS share and checkout the Git 
+  repository + copy configuration examples from Git:
+  Read, adjust, and run `prepare_worker.sh` from this directory.
 
-* Copy the Moses translation and recasing models to a subdirectory of the
-  ~$USER/mt-$VERSION/models directory (e.g. 'ende' for English-German
-  translation).
+* Copy the translation model to be used with Moses (or check out the
+  automatic updates/model distribution feature below that is able to copy 
+  required models from NFS share on machine startup).
+
+  The models should be located in the `~$USER/mt-$VERSION/models` subdirectory 
+  (called e.g. 'ende' for English-German translation).
   The Moses INI files may contain relative paths as the Moses binaries will be
   run from this directory.
 
 * Adjust configuration in the ~$USER/mt-$VERSION/config directory according
-  to the used language pair and models.
+  to the used language pair and models (if only the language pair/model directory
+  differs and you want to use automatic model distribution, skip this step).
 
-* If you need the MT service to be started on the machine startup, add the
-  file khresmoi from this directory to /etc/init.d and link it to the individual runlevels
+Autostart and automatic updates
+-------------------------------
+
+* If you want the MT service to be checked periodically and restarted on fail,
+  adjust the crontab of $USER according to the khresmoi.crontab file.
+
+* If you need the MT service to be started and updated on the machine startup, add the
+  file `khresmoi` from this directory to `/etc/init.d` and link it to the individual runlevels
   as the very last service to be started. Then prepare a directory for startup logs:
 
   cp /mnt/share/git-$VERSION/install/khresmoi /etc/init.d
@@ -88,7 +99,22 @@ Prepare configuration (do this for all workers):
 
   mkdir /var/log/khresmoi; chown khresmoi /var/log/khresmoi
 
-* If you want the MT service to be checked periodically and restarted on fail,
-  adjust the crontab of $USER according to the khresmoi.crontab file.
+  Please note that automatic updates are contained within the `khresmoi` init
+  script. If you need initialization but no updates, comment out the corresponding
+  lines.
 
+* If you need automatic model distribution (to be checked with updates), place
+  trained Moses models into `/mnt/share/models-$VERSION` and create the file
+  `/mnt/share/index.cfg` that will contain the assignment of models to
+  machines, in the form:
+
+  <IP-or-hostname>:$VERSION:subpath
+
+  E.g.: `192.168.1.10:stable:en-de` if the models to be used on `192.168.1.10`
+  are located in `/mnt/share/models-stable/en-de`. 
+
+  The model directories must contain `moses.ini` for translation model and 
+  `recaser.moses.ini` for recasing  model; both files must contain 
+  *relative* paths to other files. If you need to use a different setting, you
+  must modify workers configuration in the `~$USER/mt-$VERSION/config` directory.
 
