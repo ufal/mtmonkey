@@ -22,8 +22,8 @@ class Translator:
     def process_task(self, task):
         """Process translation task. Splits request into sentences, then translates and
         recases each sentence."""
-        doalign = bool(task.get('alignmentInfo', False))
-        dodetok = bool(task.get('detokenize', True))
+        doalign = task.get('alignmentInfo', '').lower() in ['true', 't', 'yes', 'y', '1']
+        dodetok = not task.get('detokenize', '').lower() in ['false', 'f', 'no', 'n', '0']
         src_lines = self.splitter.split_sentences(task['text'])
         translated = [self._translate(line, doalign, dodetok) for line in src_lines]
         return {
