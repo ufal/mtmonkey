@@ -28,7 +28,7 @@ class KhresmoiWorker:
             try:
                 return self._translator.process_task(task)
             except Exception as e:
-                etype, eobj, etb = 
+                etype, eobj, etb = sys.exc_info()
                 fname = os.path.split(etb.tb_frame.f_code.co_filename)[1]
                 return { 'error' : str(etype) + ' at ' + fname + ':' + etb.tb_lineno }
         else:
