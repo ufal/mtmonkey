@@ -25,7 +25,12 @@ class KhresmoiWorker:
         """Process one task. Only 'translate' action is currently implemented."""
         if task['action'] == 'translate':
             self._logger.info("New translate task")
-            return self._translator.process_task(task)
+            try:
+                return self._translator.process_task(task)
+            except Exception as e:
+                etype, eobj, etb = 
+                fname = os.path.split(etb.tb_frame.f_code.co_filename)[1]
+                return { 'error' : str(etype) + ' at ' + fname + ':' + etb.tb_lineno }
         else:
             self._logger.warning("Unknown task " + task['action'])
             return { 'error' : 'Unknown task ' + task['action'] }
