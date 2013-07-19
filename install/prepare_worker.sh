@@ -10,8 +10,8 @@
 # virtualenv/ = Python virtual environment
 #
 
-if [ -z $VERSION -o -z $SHARE -o -z $USER ]; then
-    print "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share prepare_worker.sh"
+if [[ -z "$VERSION" || -z "$SHARE" || -z "$USER" ]]; then
+    echo "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share prepare_worker.sh"
     exit 1
 fi
 
