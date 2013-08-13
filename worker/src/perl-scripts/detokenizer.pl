@@ -87,7 +87,7 @@ sub detokenize {
 			# ... but do nothing special if this is a CJK word that doesn't follow a CJK word
 			$text=$text.$prependSpace.$words[$i];
 		    }
-		    $prependSpace = " ";
+		    $prependSpace = " ";		    
 		} elsif ($words[$i] =~ /^[\p{IsSc}\(\[\{\¿\¡]+$/) {
 			#perform right shift on currency and other random punctuation items
 			$text = $text.$prependSpace.$words[$i];
