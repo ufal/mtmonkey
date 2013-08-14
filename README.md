@@ -3,6 +3,7 @@ MTMonkey – an infrastructure for Machine Translation web services
 =================================================================
 
 Authors: Aleš Tamchyna, Ondřej Dušek, Rudolf Rosa
+
 Copyright © 2013 Institute of Formal and Applied Linguistics,
    Charles University in Prague.
 
