@@ -8,6 +8,11 @@ Copyright © 2013 Institute of Formal and Applied Linguistics,
 
 Licensed under the Apache License, Version 2.0.
 
+When using this software in your scientific work, please cite the
+following paper: 
+Aleš Tamchyna, Ondřej Dušek, and Rudolf Rosa: "MTMonkey: A scalable
+infrastructure for a Machine Translation web service". In *Prague
+Bulletin of Mathematical Linguistics* 100, 2013 (in print).
 
 Contents of this package
 ------------------------
@@ -20,9 +25,14 @@ Contents of this package
 * `worker` – source codes of the worker, incl. text pre- and post-processing
              tools.
 
+Subdirectories not mentioned in this list are used for testing purposes.
+
 Usage
 -----
 
 For installation notes for both workers and the application
 server, see `install/README.md`.
 
+For a more detailed description of the overall architecture of this system,
+see the above mentioned paper (a link will be added as soon as the paper
+will be published).
