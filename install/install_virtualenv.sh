@@ -16,17 +16,20 @@ cd ~$USER
 # Check if we have python-dev installed
 dpkg -s python-dev || sudo apt-get install python-dev
 
-# Download virtualenv
-wget https://raw.github.com/pypa/virtualenv/master/virtualenv.py
+# Download and install virtualenv (change version for the latest here!)
+wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.9.1.tar.gz
+tar xvfz virtualenv-1.9.1.tar.gz
 
-# Install virtualenv 
 mkdir $SHARE/virtualenv
-ln -s $SHARE/virtualenv
-python virtualenv.py virtualenv
+ln -s $SHARE/virtualenv .
+
+cd virtualenv-1.9.1
+python virtualenv.py /home/$USER/virtualenv
+cd ..
 
 # Activate virtualenv and install needed libraries
 source virtualenv/bin/activate
 pip install flask validictory regex configobj
 
 # clean up
-rm virtualenv.pyc virtualenv.py
+rm -rf virtualenv-1.9.1 virtualenv-1.9.1.tar.gz
