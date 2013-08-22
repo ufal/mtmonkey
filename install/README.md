@@ -9,15 +9,12 @@ Prerequisities:
 ========================
 
 We assume Ubuntu 12.04 (but any Linux with all the required packages should be OK).
-Before installing Khresmoi MT Services, you must have the following packages installed:
+Before installing Khresmoi MT Services, you must have the following packages installed
+(including dependencies):
 
-* On the application server:
+* On the application server: `git`
 
-    <none>
-
-* On workers:
- 
-    netcat
+* On workers: `git` `netcat` `python-dev` `python-setuptools` `python-pip`
 
 
 Application server installation:
@@ -55,10 +52,11 @@ these resources to all workers by hand).
 Prepare the needed resources in the shared directory:
 -----------------------------------------------------
 
-* Install Moses to to `/mnt/share/moses-$VERSION`
+* Install Moses to to `/mnt/share/moses-$VERSION` (according to Moses installation
+  instructions).
 
 * Install Python virtual environment to `/mnt/share/virtualenv`: 
-  Read, adjust, and run install_virtualenv.sh from this directory.
+  Read, adjust, and run `install_virtualenv.sh` from this directory.
 
 Prepare configuration (do this for all workers):
 ------------------------------------------------
