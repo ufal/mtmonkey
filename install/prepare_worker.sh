@@ -1,34 +1,52 @@
 #!/bin/bash
 #
-# Linking directories for worker environment
+# Copying all that is needed for worker environment
 #
-# Assuming ~khresmoi/mt-$VERSION as the target directory
-# and a shared directory $SHARE to be linked to, containing
+# Assuming ~$USER as the target directory
+# and a shared directory $SHARE as the source, containing
 # the following directories:
 #
 # moses-$VERSION/ = Moses installation directory
 # virtualenv/ = Python virtual environment
 #
+# This will create the following directories:
+#
+# ~$USER/virtualenv = a copy of Python virtualenv 
+#   - shared across MT versions
+# ~$USER/mt-$VERSION = main directory for MT, 
+#   with the following subdirectories:
+#
+#   git/    = the Git repository of MTMonkey
+#   scripts = link to scripts directory in Git
+#   worker  = link to worker/src directory in Git
+#   moses/  = a copy of Moses
+#   config/ = directory for configuration files
+#   logs/   = directory for log files
+#   models/ = directory for MT models
+#
 
 if [[ -z "$VERSION" || -z "$SHARE" || -z "$USER" ]]; then
-    echo "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share prepare_worker.sh"
+    echo "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share [LOGIN=\"user@host\"]  prepare_worker.sh"
     exit 1
 fi
 
-cd /home/$USER
-# copy virtualenv
-cp -rL $SHARE/virtualenv virtualenv
+if [[ -n "$LOGIN" ]]; then
+    LOGIN="-e ssh $LOGIN:" # prepare parameter for rsync
+fi
 
+# copy virtualenv
+cd /home/$USER
+rsync -avs $LOGIN$SHARE/virtualenv virtualenv
 
 # create the main MT directory
 mkdir mt-$VERSION
 cd mt-$VERSION
 
+# copy Moses
+rsync -avs $LOGIN$SHARE/moses-$VERSION moses
+
 # Clone worker Git
 git clone https://redmine.ms.mff.cuni.cz/khresmoi-mt.git git
-
-# copy Moses
-cp -rL $SHARE/moses-$VERSION moses
 
 # create worker-local directories
 mkdir config logs models
