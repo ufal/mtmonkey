@@ -45,12 +45,17 @@ Application server installation:
 Workers installation:
 ========================
 
-We assume that we have a NFS share accessible from all workers in /mnt/share
-where Moses binaries and Python virtualenv will be put (if not, you must copy 
-these resources to all workers by hand).
+We assume that we have a shared directory accessible from all workers in e.g. 
+`/mnt/share`, where Moses binaries and Python virtualenv will be put. 
+
+This may be either on a NFS share, or accessible through SSH (rsync is used to
+access it).
 
 Prepare the needed resources in the shared directory:
 -----------------------------------------------------
+
+This must be done on a machine where the shared directory is directly accessible
+(locally or through NFS).
 
 * Install Moses to to `/mnt/share/moses-$VERSION` (according to Moses installation
   instructions).
@@ -61,7 +66,7 @@ Prepare the needed resources in the shared directory:
 Prepare configuration (do this for all workers):
 ------------------------------------------------
 
-* Copy all required data fron the NFS share and checkout the Git 
+* Copy all required data from the shared directory and checkout the Git 
   repository + copy configuration examples from Git:
   Read, adjust, and run `prepare_worker.sh` from this directory.
 
@@ -84,9 +89,10 @@ Autostart and automatic updates
 * If you want the MT service to be checked periodically and restarted on fail,
   adjust the crontab of $USER according to the khresmoi.crontab file.
 
-* If you need the MT service to be started and updated on the machine startup, add the
-  file `khresmoi` from this directory to `/etc/init.d` and link it to the individual runlevels
-  as the very last service to be started. Then prepare a directory for startup logs:
+* If you need the MT service to be started and updated on the machine startup, 
+  add the file `khresmoi` from this directory to `/etc/init.d` and link it to 
+  the individual runlevels as the very last service to be started. Then prepare
+  a directory for startup logs:
 
   cp /mnt/share/git-$VERSION/install/khresmoi /etc/init.d
 
