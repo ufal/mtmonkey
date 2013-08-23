@@ -2,9 +2,9 @@
 #
 # Installation of the Python environment for workers and appserver.
 #
-# Assuming ~$USER/virtualenv as the target directory, 
-# and Ubuntu (tested on 10.04) with sudo possibility 
-# or python-dev package installed.
+# Assuming $SHARE/virtualenv as the target directory and 
+# ~$USER/virtualenv as the final destination of the virtualenv copies.
+#
 
 if [ -z $SHARE -o -z $USER ]; then
     print "Usage: USER=khresmoi SHARE=/mnt/share install_virtualenv.sh"
@@ -33,4 +33,4 @@ source virtualenv/bin/activate
 pip install flask validictory regex configobj
 
 # clean up
-rm -rf virtualenv-$VEVER virtualenv-$VEVER.tar.gz
+rm -rf virtualenv-$VEVER virtualenv-$VEVER.tar.gz virtualenv

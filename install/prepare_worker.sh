@@ -36,14 +36,14 @@ fi
 
 # copy virtualenv
 cd /home/$USER
-rsync -avs $LOGIN$SHARE/virtualenv virtualenv
+rsync -avs $LOGIN$SHARE/virtualenv .
 
 # create the main MT directory
 mkdir mt-$VERSION
 cd mt-$VERSION
 
 # copy Moses
-rsync -avs $LOGIN$SHARE/moses-$VERSION moses
+rsync -avs $LOGIN$SHARE/moses-$VERSION/* moses/
 
 # Clone worker Git
 git clone https://redmine.ms.mff.cuni.cz/khresmoi-mt.git git
