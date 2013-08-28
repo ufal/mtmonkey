@@ -31,6 +31,7 @@ if [[ -z "$VERSION" || -z "$SHARE" || -z "$USER" ]]; then
 fi
 
 if [[ -n "$LOGIN" ]]; then
+    USERHOST=$LOGIN
     LOGIN="-e ssh $LOGIN:" # prepare parameter for rsync
 fi
 
@@ -57,3 +58,9 @@ ln -s git/worker/src worker
 
 # copy default config
 cp git/config-example/* config
+
+# override share settings according to the source share
+sed -i -r "/^export REMOTE=/s:=.*$:=$SHARE:;" config/config_remote.sh
+if [[ -n "$LOGIN" ]]; then
+    sed -i -r "/export LOGIN=/s/^.*$/export LOGIN=$USERHOST/;" config/config_remote.sh
+fi
