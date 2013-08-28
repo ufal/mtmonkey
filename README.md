@@ -2,7 +2,7 @@
 MTMonkey – an infrastructure for Machine Translation web services
 =================================================================
 
-Authors: Aleš Tamchyna, Ondřej Dušek, Rudolf Rosa
+Authors: Aleš Tamchyna, Ondřej Dušek, Rudolf Rosa, Pavel Pecina
 
 Copyright © 2013 Institute of Formal and Applied Linguistics,
    Charles University in Prague.
@@ -11,9 +11,9 @@ Licensed under the Apache License, Version 2.0.
 
 When using this software in your scientific work, please cite the
 following paper: 
-Aleš Tamchyna, Ondřej Dušek, and Rudolf Rosa: "MTMonkey: A scalable
-infrastructure for a Machine Translation web service". In *Prague
-Bulletin of Mathematical Linguistics* 100, 2013 (in print).
+Aleš Tamchyna, Ondřej Dušek, Rudolf Rosa, and Pavel Pecina:
+"MTMonkey: A scalable infrastructure for a Machine Translation web service". 
+In *Prague Bulletin of Mathematical Linguistics* 100, 2013 (in print).
 
 Contents of this package
 ------------------------
