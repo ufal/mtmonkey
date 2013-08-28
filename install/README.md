@@ -14,11 +14,11 @@ Before installing Khresmoi MT Services, you must have the following packages ins
 
 * On the application server: `git`
 
-* On workers: `git` `netcat` `python-dev` `python-setuptools` `python-pip`
+* On workers: `git` `netcat` `python-dev`
 
 
 Application server installation:
-========================
+================================
 
 * Prepare the needed resources in a separate directory (assuming `$USER/data/`) --
   Checkout the khresmoi-mt Git repository to `~$USER/data/git-$VERSION`:
@@ -30,9 +30,9 @@ Application server installation:
 
 * Prepare default directories in `~$USER/mt-$VERSION`:
 
-  mkdir -p ~$USER/mt-$VERSION/{config,logs}
-  ln -s ~$USER/mt-$VERSION/git/appserver/src ~$USER/mt-$VERSION/appserver
-  ln -s ~$USER/mt-$VERSION/git/scripts ~$USER/mt-$VERSION/scripts
+    mkdir -p ~$USER/mt-$VERSION/{config,logs}
+    ln -s ~$USER/mt-$VERSION/git/appserver/src ~$USER/mt-$VERSION/appserver
+    ln -s ~$USER/mt-$VERSION/git/scripts ~$USER/mt-$VERSION/scripts
 
 * Adjust configuration in `~$USER/mt-$VERSION/config` according to 
   `~$USER/data/config-example`
@@ -43,7 +43,7 @@ Application server installation:
 * You may now run the application server via `~$USER/mt-$VERSION/scripts/run_appserver`.
 
 Workers installation:
-========================
+=====================
 
 We assume that we have a shared directory accessible from all workers in e.g. 
 `/mnt/share`, where Moses binaries and Python virtualenv will be put. 
@@ -79,7 +79,7 @@ Prepare configuration (do this for all workers):
   The Moses INI files may contain relative paths as the Moses binaries will be
   run from this directory.
 
-* Adjust configuration in the ~$USER/mt-$VERSION/config directory according
+* Adjust configuration in the `~$USER/mt-$VERSION/config` directory according
   to the used language pair and models (if only the language pair/model directory
   differs and you want to use automatic model distribution, skip this step).
 
@@ -94,14 +94,14 @@ Autostart and automatic updates
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs:
 
-  cp /mnt/share/git-$VERSION/install/khresmoi /etc/init.d
-
-  cd /etc/rc2.d; ln -s ../init.d/khresmoi S99z_khresmoi; 
-  cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_khresmoi rc$r.d; done
-  cd /etc/rc6.d; ln -s ../init.d/khresmoi K99z_khresmoi; 
-  cd ..; for r in 0 1; do cp -P rc6.d/K99z_khresmoi rc$r.d; done
-
-  mkdir /var/log/khresmoi; chown khresmoi /var/log/khresmoi
+    cp /mnt/share/git-$VERSION/install/khresmoi /etc/init.d
+    
+    cd /etc/rc2.d; ln -s ../init.d/khresmoi S99z_khresmoi; 
+    cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_khresmoi rc$r.d; done
+    cd /etc/rc6.d; ln -s ../init.d/khresmoi K99z_khresmoi; 
+    cd ..; for r in 0 1; do cp -P rc6.d/K99z_khresmoi rc$r.d; done
+    
+    mkdir /var/log/khresmoi; chown khresmoi /var/log/khresmoi
 
   Please note that automatic updates are contained within the `khresmoi` init
   script. If you need initialization but no updates, comment out the corresponding
@@ -112,7 +112,7 @@ Autostart and automatic updates
   `/mnt/share/index.cfg` that will contain the assignment of models to
   machines, in the form:
 
-  <IP-or-hostname>:$VERSION:subpath
+    <IP-or-hostname>:$VERSION:subpath
 
   E.g.: `192.168.1.10:stable:en-de` if the models to be used on `192.168.1.10`
   are located in `/mnt/share/models-stable/en-de`. 
