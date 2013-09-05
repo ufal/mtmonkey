@@ -34,7 +34,11 @@ if ( @ARGV != 3 ) {
 
 my ($sourceLang, $targetLang, $text) = @ARGV;
 
-my $query = Query->new({sourceLang => $sourceLang, targetLang => $targetLang});
+my $query = Query->new({
+        sourceLang => $sourceLang,
+        targetLang => $targetLang,
+        url => 'http://quest.ms.mff.cuni.cz:8889/khresmoi',
+    });
 my $result = $query->call($text);
 if ( defined $result ) {
     say $result;

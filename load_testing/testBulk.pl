@@ -38,8 +38,21 @@ my ($filename, $sourceLang, $targetLang) = @ARGV;
 if ( !defined $targetLang ) {
     $targetLang='en';
 }
+my $starttimeinfile = 'start.time';
 
-my $query = Query->new({sourceLang => $sourceLang, targetLang => $targetLang});
+my $starttime;
+{
+    open my $file, '<:utf8', $starttimeinfile;
+    $starttime = <$file>;
+    chomp $starttime;
+    close $file;
+}
+
+my $query = Query->new({
+        sourceLang => $sourceLang,
+        targetLang => $targetLang,
+        # url => 'http://quest.ms.mff.cuni.cz:8889/khresmoi',
+    });
 my $t0;
 my $t1;
 my $linecount = 0;
@@ -49,8 +62,17 @@ my $charcount = 0;
     open my $file, '<:utf8', $filename;
     my $line;
     
+    # wait for it
+    while ( $starttime > time ) {
+        my $now = time;
+        if ( ($starttime - 2) > $now ) {
+            # more than 2 secs to go -> sleep for a while...
+            warn "sleeping for " . ($starttime - $now - 2) . "s...\n";
+            sleep ($starttime - $now - 2);
+        }
+    }
+
     # translate
-    # TODO wait for it
     $t0 = [gettimeofday];
     while ($line = <$file>) {
         chomp $line;
