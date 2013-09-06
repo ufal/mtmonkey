@@ -31,5 +31,6 @@ def process_lines(func, filenames, encoding):
     """
     fh_in, fh_out = open_handles(filenames, encoding)
     for line in fh_in:
+        line = line.rstrip('\r\n')
         line = func(line)
         print >> fh_out, line

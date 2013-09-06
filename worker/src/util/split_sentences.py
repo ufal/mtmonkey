@@ -105,7 +105,6 @@ class SentenceSplitter(object):
         text = self.__non_period.sub(r'\1\n\2', text)
         text = self.__in_punct.sub(r'\1\n\2', text)
         text = self.__punct_follows.sub(r'\1\n\2', text)
-        text = self.__period.sub(r'\1\n\2', text)
         # break on periods
         words = text.split('. ')
         text = ''
@@ -199,5 +198,6 @@ if __name__ == '__main__':
         else:
             print >> fh_out, "\n".join(splitter.split_sentences(' '.join(buf)))
             buf = []
-    print >> fh_out, "\n".join(splitter.split_sentences(' '.join(buf)))
+    if buf:
+        print >> fh_out, "\n".join(splitter.split_sentences(' '.join(buf)))
 

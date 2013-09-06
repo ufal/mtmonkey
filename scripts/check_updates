@@ -1,0 +1,47 @@
+#!/bin/bash
+
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
+VERSION=`basename $BASEDIR | sed 's/^mt-//'`
+
+source $BASEDIR/config/config_remote.sh # set the REMOTE variable - directory
+
+# 1.
+# update Git
+#
+
+cd $BASEDIR/scripts
+git pull || { echo "Updating Git failed."; exit 1; }
+
+# 2.
+# update Moses
+#
+
+rsync -avs --delete $LOGIN$REMOTE/moses-$VERSION/* $BASEDIR/moses/ || { echo "Updating Moses failed."; exit 1; }
+
+# 3.
+# update translation model
+#
+
+# find out my IP and hostname
+MYIP=`ip addr show eth0 | grep 'inet ' | sed 's/^ *inet \([0-9\.]*\)\/.*$/\1/'`
+HOST=`hostname -s`
+
+# download models index, get the right model directory for me
+rsync -avs $LOGIN$REMOTE/index.cfg $BASEDIR/ || { echo "Cannot download models index."; exit 1; }
+MODELS_DIR=`grep -E "^($MYIP|$HOST):$VERSION" -m 1 $BASEDIR/index.cfg | sed 's/^[^:]*:[^:]*://;s/ *$//;'`
+rm $BASEDIR/index.cfg
+
+# check if we found a model directory
+if [ -z "$MODELS_DIR" ]; then
+    echo "Cannot update models - no models directory has been set for $MYIP / $HOST & $VERSION."
+    exit 1;
+fi
+
+# update the model
+rsync -avs --delete $LOGIN$REMOTE/models-$VERSION/$MODELS_DIR $BASEDIR/models || { echo "Updating models failed."; exit 1; } 
+
+# update config file
+MODELS_LOCDIR=`basename $MODELS_DIR`
+grep "MODELS_DIR.*models/$MODELS_LOCDIR *$" $BASEDIR/config/config_moses.sh > /dev/null || sed -i "s/\(MODELS_DIR.*models\/\).*\$/\1$MODELS_LOCDIR/" $BASEDIR/config/config_moses.sh
+
+
