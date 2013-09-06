@@ -6,10 +6,18 @@ use Math::Combinatorics;
 use Data::Dumper;
 
 use List::Util qw/sum/;
-    
-my @systems = ('b0','v1','gt','ref');    
-my @sys_pairs = combine(2, @systems);
 
+my $lang = $ARGV[0];
+my $data_type = $ARGV[1];
+my $clue_path = "data/$data_type.$lang.clue";
+my $annot_path = "annot/$data_type.$lang.annot1";
+
+my @systems = ('b0','v1','gt','ref');    
+if ($lang eq "de" && $data_type eq "mt-test") {
+    push @systems, "v1d";
+}
+my @sys_pairs = combine(2, @systems);
+    
 sub update_annot_stats {
     my ($stats, $item_annot, $clue_line) = @_;
     (my $ord, $clue_line) = split /\t/, $clue_line;
@@ -19,6 +27,7 @@ sub update_annot_stats {
     foreach my $pair (@sys_pairs) {
         my ($p1, $p2) = @$pair;
         # assings -1, 0, 1
+        #print STDERR Dumper($item_annot);
         my $res = $item_annot->{$clue{$p1}} <=> $item_annot->{$clue{$p2}};
         $stats->{"$p1-$p2"}->[$res+1]++;
     }
@@ -45,7 +54,7 @@ sub print_normal {
 sub print_tex {
     my ($stats) = @_;
 
-#    print " & ". (join " & ", @systems) . "\n";
+    print " & ". (join " & ", @systems) . "\n";
     foreach my $s1 (@systems) {
 #        print $s1;
         foreach my $s2 (@systems) {
@@ -82,10 +91,30 @@ sub print_tex {
     print "\n";
 }
 
+sub proportion_of_ties {
+    my ($stats) = @_;
 
-my $lang = $ARGV[0];
-my $clue_path = "data/eHealth-test.$lang.clue";
-my $annot_path = "annot/eHealth-test.$lang.annot1";
+    print "TIES RATIO:\n";
+    foreach my $sys (@systems) {
+        my $ties_for_sys = 0;
+        my $all_for_sys = 0;
+        foreach my $key (keys %$stats) {
+            my ($s1, $s2) = split /-/, $key;
+            next if ($s1 ne $sys && $s2 ne $sys);
+            $ties_for_sys += $stats->{$key}->[1];
+            $all_for_sys += sum @{$stats->{$key}};
+        }
+        printf "%s: %.2f\n", $sys, $ties_for_sys / $all_for_sys; 
+    }
+    my $ties_all = 0;
+    my $all = 0;
+    foreach my $key (keys %$stats) {
+        my ($s1, $s2) = split /-/, $key;
+        $ties_all += $stats->{$key}->[1];
+        $all += sum @{$stats->{$key}};
+    }
+    printf "all: %.2f\n", $ties_all / $all;
+}
 
 open my $clue_file, "<", $clue_path;
 open my $annot_file, "<", $annot_path;
@@ -121,6 +150,9 @@ while (my $annot_line = <$annot_file>) {
 }
 close $clue_file;
 close $annot_file;
-#print_normal($stats);
+print_normal($stats);
+print "========================\n";
 print_tex($stats);
+print "========================\n";
+proportion_of_ties($stats);
 #print Dumper($stats);

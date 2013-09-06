@@ -1,4 +1,4 @@
-ORIG_DATA_DIR=orig_data
+ORIG_DATA_DIR=/net/data/khresmoi/IR/
 MT_DATA_DIR=/ha/home/mnovak/projects/phd/papers/2013-aiim-clir/bootstrap
 DATA_DIR=data
 
