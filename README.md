@@ -6,29 +6,26 @@ Description
 -----------
 
 MTMonkey is a simple and easily adaptable infrastructure for 
-Machine Translation web services written in Python.
-
+Machine Translation web services, written in Python.
 It allows clients JSON-encoded request for different translation directions
 to be distributed among multiple MT servers.
 
-The package contains:
+This system constist of:
 
-* the main *application server* that handles the clients' requests and 
+* the main **application server** that handles the clients' requests and
   distributes them to the machines that perform the translation,
-
-* the *worker* that handles one translation direction (including 
+* the **worker** that handles one translation direction (including 
   segmentation, tokenization, recasing, and detokenization),
-
-* all *text processing tools* used by the workers,
-
-* and *support scripts* for self-checks, auto-starting and easy model
+* all **text processing tools** used by the workers,
+* a simple demonstration **web client** written in PHP,
+* and **support scripts** for self-checks, auto-starting and easy model
   distribution.
 
 There may be more workers for the same language pair. Workers may
 run on the same physical machine or on several different machines.
-
 For a more detailed description of the overall architecture of MTMonkey,
-see the paper linked below.
+see [our paper presented at MT Marathon 2013](http://ufal.mff.cuni.cz/pbml/100/art-tamchyna-dusek-rosa-pecina.pdf)
+in Prague or the [accompanying poster](http://ufal.mff.cuni.cz/~odusek/papers/2013_mtmonkey_poster.pdf).
 
 License
 -------
