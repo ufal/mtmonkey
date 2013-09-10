@@ -37,6 +37,9 @@ my %tst_paths = (
     'v1' => "$filestem-v1.$src_lang-en",
     'ref' => "$filestem.en",
 );
+if ($src_lang eq "de") {
+    $tst_paths{'v1d'} = "$filestem-v1d.$src_lang-en";
+}
 my $src_path = "$filestem.$src_lang";
 my $to_annot_path = "$filestem.$src_lang.to_annot";
 my $clue_path = "$filestem.$src_lang.clue";
