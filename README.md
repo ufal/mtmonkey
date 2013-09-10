@@ -41,10 +41,8 @@ When using this software in your scientific work, please cite the
 following paper: 
 
 Aleš Tamchyna, Ondřej Dušek, Rudolf Rosa, and Pavel Pecina:
-"MTMonkey: A scalable infrastructure for a Machine Translation web service". 
+**MTMonkey: A scalable infrastructure for a Machine Translation web service**.
 In *Prague Bulletin of Mathematical Linguistics* 100, 2013, pp. 31-40.
-
-The paper can be found here:
 
 * [Paper PDF](http://ufal.mff.cuni.cz/pbml/100/art-tamchyna-dusek-rosa-pecina.pdf)
 * [Poster PDF](http://ufal.mff.cuni.cz/~odusek/papers/2013_mtmonkey_poster.pdf)
