@@ -10,7 +10,7 @@ Machine Translation web services, written in Python.
 It allows clients JSON-encoded request for different translation directions
 to be distributed among multiple MT servers.
 
-This system constist of:
+This system consists of:
 
 * the main **application server** that handles the clients' requests and
   distributes them to the machines that perform the translation,
