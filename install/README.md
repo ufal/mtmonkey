@@ -21,7 +21,7 @@ Application server installation:
 ================================
 
 * Prepare the needed resources in a separate directory (assuming `$USER/data/`) --
-  Checkout the khresmoi-mt Git repository to `~$USER/data/git-$VERSION`:
+  Checkout the MTMonkey Git repository to `~$USER/data/git-$VERSION`:
 
   git clone https://github.com/ufal/mtmonkey.git ~$USER/mt-$VERSION/git
 
@@ -87,23 +87,23 @@ Autostart and automatic updates
 -------------------------------
 
 * If you want the MT service to be checked periodically and restarted on fail,
-  adjust the crontab of $USER according to the khresmoi.crontab file.
+  adjust the crontab of $USER according to the mtmonkey.crontab file.
 
 * If you need the MT service to be started and updated on the machine startup, 
-  add the file `khresmoi` from this directory to `/etc/init.d` and link it to 
+  add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs:
 
-    cp /mnt/share/git-$VERSION/install/khresmoi /etc/init.d
+    cp /mnt/share/git-$VERSION/install/mtmonkey /etc/init.d
     
-    cd /etc/rc2.d; ln -s ../init.d/khresmoi S99z_khresmoi; 
-    cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_khresmoi rc$r.d; done
-    cd /etc/rc6.d; ln -s ../init.d/khresmoi K99z_khresmoi; 
-    cd ..; for r in 0 1; do cp -P rc6.d/K99z_khresmoi rc$r.d; done
+    cd /etc/rc2.d; ln -s ../init.d/mtmonkey S99z_mtmonkey; 
+    cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmonkey rc$r.d; done
+    cd /etc/rc6.d; ln -s ../init.d/mtmonkey K99z_mtmonkey; 
+    cd ..; for r in 0 1; do cp -P rc6.d/K99z_mtmonkey rc$r.d; done
     
-    mkdir /var/log/khresmoi; chown khresmoi /var/log/khresmoi
+    mkdir /var/log/mtmonkey; chown mtmonkey /var/log/mtmonkey
 
-  Please note that automatic updates are contained within the `khresmoi` init
+  Please note that automatic updates are contained within the `mtmonkey` init
   script. If you need initialization but no updates, comment out the corresponding
   lines.
 
