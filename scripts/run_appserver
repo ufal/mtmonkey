@@ -1,17 +1,37 @@
 #!/bin/bash
 #
-# Run Appserver with correct logging and DB setting.
+# Run Appserver with correct logging and configuration setting.
 #
-# Usage: sudo -u khresmoi run_appserver [-r]
+# Usage: sudo -u khresmoi run_appserver [-r] [-c cpus]
 #
 # -r = Force restart
-#
+# -c = List of allowed CPUs (see taskset -c)
 
+# Parse options
+usage(){ echo "Usage: $0 [-r] [-c cpu_list] " 1>&2; exit 1; }
+
+while getopts "rc:" OPT; do
+    case "$OPT" in
+        r)
+            RESTART=1
+            ;;
+        t)
+            CPUSET="taskset -c $OPTARG"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Set environment
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
 USERHOME=`dirname $BASEDIR`
 VERSION=`basename $BASEDIR`
 
-if [ "$1" == '-r' ]; then
+# Restart if needed
+if [[ -n "$RESTART" ]]; then
     echo "Killing existing Appserver..."
     for i in `ps ax | grep "$VERSION.*/appserver\.py" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do 
         kill $i; 
@@ -19,7 +39,9 @@ if [ "$1" == '-r' ]; then
     sleep 5
 fi
 
+# Activate Virtualenv
 . $USERHOME/virtualenv/bin/activate
 
+# Run Appserver
 cd $BASEDIR/logs
-nohup python $BASEDIR/appserver/appserver.py -c $BASEDIR/config/appserver.cfg >> $BASEDIR/logs/appserver.log 2>&1 &
+nohup $CPUSET python $BASEDIR/appserver/appserver.py -c $BASEDIR/config/appserver.cfg >> $BASEDIR/logs/appserver.log 2>&1 &

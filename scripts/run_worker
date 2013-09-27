@@ -1,17 +1,37 @@
 #!/bin/bash
 #
-# Run worker with correct logging and DB setting.
+# Run worker with correct logging and configuration setting.
 #
-# Usage: sudo -u khresmoi run_worker [-r]
+# Usage: sudo -u khresmoi run_worker [-r] [-c cpus]
 #
 # -r = Force restart
-#
+# -c = List of allowed CPUs (see taskset -c)
 
+# Parse options
+usage(){ echo "Usage: $0 [-r] [-c cpu_list] " 1>&2; exit 1; }
+
+while getopts "rc:" OPT; do
+    case "$OPT" in
+        r)
+            RESTART=1
+            ;;
+        t)
+            CPUSET="taskset -c $OPTARG"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Set environment
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
 USERHOME=`dirname $BASEDIR`
 VERSION=`basename $BASEDIR`
 
-if [ "$1" == '-r' ]; then
+# Restart if needed
+if [[ -n "$RESTART" ]]; then
     echo "Killing existing worker..."
     for i in `ps ax | grep "$VERSION.*/worker\.py" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do 
         echo $i;
@@ -20,12 +40,15 @@ if [ "$1" == '-r' ]; then
     sleep 2
 fi
 
+# Activate Virtualenv
 . $USERHOME/virtualenv/bin/activate
 WORKER_PORT=`cat $BASEDIR/config/worker.cfg | grep '^PORT' | sed s'/[^0-9]//g'`
 
+# Start worker
 cd $BASEDIR/logs
-nohup python $BASEDIR/worker/worker.py -c $BASEDIR/config/worker.cfg >> $BASEDIR/logs/worker.log 2>&1 &
+nohup $CPUSET python $BASEDIR/worker/worker.py -c $BASEDIR/config/worker.cfg >> $BASEDIR/logs/worker.log 2>&1 &
 
+# Wait for it to load
 until nc -z localhost $WORKER_PORT; do
     sleep 2;
 done

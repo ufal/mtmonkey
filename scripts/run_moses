@@ -3,12 +3,12 @@
 # Running Moses Servers for translation and recasing.
 #
 # Switches: -t, -r -- setting CPU affinity for both Moses servers.
-# 
+#           (see taskset -c)
 
 # Parse options
 usage(){ echo "Usage: $0 [-t transl_cpu_list] [-r recase_cpu_list]" 1>&2; exit 1; }
 
-while getopts "r:t:h" OPT; do
+while getopts "r:t:" OPT; do
     case "$OPT" in
         r)
             RECASE_CPUSET="taskset -c $OPTARG"
