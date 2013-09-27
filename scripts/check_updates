@@ -12,13 +12,22 @@ source $BASEDIR/config/config_remote.sh # set the REMOTE variable - directory
 cd $BASEDIR/scripts
 git pull || { echo "Updating Git failed."; exit 1; }
 
-# 2.
+# 2. 
+# check if we need to update Moses + model (only for worker copies, not appserver)
+#
+
+if [[ ! -d $BASEDIR/moses || ! -d $BASEDIR/model ]]; then
+    echo "Skipping Moses & model update (directories do not exist)."
+    exit 0;
+fi
+
+# 3.
 # update Moses
 #
 
 rsync -avs --delete $LOGIN$REMOTE/moses-$VERSION/* $BASEDIR/moses/ || { echo "Updating Moses failed."; exit 1; }
 
-# 3.
+# 4.
 # update translation model
 #
 
