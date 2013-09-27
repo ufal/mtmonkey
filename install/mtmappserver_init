@@ -1,0 +1,96 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          MTMonkey-Worker
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: MTMonkey appserver
+# Description:       MTMonkey appserver (update, run appserver).
+### END INIT INFO
+
+# MTMonkey init script
+
+# the user to run this script
+USER=mt
+# version of this script
+VERSION=stable
+# path to this script
+MTMWORKER_INIT=/etc/init.d/mtmappserver-$VERSION
+
+# Check if we run as the designated user
+case "`whoami`" in
+    ${USER}) # OK, run
+        ;;
+    root)  # relaunch using su -
+        exec su --login $USER -c "$MTMWORKER_INIT $@"
+        ;;
+    *)  # die
+        echo "Must be run as root or $USER. Aborting."
+        exit 1
+        ;;
+esac
+
+# Wait for share to be accessible, return success status
+wait_for_nfs() {
+    . ~/appserver-$VERSION/config/config_remote.sh
+    CTR=50
+    while [ $CTR -gt 0 ]; do
+        if [ -d $REMOTE ]; then
+            return 0
+        fi
+        sleep 5
+        CTR=`expr $CTR - 1`
+    done
+    return 1
+}
+
+# Start the MTMonkey appserver service (check for updates)
+start() {
+    echo `date` "Waiting for NFS..." >> /var/log/mtmappserver-$VERSION/startup_appserver.log
+    wait_for_nfs || { echo `date` "Timeout." >> /var/log/mtmappserver-$VERSION/startup_appserver.log; exit 1; }
+
+    echo `date` "Updating..." | tee -a ~/appserver-$VERSION/logs/autorun.log
+    ~/appserver-$VERSION/scripts/check_updates 2>&1 | tee -a ~/appserver-$VERSION/logs/autorun.log
+
+    echo `date` "Starting MTMonkey appserver using init scripts..." | tee -a ~/appserver-$VERSION/logs/autorun.log
+    echo "Running as user $USER: ~/appserver-$VERSION/scripts/run_appserver" | tee -a ~/appserver-$VERSION/logs/autorun.log
+
+    echo `date` "MTMonkey appserver startup: user $USER: ~/appserver-$VERSION/scripts/run_appserver..." | tee -a ~/appserver-$VERSION/logs/autorun.log
+    nohup ~/appserver-$VERSION/scripts/run_appserver >> /var/log/mtmappserver-$VERSION/startup_appserver.log 2>&1 &
+}
+
+# Stop the MTMonkey appserver service
+stop() {
+    echo `date` "Stopping MTMonkey appserver using init script..." | tee -a ~/appserver-$VERSION/logs/autorun.log
+    for i in `ps ax | grep -E "$VERSION.*/appserver\.py" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do
+        kill $i; 
+    done
+}
+
+status() {
+    echo "MTMonkey: (all) mt user proccess list:"
+    ps -u $USER
+}
+
+### main logic ###
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status
+        ;;
+  restart|reload|condrestart)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|reload|status}"
+        exit 1
+esac
+exit 0
