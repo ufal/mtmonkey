@@ -77,7 +77,7 @@ Autostart and automatic updates
     cd /etc/rc6.d; ln -s ../init.d/mtmworker-$VERSION K99z_mtmworker-$VERSION; 
     cd ..; for r in 0 1; do cp -P rc6.d/K99z_mtmworker-$VERSION rc$r.d; done
 
-    mkdir /var/log/mtmworker-$VERSION; chown $USER /var/log/mtworker-$VERSION
+    mkdir /var/log/mtmworker-$VERSION; chown $USER /var/log/mtmworker-$VERSION
 ```
 
   You then need to update the configuration in the `/etc/init.d/mtmworker-$VERSION`
