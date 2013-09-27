@@ -35,35 +35,35 @@ if [[ -n "$LOGIN" ]]; then
     LOGIN="-e ssh $LOGIN:" # prepare parameter for rsync
 fi
 
-## copy virtualenv
-#cd /home/$USER
-#rsync -avs $LOGIN$SHARE/virtualenv .
+# copy virtualenv
+cd /home/$USER
+rsync -avs $LOGIN$SHARE/virtualenv .
 
-## create the main MT directory
-#mkdir mt-$VERSION
+# create the main MT directory
+mkdir mt-$VERSION
 cd mt-$VERSION
 
-## copy Moses
-#rsync -avs $LOGIN$SHARE/moses-$VERSION/* moses/
+# copy Moses
+rsync -avs $LOGIN$SHARE/moses-$VERSION/* moses/
 
-## Clone worker Git
-#git clone https://redmine.ms.mff.cuni.cz/khresmoi-mt.git git
+# Clone worker Git
+git clone https://github.com/ufal/mtmonkey.git git
 
-## create worker-local directories
-#mkdir config logs models
+# create worker-local directories
+mkdir config logs models
 
-## link to Git directories
-#ln -s git/scripts
-#ln -s git/worker/src worker
+# link to Git directories
+ln -s git/scripts
+ln -s git/worker/src worker
 
-## copy default config
-#cp git/config-example/{config_moses.sh,config_remote.sh,worker.cfg} config
+# copy default config
+cp git/config-example/{config_moses.sh,config_remote.sh,worker.cfg} config
 
-## override share settings according to the source share
-#sed -i -r "/^export REMOTE=/s:=.*$:=$SHARE:;" config/config_remote.sh
-#if [[ -n "$LOGIN" ]]; then
-    #sed -i -r "/export LOGIN=/s/^.*$/export LOGIN=$USERHOST/;" config/config_remote.sh
-#fi
+# override share settings according to the source share
+sed -i -r "/^export REMOTE=/s:=.*$:=$SHARE:;" config/config_remote.sh
+if [[ -n "$LOGIN" ]]; then
+    sed -i -r "/export LOGIN=/s/^.*$/export LOGIN=$USERHOST/;" config/config_remote.sh
+fi
 
 # override ports settings
 if [[ -n "$PORTS" ]]; then
