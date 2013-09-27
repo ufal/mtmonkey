@@ -15,7 +15,7 @@ while getopts "rc:" OPT; do
         r)
             RESTART=1
             ;;
-        t)
+        c)
             CPUSET="taskset -c $OPTARG"
             ;;
         *)
