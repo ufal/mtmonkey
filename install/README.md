@@ -69,14 +69,16 @@ Autostart and automatic updates
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs:
 
+```bash
     cp install/mtmworker_init /etc/init.d/mtmworker-$VERSION
-    
+
     cd /etc/rc2.d; ln -s ../init.d/mtmworker-$VERSION S99z_mtmworker-$VERSION;
     cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmworker-$VERSION rc$r.d; done
     cd /etc/rc6.d; ln -s ../init.d/mtmworker-$VERSION K99z_mtmworker-$VERSION; 
     cd ..; for r in 0 1; do cp -P rc6.d/K99z_mtmworker-$VERSION rc$r.d; done
-    
+
     mkdir /var/log/mtmworker-$VERSION; chown $USER /var/log/mtworker-$VERSION
+```
 
   You then need to update the configuration in the `/etc/init.d/mtmworker-$VERSION`
   file so that the correct user name and version are used.
@@ -90,7 +92,9 @@ Autostart and automatic updates
   `/mnt/share/index.cfg` that will contain the assignment of models to
   machines, in the form:
 
+```
     <IP-or-hostname>:$VERSION:subpath
+```
 
   E.g.: `192.168.1.10:stable:en-de` if the models to be used on `192.168.1.10`
   are located in `/mnt/share/models-stable/en-de`. 
