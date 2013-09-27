@@ -33,12 +33,18 @@ case "`whoami`" in
 esac
 
 # Wait for share to be accessible, return success status
-wait_for_nfs() {
+wait_for_share() {
     . ~/mt-$VERSION/config/config_remote.sh
     CTR=50
     while [ $CTR -gt 0 ]; do
-        if [ -d $REMOTE ]; then
-            return 0
+        if [ -n "$LOGIN" ]; then
+            if ssh "$LOGIN" hostname; then
+                return 0
+            fi
+        else
+            if [ -d $REMOTE ]; then
+                return 0
+            fi
         fi
         sleep 5
         CTR=`expr $CTR - 1`
@@ -49,7 +55,7 @@ wait_for_nfs() {
 # Start the MTMonkey worker service (check for updates)
 start() {
     echo `date` "Waiting for NFS..." >> /var/log/mtmworker-$VERSION/startup_worker.log
-    wait_for_nfs || { echo `date` "Timeout." >> /var/log/mtmworker-$VERSION/startup_worker.log; exit 1; }
+    wait_for_share || { echo `date` "Timeout." >> /var/log/mtmworker-$VERSION/startup_worker.log; exit 1; }
 
     echo `date` "Updating..." | tee -a ~/mt-$VERSION/logs/autorun.log
     ~/mt-$VERSION/scripts/check_updates 2>&1 | tee -a ~/mt-$VERSION/logs/autorun.log
