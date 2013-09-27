@@ -32,25 +32,10 @@ case "`whoami`" in
         ;;
 esac
 
-# Wait for share to be accessible, return success status
-wait_for_nfs() {
-    . ~/appserver-$VERSION/config/config_remote.sh
-    CTR=50
-    while [ $CTR -gt 0 ]; do
-        if [ -d $REMOTE ]; then
-            return 0
-        fi
-        sleep 5
-        CTR=`expr $CTR - 1`
-    done
-    return 1
-}
+
 
 # Start the MTMonkey appserver service (check for updates)
 start() {
-    echo `date` "Waiting for NFS..." >> /var/log/mtmappserver-$VERSION/startup_appserver.log
-    wait_for_nfs || { echo `date` "Timeout." >> /var/log/mtmappserver-$VERSION/startup_appserver.log; exit 1; }
-
     echo `date` "Updating..." | tee -a ~/appserver-$VERSION/logs/autorun.log
     ~/appserver-$VERSION/scripts/check_updates 2>&1 | tee -a ~/appserver-$VERSION/logs/autorun.log
 
