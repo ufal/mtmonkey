@@ -1,15 +1,15 @@
 
-CUNI Khresmoi MT Service installation instructions
-==================================================
+MTMonkey installation instructions
+==================================
 
 We assume that $VERSION is 'dev' or 'stable' and $USER is the user account
-that will own and run the services (user 'khresmoi' by default).
+that will own and run the services.
 
 Prerequisities:
 ========================
 
 We assume Ubuntu 12.04 (but any Linux with all the required packages should be OK).
-Before installing Khresmoi MT Services, you must have the following packages installed
+Before installing MTMonkey, you must have the following packages installed
 (including dependencies):
 
 * On the application server: `git`
@@ -23,7 +23,7 @@ Application server installation:
 * Prepare the needed resources in a separate directory (assuming `$USER/data/`) --
   Checkout the khresmoi-mt Git repository to `~$USER/data/git-$VERSION`:
 
-  git clone http://redmine.ms.mff.cuni.cz/khresmoi-mt.git ~$USER/mt-$VERSION/git
+  git clone https://github.com/ufal/mtmonkey.git ~$USER/mt-$VERSION/git
 
 * Install Python virtual environment to `~$USER/data/virtualenv`:
   Read, adjust, and run `install_virtualenv.sh` from this directory.
