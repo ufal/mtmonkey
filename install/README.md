@@ -17,31 +17,6 @@ Before installing MTMonkey, you must have the following packages installed
 * On workers: `git` `netcat` `python-dev`
 
 
-Application server installation:
-================================
-
-* Prepare the needed resources in a separate directory (assuming `$USER/data/`) --
-  Checkout the MTMonkey Git repository to `~$USER/data/git-$VERSION`:
-
-  git clone https://github.com/ufal/mtmonkey.git ~$USER/mt-$VERSION/git
-
-* Install Python virtual environment to `~$USER/data/virtualenv`:
-  Read, adjust, and run `install_virtualenv.sh` from this directory.
-
-* Prepare default directories in `~$USER/mt-$VERSION`:
-
-    mkdir -p ~$USER/mt-$VERSION/{config,logs}
-    ln -s ~$USER/mt-$VERSION/git/appserver/src ~$USER/mt-$VERSION/appserver
-    ln -s ~$USER/mt-$VERSION/git/scripts ~$USER/mt-$VERSION/scripts
-
-* Adjust configuration in `~$USER/mt-$VERSION/config` according to 
-  `~$USER/data/config-example`
-  (The file `config_appserver.sh` can be copied as-is if using default directory schema,
-  the file `appserver.cfg` must be adjusted for IPs and ports of the workers for the
-  individual languages, as well as the application server port.)
-
-* You may now run the application server via `~$USER/mt-$VERSION/scripts/run_appserver`.
-
 Workers installation:
 =====================
 
@@ -121,4 +96,21 @@ Autostart and automatic updates
   `recaser.moses.ini` for recasing  model; both files must contain 
   *relative* paths to other files. If you need to use a different setting, you
   must modify workers configuration in the `~$USER/mt-$VERSION/config` directory.
+
+Application server installation:
+================================
+
+* Install Python virtual environment to `~$USER/virtualenv`:
+  Read, adjust, and run `install_virtualenv.sh` from this directory, or copy the 
+  virtualenv from the workers' shared directory (see above).
+
+* Checkout the Git repository and create the default directory structure: 
+  Read, adjust, and run `prepare_appserver.sh` from this directory.
+
+* Adjust configuration in `~$USER/mt-$VERSION/config/appserver.cfg` according to 
+  (add IPs and ports of the workers for the individual languages, as well as the 
+  application server port.)
+
+* You may now run the application server via `~$USER/mt-$VERSION/scripts/run_appserver`.
+
 

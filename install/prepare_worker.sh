@@ -26,7 +26,7 @@
 #
 
 if [[ -z "$VERSION" || -z "$SHARE" || -z "$USER" ]]; then
-    echo "Usage: USER=khresmoi VERSION=<stable|dev> SHARE=/mnt/share [LOGIN=\"user@host\"] [PORTS=\"7001:8081:9001\"]  prepare_worker.sh"
+    echo "Usage: USER=username VERSION=version-name SHARE=/mnt/share [LOGIN=\"user@host\"] [PORTS=\"7001:8081:9001\"]  prepare_worker.sh"
     exit 1
 fi
 
