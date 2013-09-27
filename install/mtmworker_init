@@ -17,14 +17,14 @@ USER=mt
 # version of this script
 VERSION=stable
 # path to this script
-KHRESMOI_INIT=/etc/init.d/mtmonkey
+MTMWORKER_INIT=/etc/init.d/mtmworker-$VERSION
 
 # Check if we run as the designated user
 case "`whoami`" in
     ${USER}) # OK, run
         ;;
     root)  # relaunch using su -
-        exec su --login $USER -c "$KHRESMOI_INIT $@"
+        exec su --login $USER -c "$MTMWORKER_INIT $@"
         ;;
     *)  # die
         echo "Must be run as root or $USER. Aborting."
@@ -48,8 +48,8 @@ wait_for_nfs() {
 
 # Start the MTMonkey worker service (check for updates)
 start() {
-    echo `date` "Waiting for NFS..." >> /var/log/khresmoi/startup_worker.log
-    wait_for_nfs || { echo `date` "Timeout." >> /var/log/khresmoi/startup_worker.log; exit 1; }
+    echo `date` "Waiting for NFS..." >> /var/log/mtmworker-$VERSION/startup_worker.log
+    wait_for_nfs || { echo `date` "Timeout." >> /var/log/mtmworker-$VERSION/startup_worker.log; exit 1; }
 
     echo `date` "Updating..." | tee -a ~/mt-$VERSION/logs/autorun.log
     ~/mt-$VERSION/scripts/check_updates 2>&1 | tee -a ~/mt-$VERSION/logs/autorun.log
@@ -58,10 +58,10 @@ start() {
     echo "Running as user $USER: ~/mt-$VERSION/scripts/run_{worker,moses}" | tee -a ~/mt-$VERSION/logs/autorun.log
 
     echo `date` "MTMonkey worker startup PHASE1: user $USER: ~/mt-$VERSION/scripts/run_worker..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    nohup ~/mt-$VERSION/scripts/run_worker >> /var/log/khresmoi/startup_worker.log 2>&1 &
+    nohup ~/mt-$VERSION/scripts/run_worker >> /var/log/mtmworker-$VERSION/startup_worker.log 2>&1 &
 
     echo `date` "MTMonkey worker startup PHASE2: user $USER: ~/mt-$VERSION/scripts/run_moses..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    nohup ~/mt-$VERSION/scripts/run_moses >> /var/log/khresmoi/startup_moses.log 2>&1 &
+    nohup ~/mt-$VERSION/scripts/run_moses >> /var/log/mtmworker-$VERSION/startup_moses.log 2>&1 &
 }
 
 # Stop the MTMonkey worker service
