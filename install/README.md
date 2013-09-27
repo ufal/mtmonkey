@@ -61,15 +61,17 @@ Prepare configuration (do this for all workers):
 Autostart and automatic updates
 -------------------------------
 
-* If you want the MT service to be checked periodically and restarted on fail,
+* If you want the workers to be checked periodically and restarted on fail,
   adjust the crontab of $USER according to the mtmonkey.crontab file.
 
-* If you need the MT service to be started and updated on the machine startup, 
+* If you need the workers to be started and updated on the machine startup, 
   add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
   the individual runlevels as the very last service to be started. Then prepare
-  a directory for startup logs:
+  a directory for startup logs (as root!):
 
 ```bash
+    VERSION=stable
+    USER=mt
     cp install/mtmworker_init /etc/init.d/mtmworker-$VERSION
 
     cd /etc/rc2.d; ln -s ../init.d/mtmworker-$VERSION S99z_mtmworker-$VERSION;
@@ -120,4 +122,30 @@ Application server installation:
 
 * You may now run the application server via `~$USER/mt-$VERSION/scripts/run_appserver`.
 
+Autostart and automatic updates
+-------------------------------
 
+* If you need the workers to be started and updated on the machine startup, 
+  add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
+  the individual runlevels as the very last service to be started. Then prepare
+  a directory for startup logs (as root!):
+
+```bash
+    VERSION=stable
+    USER=mt
+    cp install/mtmappserver_init /etc/init.d/mtmappserver-$VERSION
+
+    cd /etc/rc2.d; ln -s ../init.d/mtmappserver-$VERSION S99z_mtmappserver-$VERSION;
+    cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmappserver-$VERSION rc$r.d; done
+    cd /etc/rc6.d; ln -s ../init.d/mtmappserver-$VERSION K99z_mtmappserver-$VERSION; 
+    cd ..; for r in 0 1; do cp -P rc6.d/K99z_mtmappserver-$VERSION rc$r.d; done
+
+    mkdir /var/log/mtmappserver-$VERSION; chown $USER /var/log/mtmappserver-$VERSION
+```
+
+  You then need to update the configuration in the `/etc/init.d/mtmappserver-$VERSION`
+  file so that the correct user name and version are used.
+
+  Please note that automatic updates are contained within the `mtmappserver_init` init
+  script. If you need initialization but no updates, comment out the corresponding
+  lines.
