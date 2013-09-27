@@ -1,18 +1,46 @@
 #!/bin/bash
+#
+# Running Moses Servers for translation and recasing.
+#
+# Switches: -t, -r -- setting CPU affinity for both Moses servers.
+# 
 
+# Parse options
+usage(){ echo "Usage: $0 [-t transl_cpu_list] [-r recase_cpu_list]" 1>&2; exit 1; }
+
+while getopts "r:t:h" OPT; do
+    case "$OPT" in
+        r)
+            RECASE_CPUSET="taskset -c $OPTARG"
+            ;;
+        t)
+            TRANSL_CPUSET="taskset -c $OPTARG"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Find out current MT base directory
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
 
+# Lock file (until loaded)
 echo $$ > $BASEDIR/logs/.moses_loading
 
+# Pre-set environment
 . $BASEDIR/scripts/moses_setenv.sh
 . $BASEDIR/config/config_moses.sh
 
+# Run the startup commands
 cd $MODELS_DIR
-nohup mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> $BASEDIR/logs/recaser.log 2>&1 &
+nohup $RECASE_CPUSET mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> $BASEDIR/logs/recaser.log 2>&1 &
 RECASER_PID=$!
-nohup mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> $BASEDIR/logs/translate.log 2>&1 &
+nohup $TRANSL_CPUSET mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> $BASEDIR/logs/translate.log 2>&1 &
 TRANSL_PID=$!
 
+# Wait for the servers to be loaded
 until nc -z localhost $RECASER_PORT && nc -z localhost $TRANSL_PORT; do
     sleep 10;
     kill -0 $RECASER_PID $TRANSL_PID || { echo "Moses processes dead!"; exit 1; }
