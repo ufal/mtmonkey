@@ -2,7 +2,7 @@
 
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
 
-PREFIX=$BASEDIR/moses/usr
+PREFIX=$BASEDIR/moses
 
 if [ -d /lib64 ]; then
 LIBDIR=$PREFIX/lib64
