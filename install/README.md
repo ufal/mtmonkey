@@ -125,7 +125,7 @@ Application server installation:
 Autostart and automatic updates
 -------------------------------
 
-* If you need the workers to be started and updated on the machine startup, 
+* If you need the application server to be started and updated on the machine startup,
   add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs (as root!):
