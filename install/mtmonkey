@@ -1,23 +1,23 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:          Khresmoi
+# Provides:          MTMonkey-Worker
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Khresmoi MT services
-# Description:       Khresmoi MT services (update, run Moses server + worker).
+# Short-Description: MTMonkey worker
+# Description:       MTMonkey worker (update, run Moses server + worker).
 ### END INIT INFO
 
-# Khresmoi init script
+# MTMonkey init script
 
 # the user to run this script
-USER=khresmoi
+USER=mt
 # version of this script
 VERSION=stable
 # path to this script
-KHRESMOI_INIT=/etc/init.d/khresmoi
+KHRESMOI_INIT=/etc/init.d/mtmonkey
 
 # Check if we run as the designated user
 case "`whoami`" in
@@ -32,7 +32,7 @@ case "`whoami`" in
         ;;
 esac
 
-# Wait for NFS share to be accessible, return success status
+# Wait for share to be accessible, return success status
 wait_for_nfs() {
     . ~/mt-$VERSION/config/config_remote.sh
     CTR=50
@@ -46,7 +46,7 @@ wait_for_nfs() {
     return 1
 }
 
-# Start the Khresmoi service (check for updates)
+# Start the MTMonkey worker service (check for updates)
 start() {
     echo `date` "Waiting for NFS..." >> /var/log/khresmoi/startup_worker.log
     wait_for_nfs || { echo `date` "Timeout." >> /var/log/khresmoi/startup_worker.log; exit 1; }
@@ -54,27 +54,27 @@ start() {
     echo `date` "Updating..." | tee -a ~/mt-$VERSION/logs/autorun.log
     ~/mt-$VERSION/scripts/check_updates 2>&1 | tee -a ~/mt-$VERSION/logs/autorun.log
 
-    echo `date` "Starting Khresmoi services using init scripts..." | tee -a ~/mt-$VERSION/logs/autorun.log
+    echo `date` "Starting MTMonkey worker using init scripts..." | tee -a ~/mt-$VERSION/logs/autorun.log
     echo "Running as user $USER: ~/mt-$VERSION/scripts/run_{worker,moses}" | tee -a ~/mt-$VERSION/logs/autorun.log
 
-    echo `date` "Khresmoi startup PHASE1: user $USER: ~/mt-$VERSION/scripts/run_worker..." | tee -a ~/mt-$VERSION/logs/autorun.log
+    echo `date` "MTMonkey worker startup PHASE1: user $USER: ~/mt-$VERSION/scripts/run_worker..." | tee -a ~/mt-$VERSION/logs/autorun.log
     nohup ~/mt-$VERSION/scripts/run_worker >> /var/log/khresmoi/startup_worker.log 2>&1 &
 
-    echo `date` "Khresmoi startup PHASE2: user $USER: ~/mt-$VERSION/scripts/run_moses..." | tee -a ~/mt-$VERSION/logs/autorun.log
+    echo `date` "MTMonkey worker startup PHASE2: user $USER: ~/mt-$VERSION/scripts/run_moses..." | tee -a ~/mt-$VERSION/logs/autorun.log
     nohup ~/mt-$VERSION/scripts/run_moses >> /var/log/khresmoi/startup_moses.log 2>&1 &
 }
 
-# Stop the Khresmoi service
+# Stop the MTMonkey worker service
 stop() {
-    echo `date` "Stopping Khresmoi services using init script..." | tee -a ~/mt-$VERSION/logs/autorun.log
+    echo `date` "Stopping MTMonkey worker using init script..." | tee -a ~/mt-$VERSION/logs/autorun.log
     for i in `ps ax | grep -E "(mosess[e]rver.*$VERSION|$VERSION.*/worker\.py)" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do
         kill $i; 
     done
 }
 
 status() {
-    echo "Khresmoi init - khresmoi user proccess list:"
-    ps -u khresmoi
+    echo "MTMonkey: (all) mt user proccess list:"
+    ps -u $USER
 }
 
 ### main logic ###
