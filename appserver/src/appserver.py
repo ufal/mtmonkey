@@ -49,12 +49,14 @@ class KhresmoiService:
     
     def get(self):
         """Handle GET requests"""
-        result = self._dispatch_task({
-            'action': 'translate',
-            'sourceLang': request.args.get('sourceLang', None),
-            'targetLang': request.args.get('targetLang', None),
-            'text': request.args.get('text', None)
-        })
+        args = request.args.to_dict()
+        args['action'] = 'translate'
+
+        # XXX the optional nBestSize is manually converted to integer
+        if 'nBestSize' in args:
+            args['nBestSize'] = int(args['nBestSize'])
+
+        result = self._dispatch_task(args)
         self.logger.info('Received new task [GET]')
         return self._wrap_result(result)
 
