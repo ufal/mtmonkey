@@ -25,7 +25,7 @@ fi
 VERSION=`basename $BASEDIR | sed 's/^mt-//'`
 source $BASEDIR/config/config_remote.sh # set the REMOTE variable - directory
 
-rsync -avs --delete $LOGIN$REMOTE/moses-$VERSION/* $BASEDIR/moses/ || { echo "Updating Moses failed."; exit 1; }
+rsync -avs --delete $LOGIN_RSYNC$REMOTE/moses-$VERSION/* $BASEDIR/moses/ || { echo "Updating Moses failed."; exit 1; }
 
 # 4.
 # update translation model
@@ -36,7 +36,7 @@ MYIP=`ip addr show eth0 | grep 'inet ' | sed 's/^ *inet \([0-9\.]*\)\/.*$/\1/'`
 HOST=`hostname -s`
 
 # download models index, get the right model directory for me
-rsync -avs $LOGIN$REMOTE/index.cfg $BASEDIR/ || { echo "Cannot download models index."; exit 1; }
+rsync -avs $LOGIN_RSYNC$REMOTE/index.cfg $BASEDIR/ || { echo "Cannot download models index."; exit 1; }
 MODELS_DIR=`grep -E "^($MYIP|$HOST):$VERSION" -m 1 $BASEDIR/index.cfg | sed 's/^[^:]*:[^:]*://;s/ *$//;'`
 rm $BASEDIR/index.cfg
 
@@ -47,7 +47,7 @@ if [ -z "$MODELS_DIR" ]; then
 fi
 
 # update the model
-rsync -avs --delete $LOGIN$REMOTE/models-$VERSION/$MODELS_DIR $BASEDIR/models || { echo "Updating models failed."; exit 1; } 
+rsync -avs --delete $LOGIN_RSYNC$REMOTE/models-$VERSION/$MODELS_DIR $BASEDIR/models || { echo "Updating models failed."; exit 1; } 
 
 # update config file
 MODELS_LOCDIR=`basename $MODELS_DIR`
