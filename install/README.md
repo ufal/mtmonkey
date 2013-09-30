@@ -16,6 +16,12 @@ Before installing MTMonkey, you must have the following packages installed
 
 * On workers: `git` `netcat` `python-dev`
 
+    * If Moses is to be compiled on a certain worker machine -- all packages
+      needed by Moses installation (including `libxmlrpc-c++-dev` so that XML-RPC
+      support is compiled).
+
+    * If Moses is only to be copied to a worker machine: `libxmlrpc-c++` is
+      needed to run it.
 
 Workers installation:
 =====================

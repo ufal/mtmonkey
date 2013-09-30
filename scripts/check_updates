@@ -13,7 +13,7 @@ git pull || { echo "Updating Git failed."; exit 1; }
 # check if we need to update Moses + model (only for worker copies, not appserver)
 #
 
-if [[ ! -d $BASEDIR/moses || ! -d $BASEDIR/model ]]; then
+if [[ ! -d $BASEDIR/moses || ! -d $BASEDIR/models ]]; then
     echo "Skipping Moses & model update (directories do not exist)."
     exit 0;
 fi
