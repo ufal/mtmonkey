@@ -27,10 +27,10 @@ class Translator:
         nbestsize = min(task.get('nBestSize', 1), 10)
         src_lines = self.splitter.split_sentences(task['text'])
         translated = [self._translate(line, doalign, dodetok, nbestsize) for line in src_lines]
-        return {
+        return _backward_transform({
             'translationId': uuid.uuid4().hex,
             'sentences': translated
-        }
+        }, doalign, dodetok)
     
     def _translate(self, src, doalign, dodetok, nbestsize):
         """Translate and recase one sentence. Optionally, word alignment
@@ -102,3 +102,27 @@ def _add_tgt_end(align, tgttok):
         align[i]['tgt-end'] = ks[i + 1] - 1
     return align
 
+def _backward_transform(result, doalign, dodetok):
+    """Transform the produced output structure to old format.
+    Soon to be deprecated."""
+    translation = []
+    min_nbest_length = min([len(s['translated']) for s in result['sentences']])
+    for rank in range(0, min_nbest_length):
+        translated = []
+        for sent in result['sentences']:
+            oldformat = { 'src': sent['src'] }
+            if dodetok:
+                oldformat['src-tokenized'] = sent['src-tokenized']
+
+            oldformat['text'] = sent['translated'][rank]['text']
+            oldformat['rank'] = rank
+            oldformat['score'] = sent['translated'][rank]['score']
+            if doalign:
+                oldformat['tgt-tokenized'] = sent['translated'][rank]['tokenized']
+                oldformat['raw-alignment'] = sent['translated'][rank]['raw-alignment']
+
+            translated.append(oldformat)
+
+        translation.append({'translated': translated, 'translationId': result['translationId']})
+
+    return { 'translation': translation }
