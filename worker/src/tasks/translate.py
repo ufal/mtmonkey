@@ -24,18 +24,15 @@ class Translator:
         recases each sentence."""
         doalign = task.get('alignmentInfo', '').lower() in ['true', 't', 'yes', 'y', '1']
         dodetok = not task.get('detokenize', '').lower() in ['false', 'f', 'no', 'n', '0']
+        nbestsize = min(task.get('nBestSize', 1), 10)
         src_lines = self.splitter.split_sentences(task['text'])
-        translated = [self._translate(line, doalign, dodetok) for line in src_lines]
+        translated = [self._translate(line, doalign, dodetok, nbestsize) for line in src_lines]
         return {
-            'translation': [
-            {
-                "translationId": uuid.uuid4().hex,
-                "translated": translated
-            }
-            ]
+            'translationId': uuid.uuid4().hex,
+            'sentences': translated
         }
     
-    def _translate(self, src, doalign, dodetok):
+    def _translate(self, src, doalign, dodetok, nbestsize):
         """Translate and recase one sentence. Optionally, word alignment
         between source and target is included in output."""
 
@@ -45,33 +42,46 @@ class Translator:
         # translate
         translation = self.translate_proxy.translate({
             "text": src_tokenized,
-            "align": doalign
+            "align": doalign,
+            "nbest": nbestsize,
+            "nbest-distinct": True,
         })
-        
-        # recase
-        tgt_tokenized = self.recase_proxy.translate({
-            "text": translation['text'] })['text'].strip()
 
-        # detokenize
-        if dodetok:
-            tgt = self.detokenizer.detokenize(tgt_tokenized)
-    
+# XXX remove me
+#        f = open("mosesout.txt", "w")
+#        print >>f, translation
+#        f.close()
+        
+        rank = 0
+        hypos = []
+        for hypo in translation['nbest']:
+            recased = self.recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
+            parsed_hypo = {
+                'text': recased,
+                'score': hypo['totalScore'],
+                'rank': rank,
+            }
+
+            if dodetok:
+                parsed_hypo['text'] = self.detokenizer.detokenize(recased)
+
+            if doalign:
+                parsed_hypo['tokenized'] = recased
+                parsed_hypo['raw-alignment'] = _add_tgt_end(hypo['align'], recased)
+
+            rank += 1
+            hypos.append(parsed_hypo)
+
         result = {
-            'text': tgt,
-            'score': 100, # TODO actual score
-            'rank': 0 # TODO
+            'src': src,
+            'translated': hypos,
         }
 
-        # optionally add word-alignment information
-        if doalign:
-            result.update({
-                'src-tokenized': src_tokenized,
-                'tgt-tokenized': tgt_tokenized,
-                'alignment-raw': _add_tgt_end(translation['align'], tgt_tokenized)
-            })
+        if dodetok:
+            result['src-tokenized'] = src_tokenized
 
         return result
-    
+
 def _parse_align(orig, transl, align):
     """not used for now"""
     p = orig.split()

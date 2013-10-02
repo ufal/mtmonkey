@@ -30,7 +30,7 @@ class KhresmoiWorker:
             except Exception as e:
                 etype, eobj, etb = sys.exc_info()
                 fname = os.path.split(etb.tb_frame.f_code.co_filename)[1]
-                return { 'error' : str(etype) + ' at ' + fname + ':' + etb.tb_lineno }
+                return { 'error' : str(etype) + ' at ' + fname + ':' + str(etb.tb_lineno) }
         else:
             self._logger.warning("Unknown task " + task['action'])
             return { 'error' : 'Unknown task ' + task['action'] }
