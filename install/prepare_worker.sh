@@ -46,7 +46,7 @@ cd mt-$VERSION
 # copy Moses
 rsync -avs $LOGIN$SHARE/moses-$VERSION/* moses/
 
-# Clone worker Git
+# Clone worker Git (you may change the origin here if you want to use your own modifications)
 git clone https://github.com/ufal/mtmonkey.git git
 
 # create worker-local directories

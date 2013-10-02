@@ -30,7 +30,8 @@ We assume that we have a shared directory accessible from all workers in e.g.
 `/mnt/share`, where Moses binaries and Python virtualenv will be put. 
 
 This may be either on a NFS share, or accessible through SSH (rsync is used to
-access it).
+access it). If the share is only accessible via SSH, you must use SSH keys without
+password to enable automatic updates.
 
 Prepare the needed resources in the shared directory:
 -----------------------------------------------------
@@ -42,15 +43,15 @@ This must be done on a machine where the shared directory is directly accessible
   instructions).
 
 * Install Python virtual environment to `/mnt/share/virtualenv`: 
-  Read, adjust, and run `install_virtualenv.sh` from this directory.
+  Download, read, adjust, and run `install_virtualenv.sh` from this directory.
 
 Prepare configuration (do this for all workers):
 ------------------------------------------------
 
 * Copy all required data from the shared directory and checkout the Git 
   repository + copy configuration examples from Git:
-  Read, adjust, and run `prepare_worker.sh` from this directory.
-
+  Download, read, adjust, and run `prepare_worker.sh` from this directory.
+ 
 * Copy the translation model to be used with Moses (or check out the
   automatic updates/model distribution feature below that is able to copy 
   required models from NFS share on machine startup).

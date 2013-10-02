@@ -6,7 +6,7 @@
 export REMOTE=/mnt/share
 # export LOGIN=user@host
 
-if [[ -n "$LOGIN" ]]; then
-    LOGIN="-e ssh $LOGIN:" # prepare parameter for rsync
+if [ -n "$LOGIN" ]; then
+    LOGIN_RSYNC="-e ssh $LOGIN:" # prepare parameter for rsync
 fi
 
