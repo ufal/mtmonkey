@@ -67,7 +67,7 @@ class Translator:
 
             if doalign:
                 parsed_hypo['tokenized'] = recased
-                parsed_hypo['raw-alignment'] = _add_tgt_end(hypo['align'], recased)
+                parsed_hypo['alignment-raw'] = _add_tgt_end(hypo['align'], recased)
 
             rank += 1
             hypos.append(parsed_hypo)
@@ -110,7 +110,7 @@ def _backward_transform(result, doalign, dodetok):
     for rank in range(0, min_nbest_length):
         translated = []
         for sent in result['sentences']:
-            oldformat = { 'src': sent['src'] }
+            oldformat = {} 
             if dodetok:
                 oldformat['src-tokenized'] = sent['src-tokenized']
 
@@ -119,7 +119,7 @@ def _backward_transform(result, doalign, dodetok):
             oldformat['score'] = sent['translated'][rank]['score']
             if doalign:
                 oldformat['tgt-tokenized'] = sent['translated'][rank]['tokenized']
-                oldformat['raw-alignment'] = sent['translated'][rank]['raw-alignment']
+                oldformat['alignment-raw'] = sent['translated'][rank]['alignment-raw']
 
             translated.append(oldformat)
 
