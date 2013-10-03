@@ -18,7 +18,7 @@ dpkg -s python-dev || sudo apt-get install python-dev
 
 # Download and install virtualenv (change version for the latest here!)
 VEVER=1.9.1
-wget https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$VEVER.tar.gz
+wget --no-check-certificate https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$VEVER.tar.gz
 tar xvfz virtualenv-$VEVER.tar.gz
 
 mkdir $SHARE/virtualenv
