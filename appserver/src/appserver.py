@@ -91,6 +91,13 @@ class KhresmoiService:
                 "errorCode": 7,
                 "errorMessage": str(e)
             }
+        
+        # check for errors returned by worker
+        if ('error' in result):
+            return {
+                "errorCode": 8,
+                "errorMessage": result['error']
+            }
     
         # OK, return output of the worker
         result["errorCode"] = 0

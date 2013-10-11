@@ -28,9 +28,10 @@ class KhresmoiWorker:
             try:
                 return self._translator.process_task(task)
             except Exception as e:
+                import traceback
                 etype, eobj, etb = sys.exc_info()
                 fname = os.path.split(etb.tb_frame.f_code.co_filename)[1]
-                return { 'error' : str(etype) + ' at ' + fname + ':' + str(etb.tb_lineno) }
+                return { 'error' : str(etype) + ' at ' + fname + ':' + str(etb.tb_lineno) + "\n" + traceback.format_exc() }
         else:
             self._logger.warning("Unknown task " + task['action'])
             return { 'error' : 'Unknown task ' + task['action'] }

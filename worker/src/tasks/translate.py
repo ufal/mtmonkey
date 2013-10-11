@@ -13,8 +13,8 @@ class Translator:
     """Handles the 'translate' task for KhresmoiWorker"""
 
     def __init__(self, translate_port, recase_port):
-        self.translate_proxy = xmlrpclib.ServerProxy("http://localhost:" + translate_port +  "/RPC2")
-        self.recase_proxy = xmlrpclib.ServerProxy("http://localhost:" + recase_port +  "/RPC2")
+        self.translate_proxy = xmlrpclib.ServerProxy("http://localhost:" + translate_port + "/RPC2")
+        self.recase_proxy = xmlrpclib.ServerProxy("http://localhost:" + recase_port + "/RPC2")
         self.tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
         self.detokenizer = Detokenizer()
         self.splitter = SentenceSplitter()
@@ -31,7 +31,7 @@ class Translator:
             'translationId': uuid.uuid4().hex,
             'sentences': translated
         }, doalign, dodetok)
-    
+
     def _translate(self, src, doalign, dodetok, nbestsize):
         """Translate and recase one sentence. Optionally, word alignment
         between source and target is included in output."""
@@ -47,11 +47,7 @@ class Translator:
             "nbest-distinct": True,
         })
 
-# XXX remove me
-#        f = open("mosesout.txt", "w")
-#        print >>f, translation
-#        f.close()
-        
+        # provide n-best lists
         rank = 0
         hypos = []
         for hypo in translation['nbest']:
@@ -61,7 +57,6 @@ class Translator:
                 'score': hypo['totalScore'],
                 'rank': rank,
             }
-
             if dodetok:
                 parsed_hypo['text'] = self.detokenizer.detokenize(recased)
 
@@ -82,18 +77,6 @@ class Translator:
 
         return result
 
-def _parse_align(orig, transl, align):
-    """not used for now"""
-    p = orig.split()
-    b = [' '.join(p[a['src-start']:a['src-end'] + 1]) for a in align]
-
-    o = transl.split()
-    oi = sorted([int(w['tgt-start']) for w in align])
-    oi.append(len(o) + 1)
-    a = [' '.join(o[oi[x]:oi[x + 1]]) for x in xrange(len(oi) - 1)]
-
-    return zip(a, b)
-
 def _add_tgt_end(align, tgttok):
     ks = map(lambda x: x['tgt-start'], align)
     n = len(tgttok.split())
@@ -110,7 +93,7 @@ def _backward_transform(result, doalign, dodetok):
     for rank in range(0, min_nbest_length):
         translated = []
         for sent in result['sentences']:
-            oldformat = {} 
+            oldformat = {}
             if dodetok:
                 oldformat['src-tokenized'] = sent['src-tokenized']
 
