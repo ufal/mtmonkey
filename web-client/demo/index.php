@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="js/jquery.js" type="text/javascript"></script>
-  <script src="js/khresmoi.js"></script>
+  <script src="js/khresmoi_src.js"></script>
   <link href="css/main.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -68,11 +68,8 @@
     <div id="footer">
       <hr>
       <div id="logo">
-                                      "This work was funded by the European Union in the context
-                                      of the KHRESMOI project (grant number 257528)".<br>
-                                                                      © 2012 Charles University,
-                                                                      Institute of Formal and
-                                                                      Applied Linguistics</div>
+This work was funded by the European Union in the context of the KHRESMOI project (grant number 257528).<br>
+© 2012-2013 Charles University, Institute of Formal and Applied Linguistics</div>
     </div>  <!-- footer -->
   </div>  <!-- wrap -->
 </body>

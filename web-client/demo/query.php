@@ -1,5 +1,5 @@
 <?php
-        $url = "http://quest.ms.mff.cuni.cz:8888/khresmoi";
+        $url = "http://cuni1-khresmoi.ms.mff.cuni.cz:8080/khresmoi";
         $curl = curl_init($url);
         $q = array(
                 "action" => "translate",
