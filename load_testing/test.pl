@@ -37,7 +37,8 @@ my ($sourceLang, $targetLang, $text) = @ARGV;
 my $query = Query->new({
         sourceLang => $sourceLang,
         targetLang => $targetLang,
-        url => 'http://quest.ms.mff.cuni.cz:8889/khresmoi',
+        url => 'http://cuni1-khresmoi.ms.mff.cuni.cz:8080/khresmoi',
+        # url => 'http://quest.ms.mff.cuni.cz:8889/khresmoi',
     });
 my $result = $query->call($text);
 if ( defined $result ) {
