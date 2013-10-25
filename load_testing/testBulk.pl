@@ -51,6 +51,7 @@ my $starttime;
 my $query = Query->new({
         sourceLang => $sourceLang,
         targetLang => $targetLang,
+        url => 'http://cuni1-khresmoi.ms.mff.cuni.cz:8080/khresmoi',
         # url => 'http://quest.ms.mff.cuni.cz:8889/khresmoi',
     });
 my $t0;
@@ -75,8 +76,9 @@ my $charcount = 0;
     # translate
     $t0 = [gettimeofday];
     while ($line = <$file>) {
-        chomp $line;
-        $query->call($line);
+        chomp $line;        
+        my $result = $query->call($line);
+        print "$sourceLang: $line -> $targetLang: $result\n";
     }
     $t1 = [gettimeofday];
 
