@@ -6,9 +6,11 @@ function qqsub1g() {
 
 langs=(cs en_cs fr en_fr de en_de)
 
-c=1
-    clients=$[10*$c]
-    dir=logs_2
+#c=1
+    #clients=$[10*$c]
+    for clients in 1 10
+    do
+    dir=logs_2l_$clients
     mkdir $dir #!!!
     for p in {0..9..3}
     do
@@ -20,7 +22,7 @@ c=1
         for l2 in $(eval echo {$[$l1+1]..5})
         do
             
-            starttime=$[2*$c+5]
+            starttime=$[$clients/4+5]
             starttime.pl $starttime #!!!
             for i in $(eval echo {1..${clients}})
             do
@@ -38,7 +40,7 @@ c=1
                 qqsub1g runBULK/testBULK_${langs[$l2]}_${client}.shc $dir #!!!
 
             done
-            sleeptime=$[18*$c+$starttime]
+            sleeptime=$[2*$clients+$starttime]
             echo submitted langs ${langs[$l1]} ${langs[$l2]} with start $begin and $clients clients
             echo sleeping for $sleeptime
             sleep $sleeptime #!!!
@@ -48,4 +50,4 @@ c=1
         done
 
     done
-
+done

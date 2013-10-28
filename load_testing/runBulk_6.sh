@@ -1,26 +1,30 @@
 #!/bin/bash
 
-function qqsub1g() {
-    qsub -cwd -o $2 -e $2 -S /bin/bash -V -j n -l h_vmem=1g -l mem_free=1g $1
+function qqsub1gd() {
+    dir=$1
+    shift
+    for i in $@
+    do
+        qsub -cwd -o $dir -e $dir -S /bin/bash -V -j n -l h_vmem=1g -l mem_free=1g $i
+    done
 }
 
-langs=(cs en_cs fr en_fr de en_de)
+#langs=(cs en_cs fr en_fr de en_de)
 
 #c=1
     #clients=$[10*$c]
     for clients in 1 10 100 2 5 20 50
     do
-    dir=logs_1l_$clients
-    mkdir $dir #!!!
+    dir=logs_6l_$clients
+    mkdir -p $dir #!!!
+    rm $dir/*
     for p in {0..9..3}
     do
         begin=$[10*$p]
+        # begin=0
 
         # languages
-        for l1 in {0..5}
-        do        
-            
-            starttime=$[$clients/4+5]
+            starttime=$[$clients/3+5]
             starttime.pl $starttime #!!!
             for i in $(eval echo {1..${clients}})
             do
@@ -33,17 +37,14 @@ langs=(cs en_cs fr en_fr de en_de)
                 then
                     client=0$client
                 fi
-                    
-                qqsub1g runBULK/testBULK_${langs[$l1]}_${client}.shc $dir #!!!
+                
+                qqsub1gd $dir runBULK/testBULK_*_${client}.shc #!!!
 
             done
-            sleeptime=$[2*$clients+$starttime+2]
-            echo submitted lang ${langs[$l1]} with start $begin and $clients clients
+            sleeptime=$[6*$clients+$starttime]
+            echo submitted all langs with start $begin and $clients clients
             echo sleeping for $sleeptime
             sleep $sleeptime #!!!
         
-        # end languages
-        done
-
     done
 done
