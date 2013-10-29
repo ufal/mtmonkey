@@ -38,15 +38,15 @@ langs=(cs en_cs fr en_fr de en_de)
                     client=0$client
                 fi
                 
-                ./qqsub1g $dir runBulk/testBulk_${langs[$l1]}_${client}.shc 
-                ./qqsub1g $dir runBulk/testBulk_${langs[$l2]}_${client}.shc 
-                ./qqsub1g $dir runBulk/testBulk_${langs[$l3]}_${client}.shc 
-                ./qqsub1g $dir runBulk/testBulk_${langs[$l4]}_${client}.shc 
-                ./qqsub1g $dir runBulk/testBulk_${langs[$l5]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l1]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l2]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l3]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l4]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l5]}_${client}.shc 
 
             done
             echo submitted langs ${langs[$l1]} ${langs[$l2]} ${langs[$l3]} ${langs[$l4]} ${langs[$l5]} with start $begin and $clients clients
-            while qstat -j 'testBulk*' &> /dev/null;do sleep 1; done
+            while qstat -j 'testBULK*' &> /dev/null;do sleep 1; done
         
         # end languages
         done
