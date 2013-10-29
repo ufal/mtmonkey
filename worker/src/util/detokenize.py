@@ -8,9 +8,11 @@ Library usage:
 
 Command-line usage:
 
-    ./detokenize.py [-e ENCODING] [input-file output-file]
+    ./detokenize.py [-c] [-l LANG] [-e ENCODING] [input-file output-file]
     
     -e = use the given encoding (default: UTF-8)
+    -l = use rules for the given language (ISO-639-2 code, default: en)
+    -c = capitalize the first words of sentences
       
     If no input and output files are given, the de-tokenizer will read
     STDIN and write to STDOUT.
@@ -57,15 +59,20 @@ class Detokenizer(object):
         # process options
         self.moses_deescape = True if options.get('moses_deescape') else False
         self.language = options.get('language', 'en')
+        self.capitalize_sents = True if options.get('capitalize_sents') else False
         # compile regexes
         self.__currency_or_init_punct = Regex(r'^[\p{Sc}\(\[\{\¿\¡]+$')
         self.__noprespace_punct = Regex(r'^[\,\.\?\!\:\;\\\%\}\]\)]+$')
         self.__cjk_chars = Regex(r'[\u1100-\u11FF\u2E80-\uA4CF\uA840-\uA87F'
                                  + r'\uAC00-\uD7AF\uF900-\uFAFF\uFE30-\uFE4F'
                                  + r'\uFF65-\uFFDC]')
+        self.__final_punct = Regex(r'([\.!?])([\'\"\)\]\p{Pf}\%])*$')
         # language-specific regexes
         self.__fr_prespace_punct = Regex(r'^[\?\!\:\;\\\%]$')
-        self.__contract = Regex(self.CONTRACTIONS[self.language], IGNORECASE)
+        self.__contract = None
+        if self.language in self.CONTRACTIONS:
+            self.__contract = Regex(self.CONTRACTIONS[self.language],
+                                    IGNORECASE)
 
     def detokenize(self, text):
         """\
@@ -95,6 +102,7 @@ class Detokenizer(object):
                 pre_spc = ' '
             # contractions with comma or hyphen 
             elif word in "'-–" and pos > 0 and pos < len(words) - 1 \
+                    and self.__contract is not None \
                     and self.__contract.match(''.join(words[pos - 1:pos + 2])):
                 text += word
                 pre_spc = ''
@@ -131,12 +139,17 @@ class Detokenizer(object):
             else:
                 text += pre_spc + word
                 pre_spc = ' '
-        # escape chars that are special to Moses
+        # de-escape chars that are special to Moses
         if self.moses_deescape:
             for char, repl in self.ESCAPES:
                 text = text.replace(char, repl)
-        # return the result (strip leading/trailing space)
-        return text.strip()
+        # strip leading/trailing space
+        text = text.strip()
+        # capitalize, if the sentence ends with a final punctuation
+        if self.capitalize_sents and self.__final_punct.search(text):
+            print >> sys.stderr, 'HERE'
+            text = text[0].upper() + text[1:]
+        return text
 
 
 def display_usage():
@@ -148,13 +161,19 @@ def display_usage():
 
 if __name__ == '__main__':
     # parse options
-    opts, filenames = getopt.getopt(sys.argv[1:], 'e:')
+    opts, filenames = getopt.getopt(sys.argv[1:], 'e:hcl:')
     options = {}
     help = False
     encoding = DEFAULT_ENCODING
     for opt, arg in opts:
         if opt == '-e':
             encoding = arg
+        elif opt == '-l':
+            options['language'] = arg
+        elif opt == '-c':
+            options['capitalize_sents'] = True
+        elif opt == '-h':
+            help = True
     # display help
     if len(filenames) > 2 or help:
         display_usage()

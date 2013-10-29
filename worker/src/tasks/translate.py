@@ -12,12 +12,21 @@ from util.split_sentences import SentenceSplitter
 class Translator:
     """Handles the 'translate' task for KhresmoiWorker"""
 
-    def __init__(self, translate_port, recase_port):
-        self.translate_proxy = xmlrpclib.ServerProxy("http://localhost:" + translate_port + "/RPC2")
-        self.recase_proxy = xmlrpclib.ServerProxy("http://localhost:" + recase_port + "/RPC2")
-        self.tokenizer = Tokenizer({'lowercase': True, 'moses_escape': True})
-        self.detokenizer = Detokenizer()
-        self.splitter = SentenceSplitter()
+    def __init__(self, translate_port, recase_port, source_lang, target_lang):
+        """Initialize a Translator object according to the given 
+        configuration settings."""
+        # precompile XML-RPC Moses server addresses
+        self.translate_proxy_addr = "http://localhost:" + translate_port + "/RPC2"
+        self.recase_proxy_addr = "http://localhost:" + recase_port + "/RPC2"
+
+        # initialize text processing tools (can be shared among threads)
+        self.splitter = SentenceSplitter({'language': source_lang})
+        self.tokenizer = Tokenizer({'lowercase': True,
+                                    'moses_escape': True})
+        self.detokenizer = Detokenizer({'moses_deescape': True,
+                                        'capitalize_sents': True,
+                                        'language': target_lang})
+
 
     def process_task(self, task):
         """Process translation task. Splits request into sentences, then translates and
@@ -36,11 +45,15 @@ class Translator:
         """Translate and recase one sentence. Optionally, word alignment
         between source and target is included in output."""
 
+        # create server proxies (needed for each thread)
+        translate_proxy = xmlrpclib.ServerProxy(self.translate_proxy_addr)
+        recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
+
         # tokenize
         src_tokenized = self.tokenizer.tokenize(src)
 
         # translate
-        translation = self.translate_proxy.translate({
+        translation = translate_proxy.translate({
             "text": src_tokenized,
             "align": doalign,
             "nbest": nbestsize,
@@ -51,7 +64,7 @@ class Translator:
         rank = 0
         hypos = []
         for hypo in translation['nbest']:
-            recased = self.recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
+            recased = recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
             parsed_hypo = {
                 'text': recased,
                 'score': hypo['totalScore'],
