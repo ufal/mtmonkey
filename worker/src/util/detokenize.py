@@ -147,7 +147,6 @@ class Detokenizer(object):
         text = text.strip()
         # capitalize, if the sentence ends with a final punctuation
         if self.capitalize_sents and self.__final_punct.search(text):
-            print >> sys.stderr, 'HERE'
             text = text[0].upper() + text[1:]
         return text
 
