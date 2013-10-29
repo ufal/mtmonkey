@@ -1,9 +1,5 @@
 #!/bin/bash
 
-function qqsub1g() {
-    qsub -cwd -o $2 -e $2 -S /bin/bash -V -j n -l h_vmem=1g -l mem_free=1g $1
-}
-
 langs=(cs en_cs fr en_fr de en_de)
 
 #c=1
@@ -38,16 +34,14 @@ langs=(cs en_cs fr en_fr de en_de)
                     client=0$client
                 fi
                 
-                qqsub1g runBULK/testBULK_${langs[$l1]}_${client}.shc $dir #!!!
-                qqsub1g runBULK/testBULK_${langs[$l2]}_${client}.shc $dir #!!!
-                qqsub1g runBULK/testBULK_${langs[$l3]}_${client}.shc $dir #!!!
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l1]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l2]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l3]}_${client}.shc 
 
             done
-            sleeptime=$[3*$clients+$starttime+5]
             echo submitted langs ${langs[$l1]} ${langs[$l2]} ${langs[$l3]} with start $begin and $clients clients
-            echo sleeping for $sleeptime
-            sleep $sleeptime #!!!
-        
+            while qstat -j 'testBULK*' &> /dev/null; ; do sleep 1; done
+ 
         # end languages
         done
         done

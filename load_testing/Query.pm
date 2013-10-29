@@ -46,7 +46,13 @@ sub call {
         my $returned_data = decode_json($response);
         my $translation =
             $returned_data->{translation}->[0]->{translated}->[0]->{text};
-        return $translation;
+        if ( defined $translation ) {
+            return $translation;
+        }
+        else {
+            warn ("A problem occured: ".$curl->getinfo(CURLINFO_RESPONSE_CODE)."\n");
+            return undef;
+        }
     } else {
         # Error code, type of error, error message
         warn ("An error happened: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n");

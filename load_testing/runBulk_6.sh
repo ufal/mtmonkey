@@ -1,13 +1,5 @@
 #!/bin/bash
 
-function qqsub1gd() {
-    dir=$1
-    shift
-    for i in $@
-    do
-        qsub -cwd -o $dir -e $dir -S /bin/bash -V -j n -l h_vmem=1g -l mem_free=1g $i
-    done
-}
 
 #langs=(cs en_cs fr en_fr de en_de)
 
@@ -38,13 +30,10 @@ function qqsub1gd() {
                     client=0$client
                 fi
                 
-                qqsub1gd $dir runBULK/testBULK_*_${client}.shc #!!!
+                ./qqsub1g $dir runBULK/testBULK_*_${client}.shc
 
             done
-            sleeptime=$[6*$clients+$starttime]
             echo submitted all langs with start $begin and $clients clients
-            echo sleeping for $sleeptime
-            sleep $sleeptime #!!!
-        
+            while qstat -j 'testBULK*' &> /dev/null; ; do sleep 1; done
     done
 done

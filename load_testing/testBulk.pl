@@ -74,11 +74,18 @@ my $charcount = 0;
     }
 
     # translate
+    my $failed = 0;
     $t0 = [gettimeofday];
     while ($line = <$file>) {
         chomp $line;        
         my $result = $query->call($line);
-        print "$sourceLang: $line -> $targetLang: $result\n";
+        if ( defined $result ) {
+            print "$sourceLang: $line -> $targetLang: $result\n";
+        }
+        else {
+            $failed++;
+            print "TRANSLATION FAILED, see error log for details\n";
+        }
     }
     $t1 = [gettimeofday];
 
@@ -86,19 +93,21 @@ my $charcount = 0;
     seek $file, 0, 0;
     while ($line = <$file>) {
         $linecount++;
-        chomp $line;
-        $charcount += length $line;
-        my @words = split /[ ,\.\-]/, $line;
-        $wordcount += @words;
+        #chomp $line;
+        #$charcount += length $line;
+        #my @words = split /[ ,\.\-]/, $line;
+        #$wordcount += @words;
     }    
-
     close $file;
+
+    $linecount-=$failed;
 }    
 
 my $interval = tv_interval($t0, $t1) * 1000;
 tsvsay( $interval, 'ms total' );
+tsvsay( $linecount, 'lines' );
 tsvsay( $interval/$linecount, 'ms avg per line' );
-tsvsay( $interval/$wordcount, 'ms avg per word' );
-tsvsay( $interval/$charcount, 'ms avg per char' );
+#tsvsay( $interval/$wordcount, 'ms avg per word' );
+#tsvsay( $interval/$charcount, 'ms avg per char' );
 
 
