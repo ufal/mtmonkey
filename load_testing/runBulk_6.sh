@@ -34,6 +34,6 @@
 
             done
             echo submitted all langs with start $begin and $clients clients
-            while qstat -j 'testBULK*' &> /dev/null; ; do sleep 1; done
+            while qstat -j 'testBULK*' &> /dev/null;do sleep 1; done
     done
 done

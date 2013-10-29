@@ -37,7 +37,7 @@ langs=(cs en_cs fr en_fr de en_de)
 
             done
             echo submitted langs ${langs[$l1]} ${langs[$l2]} with start $begin and $clients clients
-            while qstat -j 'testBULK*' &> /dev/null; ; do sleep 1; done
+            while qstat -j 'testBULK*' &> /dev/null; do sleep 1; done
         
         # end languages
         done
