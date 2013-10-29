@@ -18,7 +18,10 @@ class KhresmoiWorker:
     """Processes tasks"""
 
     def __init__(self, config, logger):
-        self._translator = Translator(config['TRANSLATE_PORT'], config['RECASE_PORT'])
+        self._translator = Translator(config['TRANSLATE_PORT'],
+                                      config['RECASE_PORT'],
+                                      config.get('SOURCE_LANG', 'en'),
+                                      config.get('TARGET_LANG', 'en'))
         self._logger = logger
 
     def process_task(self, task):
@@ -35,7 +38,7 @@ class KhresmoiWorker:
         else:
             self._logger.warning("Unknown task " + task['action'])
             return { 'error' : 'Unknown task ' + task['action'] }
-    
+
     def alive_check(self):
         """Just checking that the server is up and running."""
         return 1

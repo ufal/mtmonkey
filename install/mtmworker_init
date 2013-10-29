@@ -18,6 +18,8 @@ USER=mt
 VERSION=stable
 # path to this script
 MTMWORKER_INIT=/etc/init.d/mtmworker-$VERSION
+# base directory
+BASEDIR=/home/$USER/mt-$VERSION
 
 # Check if we run as the designated user
 case "`whoami`" in
@@ -34,7 +36,7 @@ esac
 
 # Wait for share to be accessible, return success status
 wait_for_share() {
-    . ~/mt-$VERSION/config/config_remote.sh
+    . $BASEDIR/config/config_remote.sh
     CTR=50
     while [ $CTR -gt 0 ]; do
         if [ -n "$LOGIN" ]; then
@@ -54,25 +56,25 @@ wait_for_share() {
 
 # Start the MTMonkey worker service (check for updates)
 start() {
-    echo `date` "Waiting for NFS..." >> /var/log/mtmworker-$VERSION/startup_worker.log
+    echo `date` "Waiting for share..." >> /var/log/mtmworker-$VERSION/startup_worker.log
     wait_for_share || { echo `date` "Timeout." >> /var/log/mtmworker-$VERSION/startup_worker.log; exit 1; }
 
-    echo `date` "Updating..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    ~/mt-$VERSION/scripts/check_updates 2>&1 | tee -a ~/mt-$VERSION/logs/autorun.log
+    echo `date` "Updating..." | tee -a $BASEDIR/logs/autorun.log
+    $BASEDIR/scripts/check_updates 2>&1 | tee -a $BASEDIR/logs/autorun.log
 
-    echo `date` "Starting MTMonkey worker using init scripts..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    echo "Running as user $USER: ~/mt-$VERSION/scripts/run_{worker,moses}" | tee -a ~/mt-$VERSION/logs/autorun.log
+    echo `date` "Starting MTMonkey worker using init scripts..." | tee -a $BASEDIR/logs/autorun.log
+    echo "Running as user $USER: $BASEDIR/scripts/run_{worker,moses}" | tee -a $BASEDIR/logs/autorun.log
 
-    echo `date` "MTMonkey worker startup PHASE1: user $USER: ~/mt-$VERSION/scripts/run_worker..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    nohup ~/mt-$VERSION/scripts/run_worker >> /var/log/mtmworker-$VERSION/startup_worker.log 2>&1 &
+    echo `date` "MTMonkey worker startup PHASE1: user $USER: $BASEDIR/scripts/run_worker..." | tee -a $BASEDIR/logs/autorun.log
+    nohup $BASEDIR/scripts/run_worker >> /var/log/mtmworker-$VERSION/startup_worker.log 2>&1 &
 
-    echo `date` "MTMonkey worker startup PHASE2: user $USER: ~/mt-$VERSION/scripts/run_moses..." | tee -a ~/mt-$VERSION/logs/autorun.log
-    nohup ~/mt-$VERSION/scripts/run_moses >> /var/log/mtmworker-$VERSION/startup_moses.log 2>&1 &
+    echo `date` "MTMonkey worker startup PHASE2: user $USER: $BASEDIR/scripts/run_moses..." | tee -a $BASEDIR/logs/autorun.log
+    nohup $BASEDIR/scripts/run_moses >> /var/log/mtmworker-$VERSION/startup_moses.log 2>&1 &
 }
 
 # Stop the MTMonkey worker service
 stop() {
-    echo `date` "Stopping MTMonkey worker using init script..." | tee -a ~/mt-$VERSION/logs/autorun.log
+    echo `date` "Stopping MTMonkey worker using init script..." | tee -a $BASEDIR/logs/autorun.log
     for i in `ps ax | grep -E "(mosess[e]rver.*$VERSION|$VERSION.*/worker\.py)" | sed 's/^\s*\([0-9]\+\)\s.*/\1/'`; do
         kill $i; 
     done
