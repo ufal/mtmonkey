@@ -41,21 +41,27 @@ sub call {
     my $retcode = $curl->perform;
 
     if ($retcode == 0) {
-        # OK
-        # my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         my $returned_data = decode_json($response);
-        my $translation =
+        my $errorCode = $returned_data->{errorCode};
+        if ( $errorCode == 0) {
+            my $translation =
             $returned_data->{translation}->[0]->{translated}->[0]->{text};
-        if ( defined $translation ) {
-            return $translation;
+            if ( defined $translation ) {
+                return $translation;
+            }
+            else {
+                warn ("A problem occured: " . $curl->getinfo(CURLINFO_RESPONSE_CODE) . "\n");
+                return undef;
+            }
         }
         else {
-            warn ("A problem occured: ".$curl->getinfo(CURLINFO_RESPONSE_CODE)."\n");
+            warn ("The MT service returned an error: $errorCode " .
+                $returned_data->{errorMessage} . "\n");
             return undef;
         }
     } else {
         # Error code, type of error, error message
-        warn ("An error happened: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n");
+        warn ("A networking error happened: $retcode " . $curl->strerror($retcode) . " " . $curl->errbuf . "\n");
         return undef;
     }
 }
