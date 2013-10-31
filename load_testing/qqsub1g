@@ -4,6 +4,6 @@ dir=$1
 shift
 for i in $@
 do
-    qsub -cwd -o $dir -e $dir -S /bin/bash -V -j n -l h_vmem=1g,h_cpu=3:00:00 -l mem_free=1g $i
+    qsub -cwd -o $dir -e $dir -S /bin/bash -V -j n -l h_vmem=1g -l h_cpu=0:10:00 -l mem_free=1g $i
 done
 
