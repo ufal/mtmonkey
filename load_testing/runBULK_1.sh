@@ -1,22 +1,22 @@
 #!/bin/bash
 
-
-#langs=(cs en_cs fr en_fr de en_de)
+langs=(cs en_cs fr en_fr de en_de)
 
 #c=1
     #clients=$[10*$c]
     for clients in 1 10 100 2 5 20 50
     do
-    dir=logs_6l_$clients
-    mkdir -p $dir #!!!
-    rm $dir/*
+    dir=logs_1l_$clients
+    mkdir $dir #!!!
     for p in {0..9..3}
     do
         begin=$[10*$p]
-        # begin=0
 
         # languages
-            starttime=$[$clients/3+5]
+        for l1 in {0..5}
+        do        
+            
+            starttime=$[$clients/4+5]
             starttime.pl $starttime #!!!
             for i in $(eval echo {1..${clients}})
             do
@@ -29,11 +29,15 @@
                 then
                     client=0$client
                 fi
-                
-                ./qqsub1g $dir runBulk/testBulk_*_${client}.shc
+                    
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l1]}_${client}.shc
 
             done
-            echo submitted all langs with start $begin and $clients clients
-            while qstat -j 'testBulk*' &> /dev/null;do sleep 1; done
+            echo submitted lang ${langs[$l1]} with start $begin and $clients clients
+            while qstat -j 'testBULK*' &> /dev/null; do sleep 1; done
+        
+        # end languages
+        done
+
     done
 done

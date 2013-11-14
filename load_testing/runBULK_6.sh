@@ -30,10 +30,10 @@
                     client=0$client
                 fi
                 
-                ./qqsub1g $dir runBulk/testBulk_*_${client}.shc
+                ./qqsub1g $dir runBULK/testBULK_*_${client}.shc
 
             done
             echo submitted all langs with start $begin and $clients clients
-            while qstat -j 'testBulk*' &> /dev/null;do sleep 1; done
+            while qstat -j 'testBULK*' &> /dev/null;do sleep 1; done
     done
 done

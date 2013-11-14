@@ -4,17 +4,19 @@ langs=(cs en_cs fr en_fr de en_de)
 
 #c=1
     #clients=$[10*$c]
-    for clients in 1 10 100 2 5 20 50
+    for clients in 1 10
     do
-    dir=logs_1l_$clients
+    dir=logs_2l_$clients
     mkdir $dir #!!!
     for p in {0..9..3}
     do
         begin=$[10*$p]
 
         # languages
-        for l1 in {0..5}
+        for l1 in {0..4}
         do        
+        for l2 in $(eval echo {$[$l1+1]..5})
+        do
             
             starttime=$[$clients/4+5]
             starttime.pl $starttime #!!!
@@ -30,13 +32,15 @@ langs=(cs en_cs fr en_fr de en_de)
                     client=0$client
                 fi
                     
-                ./qqsub1g $dir runBulk/testBulk_${langs[$l1]}_${client}.shc
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l1]}_${client}.shc 
+                ./qqsub1g $dir runBULK/testBULK_${langs[$l2]}_${client}.shc 
 
             done
-            echo submitted lang ${langs[$l1]} with start $begin and $clients clients
-            while qstat -j 'testBulk*' &> /dev/null; do sleep 1; done
+            echo submitted langs ${langs[$l1]} ${langs[$l2]} with start $begin and $clients clients
+            while qstat -j 'testBULK*' &> /dev/null; do sleep 1; done
         
         # end languages
+        done
         done
 
     done
