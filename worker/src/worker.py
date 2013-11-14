@@ -14,7 +14,7 @@ class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
     """Multithreaded SimpleXMLRPCServer"""
     pass
 
-class KhresmoiWorker:
+class MTMonkeyWorker(object):
     """Processes tasks"""
 
     def __init__(self, config, logger):
@@ -29,15 +29,25 @@ class KhresmoiWorker:
         if task['action'] == 'translate':
             self._logger.info("New translate task")
             try:
-                return self._translator.process_task(task)
+                try:
+                    return self._translator.process_task(task)
+                # check for Moses server overload, crash nicely
+                except socket.error as se:
+                    if se.strerror == 'Connection reset by peer':
+                        self._logger.warning('Translation server overload')
+                        return {'error' : 'Translation server overloaded.'}
+                    raise
+            # crash badly if any other error occurs
             except Exception as e:
                 import traceback
                 etype, eobj, etb = sys.exc_info()
                 fname = os.path.split(etb.tb_frame.f_code.co_filename)[1]
-                return { 'error' : str(etype) + ' at ' + fname + ':' + str(etb.tb_lineno) + "\n" + traceback.format_exc() }
+                self._logger.warning('Translation error ' + traceback.format_exc())
+                return {'error' : str(etype) + ' at ' + fname + ':' +
+                        str(etb.tb_lineno) + "\n" + traceback.format_exc()}
         else:
-            self._logger.warning("Unknown task " + task['action'])
-            return { 'error' : 'Unknown task ' + task['action'] }
+            self._logger.warning('Unknown task ' + task['action'])
+            return {'error' : 'Unknown task ' + task['action']}
 
     def alive_check(self):
         """Just checking that the server is up and running."""
@@ -66,7 +76,7 @@ def main():
     logger.info("Starting XML-RPC server on port " + config['PORT'])
     server = ThreadedXMLRPCServer(("", int(config['PORT'])))
     server.register_introspection_functions()
-    server.register_instance(KhresmoiWorker(config, logger))
+    server.register_instance(MTMonkeyWorker(config, logger))
 
     logger.info("Server started")
 

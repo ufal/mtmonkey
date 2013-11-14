@@ -31,8 +31,8 @@ class WorkerCollection:
             self.nextworker[pair_id] = (worker_id + 1) % len(self.workers[pair_id])
             return self.workers[pair_id][worker_id]
 
-class KhresmoiService:
-    """Khresmoi web service; calls workers which process individual language pairs
+class MTMonkeyService:
+    """MTMonkey web service; calls workers which process individual language pairs
     and returns their outputs in JSON"""
 
     def __init__(self, workers, logger):
@@ -160,12 +160,12 @@ def main():
     # initialize workers collection
     workers = WorkerCollection(app.config['WORKERS'])  
 
-    # initialize Khresmoi service
-    khresmoi = KhresmoiService(workers, logger)
+    # initialize MTMonkey service
+    mtmonkey = MTMonkeyService(workers, logger)
 
     # register routes
-    app.route('/khresmoi', methods=['POST'])(khresmoi.post)
-    app.route('/khresmoi')(khresmoi.get)
+    app.route(app.config['URL'], methods=['POST'])(mtmonkey.post)
+    app.route(app.config['URL'])(mtmonkey.get)
 
     # run
     app.run(host="", port=app.config['PORT'], threaded=True)

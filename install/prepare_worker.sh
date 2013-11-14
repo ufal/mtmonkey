@@ -26,7 +26,7 @@
 #
 
 if [[ -z "$VERSION" || -z "$SHARE" || -z "$USER" ]]; then
-    echo "Usage: USER=username VERSION=version-name SHARE=/mnt/share [LOGIN=\"user@host\"] [PORTS=\"7001:8081:9001\"]  prepare_worker.sh"
+    echo "Usage: USER=username VERSION=version-name SHARE=/mnt/share [LOGIN=\"user@host\"] [PORTS=\"7001:8081:9001\"] [LANGS=\"en:de\"] prepare_worker.sh"
     exit 1
 fi
 
@@ -69,5 +69,11 @@ fi
 if [[ -n "$PORTS" ]]; then
     IFS=: read WORKER_PORT TRANSL_PORT RECASE_PORT <<< "$PORTS"
     sed -i -r "/export RECASER_PORT/s/= *[0-9]*/=$RECASE_PORT/;/export TRANSL_PORT/s/= *[0-9]*/=$TRANSL_PORT/" config/config_moses.sh
-    sed -i -i "/^PORT/s/= *[0-9]*/= $WORKER_PORT/;/^TRANSLATE_PORT/s/= *[0-9]*/= $TRANSL_PORT/;/^RECASE_PORT/s/= *[0-9]*/= $RECASE_PORT/" config/worker.cfg
+    sed -i "/^PORT/s/= *[0-9]*/= $WORKER_PORT/;/^TRANSLATE_PORT/s/= *[0-9]*/= $TRANSL_PORT/;/^RECASE_PORT/s/= *[0-9]*/= $RECASE_PORT/" config/worker.cfg
+fi
+
+# override language settings
+if [[ -n "$LANGS" ]]; then
+    IFS=: read SRC_LANG TRG_LANG <<< "$LANGS"    
+    sed -i "/^SOURCE_LANG/s/= *[a-z]*/= $SRC_LANG/;/^TARGET_LANG/s/= *[a-z]*/= $TRG_LANG/" config/worker.cfg
 fi
