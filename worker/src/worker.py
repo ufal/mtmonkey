@@ -8,6 +8,7 @@ import sys
 import getopt
 from configobj import ConfigObj
 from tasks.translate import Translator
+import socket
 
 class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
                            SimpleXMLRPCServer.SimpleXMLRPCServer):
@@ -33,10 +34,11 @@ class MTMonkeyWorker(object):
                     return self._translator.process_task(task)
                 # check for Moses server overload, crash nicely
                 except socket.error as se:
-                    if se.strerror == 'Connection reset by peer':
-                        self._logger.warning('Translation server overload')
-                        return {'error' : 'Translation server overloaded.'}
-                    raise
+                    if se.strerror in ['Connection reset by peer', 'Connection timed out']:
+                        self._logger.warning('Translation server overloaded: ' + str(se))
+                        return {'error' : 'Translation server overloaded.',
+                                'errorCode': 2}
+                    raise se
             # crash badly if any other error occurs
             except Exception as e:
                 import traceback

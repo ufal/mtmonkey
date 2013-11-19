@@ -76,7 +76,7 @@ class MTMonkeyService:
         except WorkerNotFoundException:
             self.logger.warning("Requested unknown language pair " + pair_id)
             return {
-                "errorCode": 6,
+                "errorCode": 3,
                 "errorMessage": "Language pair not supported: " + pair_id
             }
     
@@ -88,14 +88,14 @@ class MTMonkeyService:
                 xmlrpclib.ProtocolError, xmlrpclib.ResponseError) as e:
             self.logger.error("Call to worker %s failed: %s" % (worker, task))
             return {
-                "errorCode": 7,
+                "errorCode": 1,
                 "errorMessage": str(e)
             }
         
-        # check for errors returned by worker
+        # check for errors returned by worker (default error code: 8, may be overridden)
         if ('error' in result):
             return {
-                "errorCode": 8,
+                "errorCode": result.get('errorCode', 8),
                 "errorMessage": result['error']
             }
     
@@ -121,6 +121,7 @@ class MTMonkeyService:
                 "targetLang": {"type": "string"},
                 "text": {"type": "string"},
                 "nBestSize": {"type": "integer", "required": False},
+                "detokenize": {"type": "integer", "required": False},
                 "alignmentInfo": {"type": "string", "required": False},
                 "docType": {"type": "string", "required": False},
                 "profileType": {"type": "string", "required": False},
