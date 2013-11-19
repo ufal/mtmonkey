@@ -66,3 +66,9 @@ Installation
 For installation notes for both workers and the application
 server, see `install/README.md`.
 
+
+API description
+---------------
+
+For a detailed description of the API used by MTMonkey,
+see the paper above and `API.md`.
