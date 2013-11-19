@@ -35,7 +35,7 @@ longer than 2000 characters via this method. Based on RFC 2616, the
 server returns 414 (Request-URI Too Long) status if a URL is longer than
 10,000 bytes. An example of a HTTP GET query is following:
 
-**http://<URL>/<PATH>?sourceLang=en&targetLang=fr&text=<TEXT>**
+**http://URL/PATH?sourceLang=en&targetLang=fr&text=TEXT**
 
 ### POST Method
 
@@ -252,7 +252,7 @@ Testing from the command line
 MTMonkey can be easily tested using the standard tool **curl** [5] as in
 the example below:
 
-    curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"de", "text": "It works." }' http://<URL>/<PATH>
+    curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"de", "text": "It works." }' http://URL/PATH
 
 This command sends a well-formed JSON request via HTTP POST method and
 displays the response.
