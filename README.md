@@ -71,4 +71,15 @@ API description
 ---------------
 
 For a detailed description of the API used by MTMonkey,
-see the paper above and `API.md`.
+see the paper referenced above and `API.md`.
+
+Acknowledgements
+----------------
+
+The research leading to these results has received funding from the European Union Seventh 
+Framework Programme (FP7/2007-2013) under grant agreement n° 257528 (KHRESMOI). 
+This work has been using language resources developed and/or stored and/or distributed 
+by the LINDAT-Clarin project of the Ministry of Education of the Czech Republic 
+(project LM2010013). This work has been supported by the AMALACH grant (DF12P01OVV02) of 
+the Ministry of Culture of the Czech Republic.
+
