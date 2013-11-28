@@ -2,6 +2,8 @@
 MTMonkey – an infrastructure for Machine Translation web services
 =================================================================
 
+![Typing MT Monkeys](images/monkeys-typing_small.png)
+
 Description
 -----------
 
@@ -9,6 +11,8 @@ MTMonkey is a simple and easily adaptable infrastructure for
 Machine Translation web services, written in Python.
 It allows clients JSON-encoded request for different translation directions
 to be distributed among multiple MT servers.
+
+![MTMonkey Schema](images/mtmonkey-schema.png)
 
 This system consists of:
 
