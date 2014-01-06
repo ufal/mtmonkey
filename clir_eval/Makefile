@@ -62,6 +62,6 @@ copy :
 
 man_eval_stats:
 	mkdir -p stats
-	./annot_stats.pl cs > stats/eHealth-test.cs.stats
-	./annot_stats.pl de > stats/eHealth-test.de.stats
-	./annot_stats.pl fr > stats/eHealth-test.fr.stats
+	#./annot_stats.pl cs $(DATA_TYPE) > stats/$(DATA_TYPE).cs.stats
+	./annot_stats.pl de $(DATA_TYPE) > stats/$(DATA_TYPE).de.stats
+	#./annot_stats.pl fr $(DATA_TYPE) > stats/$(DATA_TYPE).fr.stats
