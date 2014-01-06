@@ -34,9 +34,10 @@ while (my $line = <STDIN>) {
 
     my $text = $decoded_json->{'text'};
     my $lang = $decoded_json->{'lang'};
+    my $yali_khresmoi_lang = $decoded_json->{'yali_khresmoi_id'};
     my $yali_lang = $decoded_json->{'yali_id'};
 
-    if (!$lang_def || ($lang_def && ($lang eq $lang_def) && ($yali_to_lang{$yali_lang} eq $lang_def))) {
+    if (!$lang_def || ($lang_def && ($lang eq $lang_def) && ($yali_to_lang{$yali_khresmoi_lang} eq $lang_def) && ($yali_to_lang{$yali_lang} eq $lang_def))) {
         print $text . "\n";
     }
 }   
