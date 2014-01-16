@@ -71,6 +71,9 @@
 
   <!-- location of MorphoDiTa directory -->
   <property name="morphodita.dir" location="morphodita" />
+  
+  <!-- location of MorphoDiTa directory -->
+  <property name="morphodita_bindings.dir" location="${morphodita.dir}/bindings/java" />
 
 
 
@@ -95,19 +98,43 @@
   
   <!-- compile MorphoDiTa sources -->
   <target name="compile_c">
-    <exec dir="${morphodita.dir}/bindings/java" executable="/usr/bin/make">
-    </exec>
+    <exec dir="${morphodita_bindings.dir}" executable="/usr/bin/make"/>
+<!--    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}" excludes="**/*.java" />
+    </copy> -->
+  </target>
+  
+  <!-- create build directory for MorphoDiTa bindnigs -->
+  <target name="prepare_bindings">
+    <mkdir dir="${morphodita_bindings.dir}/classes" />
+  </target>
+
+  <!-- compile MorphoDiTa bindings to Java -->
+  <target name="compile_bindings">
+    <javac srcdir="${morphodita_bindings.dir}/cz"
+           destdir="${morphodita_bindings.dir}/classes"
+           debug="true"
+           debuglevel="lines,source"
+    	   encoding="UTF-8"
+           source="1.6"
+           target="1.6" />
   </target>
 
   <!-- clean MorphoDiTa -->
   <target name="clean_c">
-    <exec dir="${morphodita.dir}/bindings/java" executable="/usr/bin/make">
+    <exec dir="${morphodita_bindings.dir}" executable="/usr/bin/make">
         <arg value="clean"/>
     </exec>
     <exec dir="${morphodita.dir}/src" executable="/usr/bin/make">
         <arg value="clean"/>
     </exec>
   </target>
+
+  <!-- clean MorphoDiTa bindings classes -->
+  <target name="clean_bindings" >
+    <delete dir="${morphodita_bindings.dir}/classes" />
+  </target>
+
 
   <!-- compile the source -->
   <target name="compile" depends="prepare">
