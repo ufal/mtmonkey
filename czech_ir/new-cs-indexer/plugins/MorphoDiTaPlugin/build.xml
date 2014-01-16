@@ -69,6 +69,9 @@
   <!-- location for the generated JAR file -->
   <property name="jar.location" location="${plugin.name}.jar" />
 
+  <!-- location of MorphoDiTa directory -->
+  <property name="morphodita.dir" location="morphodita" />
+
 
 
   <!-- Classpath to compile - includes gate.jar, GATE/lib/*.jar and any local
@@ -88,6 +91,22 @@
   <!-- create build directory structure -->
   <target name="prepare">
     <mkdir dir="${classes.dir}" />
+  </target>
+  
+  <!-- compile MorphoDiTa sources -->
+  <target name="compile_c">
+    <exec dir="${morphodita.dir}/bindings/java" executable="/usr/bin/make">
+    </exec>
+  </target>
+
+  <!-- clean MorphoDiTa -->
+  <target name="clean_c">
+    <exec dir="${morphodita.dir}/bindings/java" executable="/usr/bin/make">
+        <arg value="clean"/>
+    </exec>
+    <exec dir="${morphodita.dir}/src" executable="/usr/bin/make">
+        <arg value="clean"/>
+    </exec>
   </target>
 
   <!-- compile the source -->
@@ -164,6 +183,6 @@
                          distribution
   -->
   <target name="build" depends="jar" />
-  <target name="distro.prepare" depends="clean.classes, clean.tests" />
+  <target name="distro.prepare" depends="clean.classes" />
 
 </project>
