@@ -1,0 +1,12 @@
+<!-- creole.xml MorphoDiTaPlugin -->
+<!-- Michal Novák <mnovak@ufal.mff.cuni.cz>, 2014 -->
+
+<!--
+This file just references the JAR file that contains the compiled resource.
+Configuration is contained in the @CreoleResource annotation on 
+cuni.ufal.gate.MorphoDiTaPR
+-->
+
+<CREOLE-DIRECTORY>
+  <JAR SCAN="true">MorphoDiTaPlugin.jar</JAR>
+</CREOLE-DIRECTORY>
