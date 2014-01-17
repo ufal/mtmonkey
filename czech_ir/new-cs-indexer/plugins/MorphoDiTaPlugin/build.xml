@@ -88,7 +88,6 @@
       <include name="**/*.zip" />
     </fileset>
     <fileset dir="${lib.dir}" includes="**/*.jar" />
-    <fileset dir="../Format_Mediawiki" includes="**/*.jar" />
   </path>
   
   <!--====================== Targets ============================-->
@@ -209,7 +208,8 @@
   </target>
 
   <!-- Build everything - the code and JavaDoc -->
-  <target name="all" depends="jar, javadoc" />
+  <target name="all" depends="jar" />
+<!--  <target name="all" depends="jar, javadoc" /> -->
 
   <!-- Other targets used by the main GATE build file:
          build: build the plugin - just calls "jar" target
