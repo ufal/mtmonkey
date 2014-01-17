@@ -1,4 +1,4 @@
-package cuni.gate;
+package cz.cuni.mff.ufal.gate;
 
 import cz.cuni.mff.ufal.morphodita.Forms;
 import cz.cuni.mff.ufal.morphodita.TaggedLemma;
