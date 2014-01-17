@@ -1,5 +1,6 @@
 package CS::Segment;
 use utf8;
+use List::Util qw/max min/;
 
 # Note, that we cannot write
 # sub get_unbreakers { return qr{...}; }
