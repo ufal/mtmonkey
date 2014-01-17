@@ -2,21 +2,23 @@ package cz.cuni.mff.ufal.gate;
 
 import cz.cuni.mff.ufal.treex.Segmenter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import gate.AnnotationSet;
+import gate.Factory;
 import gate.Resource;
 import gate.creole.AbstractLanguageAnalyser;
 import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.CreoleParameter;
+import gate.util.InvalidOffsetException;
 
 @SuppressWarnings("serial")
 @CreoleResource(name = "Czech sentence segmenter")
 public class SegmentPR extends AbstractLanguageAnalyser {
-	
-	public String text = "";
 	
 	/** Init-time parameters */
 	String perlSegmenterPath;
@@ -44,24 +46,34 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 			this.segmenter = new Segmenter(perlSegmenterPath);
 			return this;
 		} catch (IOException e) {
-			throw new ResourceInstantiationException();
+			try {
+				throw new ResourceInstantiationException((new File(".")).getCanonicalPath());
+			} catch (IOException e1) {
+				throw new ResourceInstantiationException(e);
+			}
 		}
 	}
 	
 	public void execute() throws ExecutionException {
+		String text = document.getContent().toString();
+		AnnotationSet morphoAnnot = document.getAnnotations("Morpho");
+		List<String> sents;
 		try {
-			List<String> sents = this.segmenter.process_text(this.text);
-			long pos = 0;
-			for (int i = 0; i < sents.size(); i++) {
-				String sent = sents.get(i);
-				long start_pos = pos;
-				long end_pos = pos + sents.get(i).length();
-				System.out.printf("(%d, %d): %s\n", start_pos, end_pos, sent);
-				pos += sent.length();
-			}
+			sents = this.segmenter.process_text(text);
 		} catch (IOException e) {
 			throw new ExecutionException();
 		}
+		long pos = 0;
+		for (int i = 0; i < sents.size(); i++) {
+			String sent = sents.get(i);
+			try {
+				morphoAnnot.add(pos, pos + sent.length(), "Sentence", Factory.newFeatureMap());
+			} catch (InvalidOffsetException e) {
+				throw new ExecutionException();
+			}
+			pos += sent.length();
+		}
+		
 	}
 	
 	public static void main(String[] args) {
@@ -73,14 +85,6 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		segmenter.text = "Jako šéf ODS předsedal dvěma vládám v letech 1992 až 1997. " +
-				"První vláda samostatné ČR (2. července 1992 - 4. července 1996; demise 2. července 1996) " +
-				"byla jmenována ještě v době federace a tvořili ji ministři za ODS, KDU-ČSL, ODA a KDS. " +
-				"Koalice měla 105 poslanců. Druhou Klausovu vládu (4. července 1996 - 2. ledna 1998; " +
-				"demise 30. listopadu 1997) pak tvořila koalice ODS, KDU-ČSL, ODA, která však měla jen 99 poslanců. " +
-				"Z povolebních jednání si opoziční ČSSD odnesla křeslo předsedy Sněmovny pro Miloše Zemana výměnou za podporu vlády. " +
-				"V premiérském křesle zůstal více než pět let, " +
-				"až politická krize a odhalené podvody v hospodaření ODS jej donutily v prosinci 1997 odstoupit.";
 		try {
 			segmenter.execute();
 		} catch (ExecutionException e) {
