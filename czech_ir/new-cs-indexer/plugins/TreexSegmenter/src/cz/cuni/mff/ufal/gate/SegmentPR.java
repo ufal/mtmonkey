@@ -1,6 +1,6 @@
-package cuni.gate;
+package cz.cuni.mff.ufal.gate;
 
-import cuni.treex.Segmenter;
+import cz.cuni.mff.ufal.treex.Segmenter;
 
 import java.io.IOException;
 
@@ -11,6 +11,7 @@ import gate.creole.ResourceInstantiationException;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.CreoleParameter;
 
+@SuppressWarnings("serial")
 @CreoleResource(name = "Czech sentence segmenter")
 public class SegmentPR extends AbstractLanguageAnalyser {
 	
