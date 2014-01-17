@@ -1,4 +1,4 @@
-package cuni.treex;
+package cz.cuni.mff.ufal.treex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,9 +16,10 @@ public class Segmenter
     public Segmenter(String workingDir) throws IOException {
         this.pb = new ProcessBuilder("./segment.pl");
         this.pb.directory(new File(workingDir));
+        this.pb.redirectErrorStream();
         this.perlProcess = this.pb.start();
     }
-
+    
     public List<String> process_text(String text) throws IOException {
     	text = text + "\n";
     	this.perlProcess.getOutputStream().write(text.getBytes());
@@ -37,7 +38,7 @@ public class Segmenter
 
     
     public static void main(String[] args) {
-    	String workingDir = "../tools/segment"; 
+    	String workingDir = "./scripts"; 
     	try {
 	    	Segmenter bipipe = new Segmenter(workingDir);
 	    	
