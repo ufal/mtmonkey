@@ -21,7 +21,7 @@ public class Segmenter
     }
     
     public List<String> process_text(String text) throws IOException {
-    	text = text + "\n";
+    	text = text + "\n<__DOC__>\n";
     	this.perlProcess.getOutputStream().write(text.getBytes());
     	this.perlProcess.getOutputStream().flush();
     	
@@ -30,7 +30,7 @@ public class Segmenter
     	BufferedReader perlInputReader = 
     			new BufferedReader(new InputStreamReader(this.perlProcess.getInputStream()));
     	String line = null;
-    	while ((line = perlInputReader.readLine()) != null && !line.equals("<DOC>"))
+    	while ((line = perlInputReader.readLine()) != null && !line.equals("<__DOC__>"))
     		sentences.add(line);
     	
     	return sentences;

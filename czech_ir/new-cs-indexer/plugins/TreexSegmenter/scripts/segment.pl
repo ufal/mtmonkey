@@ -14,7 +14,12 @@ my $PARAMS = {
 };
 
 while (my $text = <STDIN>) {
-    my @segs = CS::Segment::get_segments($text, $PARAMS);
-    print join "\n", @segs;
-    print "\n<DOC>\n";
+    if ($text eq "<__DOC__>\n") {
+        print "\n<__DOC__>\n";
+    }
+    else {
+        my @segs = CS::Segment::get_segments($text, $PARAMS);
+        print join "\n", @segs;
+        print "\n";
+    }
 }
