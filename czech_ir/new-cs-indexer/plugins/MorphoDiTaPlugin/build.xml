@@ -78,18 +78,7 @@
   <!-- location for the generated MorphoDiTa JAR file -->
   <property name="morphodita.jar.location" location="${lib.dir}/MorphoDiTa.jar" />
 
-
-  <!-- Classpath to compile - includes gate.jar, GATE/lib/*.jar and any local
-       library JAR files. -->
-  <path id="compile.classpath">
-    <pathelement location="${gate.jar}" />
-    <fileset dir="${gate.lib}">
-      <include name="**/*.jar" />
-      <include name="**/*.zip" />
-    </fileset>
-    <fileset dir="${lib.dir}" includes="**/*.jar" />
-  </path>
-  
+ 
   <!--====================== Targets ============================-->
 
   <!-- .................... MorphoDiTa ......................... -->
@@ -133,6 +122,18 @@
 
   <!-- ........................ Plugin ................................ -->
   
+<!-- Classpath to compile - includes gate.jar, GATE/lib/*.jar and any local
+       library JAR files. -->
+  <path id="compile.classpath">
+    <pathelement location="${gate.jar}" />
+    <fileset dir="${gate.lib}">
+      <include name="**/*.jar" />
+      <include name="**/*.zip" />
+    </fileset>
+  	<fileset dir="${lib.dir}" includes="**/*.jar" />
+<!--    <fileset dir="${lib.dir}" includes="**/*.jar" /> -->
+  </path>
+  
   <!-- create build directory for MorphoDiTa bindnigs -->
   <target name="prepare_libdir">
     <mkdir dir="${lib.dir}" />
@@ -163,7 +164,7 @@
   </target>
 
   <!-- create the JAR file -->
-  <target name="jar" depends="compile, copy.resources" >
+  <target name="jar" depends="jar_morphodita, compile, copy.resources" >
     <jar destfile="${jar.location}"
          update="false"
          basedir="${classes.dir}" />
@@ -175,7 +176,7 @@
   </target>
 
   <!-- Clean up - remove .class and .jar files -->
-  <target name="clean" depends="clean.classes" >
+  <target name="clean" depends="clean_morphodita, clean.classes" >
     <delete file="${jar.location}" />
   </target>
 
