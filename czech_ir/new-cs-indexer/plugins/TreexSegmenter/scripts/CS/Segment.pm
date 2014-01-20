@@ -8,7 +8,7 @@ use List::Util qw/max min/;
 my $UNBREAKERS = qr{\p{Upper}|fr|vl|ch| # first name abbrevs.
     pí?|f[ay]|mr|mr?s|tr|               # "pan", "paní", "firma", "trenér"
     ing|arch|                           # academic titles
-    (ph|rn|paed?|ju|mu|mv|md|rs)dr|
+    (ph|rn|paed?|ju|mu|mv|md|rs|rc|rt|th|ic|pharm)dr|
     prof|doc|mgr|bc|mag|ph|bca|mga|ph|
     sv|                                 # "svatý"
     st|čes|uh|čs|                       # "St. Tropez", "Uh. Hradiště", "Čes. Třebová", "Čs. republika"
