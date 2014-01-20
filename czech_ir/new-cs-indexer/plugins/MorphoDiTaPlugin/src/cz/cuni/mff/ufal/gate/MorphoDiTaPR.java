@@ -2,13 +2,13 @@ package cz.cuni.mff.ufal.gate;
 
 import java.net.URL;
 
-/*import cz.cuni.mff.ufal.morphodita.Forms;
+import cz.cuni.mff.ufal.morphodita.Forms;
 import cz.cuni.mff.ufal.morphodita.TaggedLemma;
 import cz.cuni.mff.ufal.morphodita.TaggedLemmas;
 import cz.cuni.mff.ufal.morphodita.Tagger;
 import cz.cuni.mff.ufal.morphodita.TokenRange;
 import cz.cuni.mff.ufal.morphodita.TokenRanges;
-import cz.cuni.mff.ufal.morphodita.Tokenizer;*/
+import cz.cuni.mff.ufal.morphodita.Tokenizer;
 import gate.AnnotationSet;
 import gate.Factory;
 import gate.FeatureMap;
@@ -62,27 +62,27 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 		this.fromRawText = fromRawText;
 	}
 
-	//Tagger tagger = null;
+	Tagger tagger = null;
 	
 	public Resource init() throws ResourceInstantiationException {
-		/*this.tagger = Tagger.load(this.taggerModelPath.getPath());
+		this.tagger = Tagger.load(this.taggerModelPath.getPath());
 		if (tagger == null)
-			throw new ResourceInstantiationException();*/
+			throw new ResourceInstantiationException();
 		return this;
 	}
 
 	public void execute() throws ExecutionException {
 		if (Boolean.valueOf(getFromRawText())) {
-			/*try {
+			try {
 				tagUntokenized();
 			} catch (InvalidOffsetException e) {
 				throw new ExecutionException();
-			}*/
+			}
 		}
 		else {
 		}
 	}
-	/*
+	
 	public void tagUntokenized() throws InvalidOffsetException {
 	
 		Tokenizer tokenizer = this.tagger.newTokenizer();
@@ -117,6 +117,5 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 			morphoAnnot.add(sentStart, t, "Sentence", Factory.newFeatureMap());
 		}
 	}
-	*/
-
+	
 }

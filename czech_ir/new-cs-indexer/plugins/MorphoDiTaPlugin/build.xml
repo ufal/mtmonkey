@@ -162,12 +162,16 @@
       <fileset dir="${src.dir}" excludes="**/*.java" />
     </copy>
   </target>
-
+	
   <!-- create the JAR file -->
   <target name="jar" depends="jar_morphodita, compile, copy.resources" >
     <jar destfile="${jar.location}"
          update="false"
-         basedir="${classes.dir}" />
+         basedir="${classes.dir}">
+    	<manifest>
+    		<attribute name="Class-Path" value="${morphodita.jar.location}" />
+    	</manifest>
+    </jar>
   </target>
 
   <!-- remove the generated .class files -->
