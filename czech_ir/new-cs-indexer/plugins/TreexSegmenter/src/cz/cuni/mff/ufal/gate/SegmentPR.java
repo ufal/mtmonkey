@@ -3,7 +3,11 @@ package cz.cuni.mff.ufal.gate;
 import cz.cuni.mff.ufal.treex.Segmenter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import gate.AnnotationSet;
@@ -21,12 +25,12 @@ import gate.util.InvalidOffsetException;
 public class SegmentPR extends AbstractLanguageAnalyser {
 	
 	/** Init-time parameters */
-	String perlSegmenterPath;
+	URL perlSegmenterPath;
 	
 	/**
 	 * @return the perlSegmenterPath
 	 */
-	public String getPerlSegmenterPath() {
+	public URL getPerlSegmenterPath() {
 		return perlSegmenterPath;
 	}
 
@@ -35,7 +39,7 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 	 */
 	@CreoleParameter(comment = "a path to the Perl segmenter",
 			defaultValue = "scripts")
-	public void setPerlSegmenterPath(String perlSegmenterPath) {
+	public void setPerlSegmenterPath(URL perlSegmenterPath) {
 		this.perlSegmenterPath = perlSegmenterPath;
 	}
 
@@ -43,7 +47,7 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 	
 	public Resource init() throws ResourceInstantiationException {
 		try {
-			this.segmenter = new Segmenter(perlSegmenterPath);
+			this.segmenter = new Segmenter(perlSegmenterPath.getPath());
 			return this;
 		} catch (IOException e) {
 			try {
@@ -63,22 +67,61 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 		} catch (IOException e) {
 			throw new ExecutionException();
 		}
-		long pos = 0;
-		for (int i = 0; i < sents.size(); i++) {
-			String sent = sents.get(i);
+//		try {
+//			File f = new File(perlSegmenterPath.getPath(), "skuska1");
+//			PrintWriter out = new PrintWriter(f);
+//			out.print(text);
+//			out.close();
+//		} catch (FileNotFoundException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		
+//		System.err.printf("SENTENCES: %s", sents.size());
+		char[] textChar = text.toCharArray();
+		int startPos = 0;
+		for (String sent : sents) {
+			if (sent.isEmpty()) {
+				continue;
+			}
+			int endPos = alignTextWithSent(textChar, startPos, sent);
 			try {
-				morphoAnnot.add(pos, pos + sent.length(), "Sentence", Factory.newFeatureMap());
+				morphoAnnot.add((long) startPos, (long) endPos, "Sentence", Factory.newFeatureMap());
 			} catch (InvalidOffsetException e) {
 				throw new ExecutionException();
 			}
-			pos += sent.length();
+			startPos = endPos;
 		}
 		
 	}
 	
+	private int alignTextWithSent(char[] textChar, int textPos, String sent) {
+		int sentLen = sent.length();
+		char[] sentChar = sent.toCharArray();
+		int sentPos = 0;
+		while (textPos < textChar.length && sentPos < sentLen) {
+			while (textPos < textChar.length && Character.isWhitespace(textChar[textPos])) {
+				textPos++;
+//				System.err.printf("tp_ws: %d\n", textPos);
+			}
+			while (sentPos < sentLen && Character.isWhitespace(sentChar[sentPos])) {
+				sentPos++;
+//				System.err.printf("sp_ws: %d\n", textPos);
+			}
+			textPos++;
+			sentPos++;
+		}
+		return textPos;
+	}
+	
 	public static void main(String[] args) {
 		SegmentPR segmenter = new SegmentPR();
-		segmenter.setPerlSegmenterPath("scripts");
+		try {
+			segmenter.setPerlSegmenterPath(new URL("scripts"));
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			segmenter.init();
 		} catch (ResourceInstantiationException e) {
