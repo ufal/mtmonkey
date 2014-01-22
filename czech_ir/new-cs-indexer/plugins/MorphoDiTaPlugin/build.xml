@@ -90,7 +90,9 @@
   
   <!-- compile MorphoDiTa sources and Java bindings -->
   <target name="compile_morphodita" depends="prepare_morphodita">
-    <exec dir="${morphodita_bindings.dir}" executable="/usr/bin/make"/>
+    <exec dir="${morphodita_bindings.dir}" executable="/usr/bin/make">
+        <arg value="BITS=32"/>
+    </exec>
     <javac srcdir="${morphodita_bindings.dir}/cz"
            destdir="${morphodita_bindings.dir}/classes"
            debug="true"
