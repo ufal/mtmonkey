@@ -79,6 +79,10 @@
   <property name="morphodita.jar.location" location="${lib.dir}/MorphoDiTa.jar" />
   <property name="morphodita.so.location" location="${lib.dir}/libmorphodita_java.so" />
 
+  <!-- enforce if the MorphDiTa library is compiled as 32/64bit; 
+    if not set, follow the architecture of the machine being run on -->
+  <property name="bits" value=""/>
+
  
   <!--====================== Targets ============================-->
 
@@ -92,7 +96,7 @@
   <!-- compile MorphoDiTa sources and Java bindings -->
   <target name="compile_morphodita" depends="prepare_morphodita">
     <exec dir="${morphodita_bindings.dir}" executable="/usr/bin/make">
-        <arg value="BITS=32"/>
+        <arg value="BITS=${bits}"/>
     </exec>
     <javac srcdir="${morphodita_bindings.dir}/cz"
            destdir="${morphodita_bindings.dir}/classes"
