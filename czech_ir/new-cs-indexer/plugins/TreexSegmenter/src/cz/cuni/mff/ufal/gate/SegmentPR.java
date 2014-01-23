@@ -86,13 +86,14 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 		char[] textChar = text.toCharArray();
 		int startPos = 0;
 		for (String sent : sents) {
+			//System.err.printf("SENT: %s\n", sent);
 			if (sent.isEmpty()) {
 				continue;
 			}
 			while (startPos < textChar.length && Character.isWhitespace(textChar[startPos]) && textChar[startPos] != '\n') {
 				annot.add((long) startPos, (long) startPos+1, "SpaceToken", Factory.newFeatureMap());
 				startPos++;
-//				System.err.printf("tp_ws: %d\n", textPos);
+				//System.err.printf("tp_ws: %d\n", startPos);
 			}
 			int endPos;
 			if (sent.equals(Segmenter.EXTERNAL_SPLIT)) {
@@ -108,7 +109,8 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 				annot.add((long) startPos, (long) endPos, "Sentence", Factory.newFeatureMap());
 			}
 			startPos = endPos;
-		}	
+		}
+		//System.err.println("DOC_END");
 	}
 	
 	private int alignTextWithSent(char[] textChar, int textPos, String sent) {
