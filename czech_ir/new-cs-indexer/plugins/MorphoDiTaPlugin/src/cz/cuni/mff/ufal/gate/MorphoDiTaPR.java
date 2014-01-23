@@ -1,6 +1,9 @@
 package cz.cuni.mff.ufal.gate;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -11,6 +14,7 @@ import cz.cuni.mff.ufal.morphodita.Tagger;
 import cz.cuni.mff.ufal.morphodita.TokenRange;
 import cz.cuni.mff.ufal.morphodita.TokenRanges;
 import cz.cuni.mff.ufal.morphodita.Tokenizer;
+import gate.Annotation;
 import gate.AnnotationSet;
 import gate.Factory;
 import gate.FeatureMap;
@@ -20,11 +24,53 @@ import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
+import gate.creole.metadata.RunTime;
 import gate.util.InvalidOffsetException;
 
 
 @CreoleResource(name = "Czech tagger, morphology, tokenizer and sentence splitter")
 public class MorphoDiTaPR extends AbstractLanguageAnalyser {
+	
+	private final class TextRange {
+		private long start;
+		private long end;
+		
+		public TextRange(long start, long end) {
+			this.start = start;
+			this.end = end;
+		}
+		
+		public long getStart() {
+			return start;
+		}
+		public long getEnd() {
+			return end;
+		}
+	}
+	
+	private class SentenceIterator {
+		
+		private List<Annotation> sentAnnotList;
+		private Iterator<Annotation> sentAnnotIterator;
+		
+		public SentenceIterator(AnnotationSet annot) {
+			this.sentAnnotList = new ArrayList<Annotation>(annot);
+			Collections.sort(sentAnnotList, new gate.util.OffsetComparator());
+			this.sentAnnotIterator = sentAnnotList.iterator();
+		}
+		
+		public boolean hasNextSentence() {
+			return sentAnnotIterator.hasNext();
+		}
+		
+		public TextRange nextSentence() {
+			Annotation a = sentAnnotIterator.next();
+			long start = a.getStartNode().getOffset();
+			long end = a.getEndNode().getOffset();
+			TextRange sentRange = new TextRange(start, end);
+			return sentRange;
+		}
+	}
 	
 	/**
 	 * 
@@ -60,8 +106,9 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 	}
 
 	/**
-	 * @param fromRawText the fromRawText to set
+	 * @param splitSentences the splitSentences to set
 	 */
+	@RunTime
 	@CreoleParameter(comment = "Carry out sentence splitting",
 			defaultValue = "false")
 	public void setSplitSentences(String splitSentences) {
@@ -78,15 +125,17 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 	}
 
 	public void execute() throws ExecutionException {
-	//	if (Boolean.valueOf(getFromRawText())) {
-			try {
-				tagUntokenized();
-			} catch (InvalidOffsetException e) {
-				throw new ExecutionException(e);
+		try {
+			if (Boolean.valueOf(splitSentences)) {
+				tagUnsegmented();
 			}
-	//	}
-	//	else {
-	//	}
+			else {
+				tagSegmented();
+			}
+		}
+		catch (InvalidOffsetException e) {
+			throw new ExecutionException();
+		}
 	}
 	
 	
@@ -123,7 +172,7 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 		annot.add(start, end, "Sentence", Factory.newFeatureMap());
 	}
 	
-	private void tagUntokenized() throws InvalidOffsetException {	
+	private void tagUnsegmented() throws InvalidOffsetException {	
 		Tokenizer tokenizer = this.tagger.newTokenizer();
 		Forms forms = new Forms();
 	    TaggedLemmas taggedLemmas = new TaggedLemmas();
@@ -184,6 +233,46 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 			addNewline(morphoAnnot, lineEnd, lineStart);
 			
 		}
+	}
+	
+	private void tagSegmented() throws InvalidOffsetException {
+		Tokenizer tokenizer = this.tagger.newTokenizer();
+		Forms forms = new Forms();
+	    TaggedLemmas taggedLemmas = new TaggedLemmas();
+	    TokenRanges tokens = new TokenRanges();
+		
+		AnnotationSet morphoAnnot = document.getAnnotations("Morpho");
+		SentenceIterator sentIter = new SentenceIterator(morphoAnnot);
+		
+		while (sentIter.hasNextSentence()) {
+			TextRange sentRange = sentIter.nextSentence();
+			long sentStart = sentRange.getStart();
+			long sentEnd = sentRange.getEnd();
+			String sent = document.getContent().getContent(sentStart, sentEnd).toString();
+			tokenizer.setText(sent);
+			
+			long currPos = sentStart;
+			//System.err.printf("SENT_START: %d\n", sentStart);
+			while (tokenizer.nextSentence(forms, tokens)) {
+				this.tagger.tag(forms, taggedLemmas);
+				for (int i = 0; i < taggedLemmas.size(); i++) {
+					TaggedLemma taggedLemma = taggedLemmas.get(i);
+					TokenRange token = tokens.get(i);
+					long tokenStart = sentStart + token.getStart();
+					long tokenEnd = tokenStart + token.getLength();
+					
+					//System.err.printf("SPACE_TOKEN: %d, %d\n", wsStart, tokenStart-1);					
+					if (currPos < tokenStart) {
+						addSpace(morphoAnnot, currPos, tokenStart);
+					}
+					
+					addToken(morphoAnnot, taggedLemma, tokenStart, tokenEnd, i == taggedLemmas.size()-1);
+					
+					currPos = tokenEnd;
+				}	
+			}
+		}
+
 	}
 	
 }
