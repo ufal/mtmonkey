@@ -154,18 +154,18 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 		annot.add(start, end, "SpaceToken", tokenFeats);
 	}
 	
-	private void addToken(AnnotationSet annot, TaggedLemma taggedLemma, long start, long end, boolean isLast) throws InvalidOffsetException {
+	private void addToken(AnnotationSet annot, TaggedLemma taggedLemma, long start, long end) throws InvalidOffsetException {
 		FeatureMap tokenFeats = Factory.newFeatureMap();
 		tokenFeats.put("lemma", taggedLemma.getLemma());
 		tokenFeats.put("tag", taggedLemma.getTag());
 		//System.err.printf("TOKEN: %d, %d\n", tokenStart, tokenEnd);
 		annot.add(start, end, "Token", tokenFeats);
-		if (isLast && taggedLemma.getTag().startsWith("Z")) {
-			FeatureMap splitFeats = Factory.newFeatureMap();
-			splitFeats.put("kind", "internal");
-			//System.err.printf("TOKEN: %d, %d\n", tokenStart, tokenEnd);
-			annot.add(start, end, "Split", splitFeats);
-		}
+//		if (isLast && taggedLemma.getTag().startsWith("Z")) {
+//			FeatureMap splitFeats = Factory.newFeatureMap();
+//			splitFeats.put("kind", "internal");
+//			//System.err.printf("TOKEN: %d, %d\n", tokenStart, tokenEnd);
+//			annot.add(start, end, "Split", splitFeats);
+//		}
 	}
 	
 	private void addSentence(AnnotationSet annot, long start, long end) throws InvalidOffsetException {
@@ -215,7 +215,7 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 						addSpace(morphoAnnot, wsStart, tokenStart);
 					}
 					
-					addToken(morphoAnnot, taggedLemma, tokenStart, tokenEnd, i == taggedLemmas.size()-1);
+					addToken(morphoAnnot, taggedLemma, tokenStart, tokenEnd);
 					
 					wsStart = tokenEnd;
 				}	
@@ -266,7 +266,7 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 						addSpace(morphoAnnot, currPos, tokenStart);
 					}
 					
-					addToken(morphoAnnot, taggedLemma, tokenStart, tokenEnd, i == taggedLemmas.size()-1);
+					addToken(morphoAnnot, taggedLemma, tokenStart, tokenEnd);
 					
 					currPos = tokenEnd;
 				}	
