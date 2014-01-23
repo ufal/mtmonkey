@@ -75,8 +75,9 @@
   <!-- location of MorphoDiTa directory -->
   <property name="morphodita_bindings.dir" location="${morphodita.dir}/bindings/java" />
 
-  <!-- location for the generated MorphoDiTa JAR file -->
+  <!-- location for the generated MorphoDiTa JAR and SO file -->
   <property name="morphodita.jar.location" location="${lib.dir}/MorphoDiTa.jar" />
+  <property name="morphodita.so.location" location="${lib.dir}/libmorphodita_java.so" />
 
  
   <!--====================== Targets ============================-->
@@ -100,7 +101,6 @@
     	   encoding="UTF-8"
            source="1.6"
            target="1.6" />
-    <copy file="${morphodita_bindings.dir}/libmorphodita_java.so" todir="${morphodita_bindings.dir}/classes"/>
   </target>
   
   <!-- create the JAR file for MorphoDiTa -->
@@ -108,6 +108,7 @@
     <jar destfile="${morphodita.jar.location}"
          update="false"
          basedir="${morphodita_bindings.dir}/classes" />
+    <copy file="${morphodita_bindings.dir}/libmorphodita_java.so" tofile="${morphodita.so.location}"/>
   </target>
 
   <!-- clean MorphoDiTa -->
@@ -120,6 +121,7 @@
     </exec>
     <delete dir="${morphodita_bindings.dir}/classes" />
     <delete file="${morphodita.jar.location}" />
+    <delete file="${morphodita.so.location}" />
   </target>
 
   <!-- ........................ Plugin ................................ -->
