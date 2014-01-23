@@ -13,13 +13,17 @@ my $PARAMS = {
     limit_words => 250,
 };
 
+my $line = 0;
 while (my $text = <STDIN>) {
-    if ($text eq "<__DOC__>\n") {
-        print "\n<__DOC__>\n";
+    if ($text eq "<__DOCUMENT_END__>\n") {
+        print "\n<__DOCUMENT_END__>\n";
     }
     else {
+    	if ($line > 0) {
+    		print "\n<__EXTERNAL_SPLIT__>\n";
+    	}
         my @segs = CS::Segment::get_segments($text, $PARAMS);
         print join "\n", @segs;
-        print "\n";
     }
+    $line++;
 }

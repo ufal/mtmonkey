@@ -10,6 +10,9 @@ import java.util.List;
 
 public class Segmenter 
 {
+	public static final String DOCUMENT_END = "<__DOCUMENT_END__>";
+	public static final String EXTERNAL_SPLIT = "<__EXTERNAL_SPLIT__>";
+	
     ProcessBuilder pb = null;
     Process perlProcess = null;
     
@@ -21,7 +24,13 @@ public class Segmenter
     }
     
     public List<String> process_text(String text) throws IOException {
-    	text = text + "\n<__DOC__>\n";
+    	return process_text(text, false);
+    }
+    
+    public List<String> process_text(String text, boolean withExternalSplits) throws IOException {
+    	StringBuilder sb = new StringBuilder(text);
+    	sb.append("\n").append(DOCUMENT_END).append("\n");
+    	text = sb.toString();
     	this.perlProcess.getOutputStream().write(text.getBytes());
     	this.perlProcess.getOutputStream().flush();
     	
@@ -30,7 +39,7 @@ public class Segmenter
     	BufferedReader perlInputReader = 
     			new BufferedReader(new InputStreamReader(this.perlProcess.getInputStream()));
     	String line = null;
-    	while ((line = perlInputReader.readLine()) != null && !line.equals("<__DOC__>"))
+    	while ((line = perlInputReader.readLine()) != null && !line.equals(DOCUMENT_END))
     		sentences.add(line);
     	
     	return sentences;

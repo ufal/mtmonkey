@@ -3,15 +3,14 @@ package cz.cuni.mff.ufal.gate;
 import cz.cuni.mff.ufal.treex.Segmenter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 import gate.AnnotationSet;
 import gate.Factory;
+import gate.FeatureMap;
 import gate.Resource;
 import gate.creole.AbstractLanguageAnalyser;
 import gate.creole.ExecutionException;
@@ -61,16 +60,22 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 	public void execute() throws ExecutionException {
 		String text = document.getContent().toString();
 		AnnotationSet morphoAnnot = document.getAnnotations("Morpho");
-		List<String> sents;
 		try {
-			sents = this.segmenter.process_text(text);
-		} catch (IOException e) {
-			throw new ExecutionException();
+			annotateSentences(text, morphoAnnot);
+		} catch (Exception e) {
+			throw new ExecutionException(e);
 		}
+	}
+	
+	public void annotateSentences(String text, AnnotationSet annot) throws InvalidOffsetException, IOException {
+		boolean withExternalSplits = true;
+		List<String> sents;
+		sents = this.segmenter.process_text(text, withExternalSplits);
+
 //		try {
 //			File f = new File(perlSegmenterPath.getPath(), "skuska1");
 //			PrintWriter out = new PrintWriter(f);
-//			out.print(text);
+//			out.print(StringUtils.join(sents, "\n"));
 //			out.close();
 //		} catch (FileNotFoundException e1) {
 //			// TODO Auto-generated catch block
@@ -84,27 +89,37 @@ public class SegmentPR extends AbstractLanguageAnalyser {
 			if (sent.isEmpty()) {
 				continue;
 			}
-			int endPos = alignTextWithSent(textChar, startPos, sent);
-			try {
-				morphoAnnot.add((long) startPos, (long) endPos, "Sentence", Factory.newFeatureMap());
-			} catch (InvalidOffsetException e) {
-				throw new ExecutionException();
+			while (startPos < textChar.length && Character.isWhitespace(textChar[startPos]) && textChar[startPos] != '\n') {
+				annot.add((long) startPos, (long) startPos+1, "SpaceToken", Factory.newFeatureMap());
+				startPos++;
+//				System.err.printf("tp_ws: %d\n", textPos);
+			}
+			int endPos;
+			if (sent.equals(Segmenter.EXTERNAL_SPLIT)) {
+				endPos = startPos + 1;
+				FeatureMap feats = Factory.newFeatureMap();
+				feats.put("kind", "external");
+				//System.err.printf("SPLIT: (%d, %d)\n", startPos, endPos);
+				annot.add((long) startPos, (long) endPos, "Split", feats);
+			}
+			else {
+				endPos = alignTextWithSent(textChar, startPos, sent);
+				//System.err.printf("SENT: (%d, %d)\n", startPos, endPos);
+				annot.add((long) startPos, (long) endPos, "Sentence", Factory.newFeatureMap());
 			}
 			startPos = endPos;
-		}
-		
+		}	
 	}
 	
 	private int alignTextWithSent(char[] textChar, int textPos, String sent) {
-		int sentLen = sent.length();
 		char[] sentChar = sent.toCharArray();
 		int sentPos = 0;
-		while (textPos < textChar.length && sentPos < sentLen) {
+		while (textPos < textChar.length && sentPos < sentChar.length) {
 			while (textPos < textChar.length && Character.isWhitespace(textChar[textPos])) {
 				textPos++;
 //				System.err.printf("tp_ws: %d\n", textPos);
 			}
-			while (sentPos < sentLen && Character.isWhitespace(sentChar[sentPos])) {
+			while (sentPos < sentChar.length && Character.isWhitespace(sentChar[sentPos])) {
 				sentPos++;
 //				System.err.printf("sp_ws: %d\n", textPos);
 			}
