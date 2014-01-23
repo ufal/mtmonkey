@@ -156,6 +156,7 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 	
 	private void addToken(AnnotationSet annot, TaggedLemma taggedLemma, long start, long end) throws InvalidOffsetException {
 		FeatureMap tokenFeats = Factory.newFeatureMap();
+		tokenFeats.put("form", document.getContent().getContent(start, end).toString());
 		tokenFeats.put("lemma", taggedLemma.getLemma());
 		tokenFeats.put("tag", taggedLemma.getTag());
 		//System.err.printf("TOKEN: %d, %d\n", tokenStart, tokenEnd);
