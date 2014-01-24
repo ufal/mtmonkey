@@ -134,7 +134,7 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 			}
 		}
 		catch (InvalidOffsetException e) {
-			throw new ExecutionException();
+			throw new ExecutionException(e);
 		}
 	}
 	
@@ -142,15 +142,18 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 	private void addSpace(AnnotationSet annot, long start, long end) throws InvalidOffsetException {
 		FeatureMap morphoFeats = Factory.newFeatureMap();
 		morphoFeats.put("kind", "space");
+		//System.err.printf("SPACE_TOKEN: (%d, %d)\n", start, end);
 		annot.add(start, end, "SpaceToken", morphoFeats);
 	}
 	
 	private void addNewline(AnnotationSet annot, long start, long end) throws InvalidOffsetException {
 		FeatureMap splitFeats = Factory.newFeatureMap();
 		splitFeats.put("kind", "external");
+		//System.err.printf("SPLIT: (%d, %d)\n", start, end);
 		annot.add(start, end, "Split", splitFeats);
 		FeatureMap tokenFeats = Factory.newFeatureMap();
 		tokenFeats.put("kind", "control");
+		//System.err.printf("SPACE_TOKEN: (%d, %d)\n", start, end);
 		annot.add(start, end, "SpaceToken", tokenFeats);
 	}
 	
@@ -159,7 +162,7 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 		tokenFeats.put("form", document.getContent().getContent(start, end).toString());
 		tokenFeats.put("lemma", taggedLemma.getLemma());
 		tokenFeats.put("tag", taggedLemma.getTag());
-		//System.err.printf("TOKEN: %d, %d\n", tokenStart, tokenEnd);
+		//System.err.printf("TOKEN: (%d, %d)\n", start, end);
 		annot.add(start, end, "Token", tokenFeats);
 //		if (isLast && taggedLemma.getTag().startsWith("Z")) {
 //			FeatureMap splitFeats = Factory.newFeatureMap();
@@ -197,6 +200,13 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 			String line = reader.nextLine();
 			//System.err.println("LINE: " + line);
 			tokenizer.setText(line);
+			
+			// annotating a newline
+			if (lineStart > 0) {
+				//System.err.printf("SPLIT: %d, %d\n", lineEnd, lineStart);
+				addNewline(morphoAnnot, lineStart - 1, lineStart);
+			}
+			
 			long sentStart = lineStart;
 			//System.err.printf("SENT_START: %d\n", sentStart);
 			while (tokenizer.nextSentence(forms, tokens)) {
@@ -230,9 +240,6 @@ public class MorphoDiTaPR extends AbstractLanguageAnalyser {
 				addSpace(morphoAnnot, sentStart, lineEnd);
 			}
 			lineStart = lineEnd + 1;
-			//System.err.printf("SPLIT: %d, %d\n", lineEnd, lineStart);
-			addNewline(morphoAnnot, lineEnd, lineStart);
-			
 		}
 	}
 	
