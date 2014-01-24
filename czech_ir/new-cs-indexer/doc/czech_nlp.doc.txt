@@ -12,6 +12,9 @@ It consists of the following Processing Resources (PR):
 3) cz:MorphoDiTa
 4) Clean lemmas
 
+Location:
+* czech_nlp/pipeline.gapp
+
 Reset:Czech_NLP
 ----------------
     Requirements:

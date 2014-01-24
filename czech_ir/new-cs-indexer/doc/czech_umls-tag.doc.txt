@@ -12,6 +12,9 @@ It consists of the following Processing Resources (PR):
 3) Mesh form Gazetteer
 4) Transfer Morpho/Sentence to mimir
 
+Location:
+* czech_umls-tag/pipeline.gapp
+
 Reset:Czech_UMLS
 ----------------
     Requirements:
