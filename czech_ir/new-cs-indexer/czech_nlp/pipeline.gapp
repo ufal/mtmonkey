@@ -189,7 +189,7 @@
               </localMap>
             </runtimeParams>
             <resourceType>cz.cuni.mff.ufal.gate.SegmentPR</resourceType>
-            <resourceName>Czech sentence splitter</resourceName>
+            <resourceName>cz:TreexSegmenter</resourceName>
             <initParams class="gate.util.persistence.MapPersistence">
               <mapType>gate.util.SimpleFeatureMapImpl</mapType>
               <localMap>
@@ -230,7 +230,7 @@
               </localMap>
             </runtimeParams>
             <resourceType>cz.cuni.mff.ufal.gate.MorphoDiTaPR</resourceType>
-            <resourceName>Czech tokenizer, morphology and tagger</resourceName>
+            <resourceName>cz:MorphoDiTa</resourceName>
             <initParams class="gate.util.persistence.MapPersistence">
               <mapType>gate.util.SimpleFeatureMapImpl</mapType>
               <localMap>
