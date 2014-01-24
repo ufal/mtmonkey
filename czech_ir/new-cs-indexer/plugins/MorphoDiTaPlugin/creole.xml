@@ -9,4 +9,10 @@ cuni.ufal.gate.MorphoDiTaPR
 
 <CREOLE-DIRECTORY>
   <JAR SCAN="true">MorphoDiTaPlugin.jar</JAR>
+
+  <RESOURCE>  
+    <CLASS>cz.cuni.mff.ufal.gate.MorphoDiTaPR</CLASS>  
+        <PARAMETER NAME="taggerModelPath"  
+            DEFAULT="models/czech-131023.tagger-best_accuracy">java.net.URL</PARAMETER>  
+  </RESOURCE>  
 </CREOLE-DIRECTORY>
