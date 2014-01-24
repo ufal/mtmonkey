@@ -62,6 +62,53 @@
     <collectionType>java.util.ArrayList</collectionType>
   </urlList>
   <application class="gate.util.persistence.ConditionalSerialAnalyserControllerPersistence">
+    <corpus class="at.ofai.gate.virtualcorpus.DirectoryCorpusPersistence">
+      <resourceType>at.ofai.gate.virtualcorpus.DirectoryCorpus</resourceType>
+      <resourceName>Czech</resourceName>
+      <initParams class="gate.util.persistence.MapPersistence">
+        <mapType>gate.util.SimpleFeatureMapImpl</mapType>
+        <localMap>
+          <entry>
+            <string>directoryURL</string>
+            <gate.util.persistence.PersistenceManager-URLHolder>
+              <urlString>$relpath$../../petrak_pipeline/pipeline/fetchFromCouchDb/docs.100_cs/</urlString>
+            </gate.util.persistence.PersistenceManager-URLHolder>
+          </entry>
+          <entry>
+            <string>removeDocuments</string>
+            <boolean>true</boolean>
+          </entry>
+          <entry>
+            <string>encoding</string>
+            <string></string>
+          </entry>
+          <entry>
+            <string>outDirectoryURL</string>
+            <null/>
+          </entry>
+          <entry>
+            <string>useCompression</string>
+            <boolean>false</boolean>
+          </entry>
+          <entry>
+            <string>saveDocuments</string>
+            <boolean>true</boolean>
+          </entry>
+          <entry>
+            <string>compressOnCopy</string>
+            <boolean>false</boolean>
+          </entry>
+          <entry>
+            <string>mimeType</string>
+            <string></string>
+          </entry>
+          <entry>
+            <string>transientCorpus</string>
+            <boolean>true</boolean>
+          </entry>
+        </localMap>
+      </initParams>
+    </corpus>
     <strategiesList class="gate.util.persistence.CollectionPersistence">
       <localList>
         <gate.util.persistence.AnalyserRunningStrategyPersistence>
