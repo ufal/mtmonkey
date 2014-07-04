@@ -207,6 +207,7 @@ As for tokenization, you obtain the following attributes:
         "errorMessage": "OK"
     }
 
+
 The meaning of indices is as follows:
 
 -   *src-start*: the start of an interval of tokenized words of the
