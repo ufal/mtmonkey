@@ -56,13 +56,12 @@ Contents of this package
 
 * `appserver` – source codes of the application server
 * `config-example` – example configuration files
+* `images` – just logos and images
 * `install` – installation scripts and instructions
 * `scripts` – application server, worker and Moses servers startup scripts
 * `web-client` – a simple PHP-based web client for the service
 * `worker` – source codes of the worker, incl. text pre- and post-processing
              tools.
-
-Subdirectories not mentioned in this list are used for testing purposes.
 
 Installation
 ------------
