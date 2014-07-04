@@ -1,0 +1,18 @@
+<!-- creole.xml MorphoDiTaPlugin -->
+<!-- Michal Novák <mnovak@ufal.mff.cuni.cz>, 2014 -->
+
+<!--
+This file just references the JAR file that contains the compiled resource.
+Configuration is contained in the @CreoleResource annotation on 
+cuni.ufal.gate.MorphoDiTaPR
+-->
+
+<CREOLE-DIRECTORY>
+  <JAR SCAN="true">MorphoDiTaPlugin.jar</JAR>
+
+  <RESOURCE>  
+    <CLASS>cz.cuni.mff.ufal.gate.MorphoDiTaPR</CLASS>  
+        <PARAMETER NAME="taggerModelPath"  
+            DEFAULT="models/czech-131023.tagger-best_accuracy">java.net.URL</PARAMETER>  
+  </RESOURCE>  
+</CREOLE-DIRECTORY>

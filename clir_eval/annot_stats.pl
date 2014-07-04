@@ -12,6 +12,7 @@ my $data_type = $ARGV[1];
 my $clue_path = "data/$data_type.$lang.clue";
 my $annot_path = "annot/$data_type.$lang.annot1";
 
+#my @systems = ('b0','gt','ref');    # ommitting v1 only for German
 my @systems = ('b0','v1','gt','ref');    
 if ($lang eq "de" && $data_type eq "mt-test") {
     push @systems, "v1d";

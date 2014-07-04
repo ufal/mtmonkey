@@ -58,8 +58,10 @@ $(HON_DATA_DIR)/all.docs.split.info.list : $(HON_DATA_DIR)/all.docs.split.filter
 		echo $$i; \
 		filename=`echo $$i | tail -c 12`; \
 		qsubmit --jobname="hon_info_$$filename" --logdir='log' \
-			"zcat $$i | yali-identifier -e -f single -c yali.classes-all.5 > $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_ids; \
-			zcat $$i | scripts/add_info.pl --yali-ids $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_ids | gzip -c > $(HON_DATA_DIR)/all.docs.split.info/$$filename;\
+			"zcat $$i | scripts/print_text.pl | yali-identifier -e -f single -c yali.classes-khresmoi.5 > $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_khresmoi_ids; \
+			zcat $$i | scripts/print_text.pl | yali-language-identifier -i=- -l \"`cat yali.classes-all.4 | cut -f1 | perl -e 'while (<>) {chomp $$_; print $$_." ";}'`\" -e -f single > $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_ids; \
+			zcat $$i | scripts/add_info.pl --yali-khresmoi-ids $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_khresmoi_ids --yali-ids $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_ids | gzip -c > $(HON_DATA_DIR)/all.docs.split.info/$$filename;\
+			rm $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_khresmoi_ids;\
 			rm $(HON_DATA_DIR)/all.docs.split.info/$$filename.yali_ids"; \
 		sleep 2; \
 	done

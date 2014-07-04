@@ -1,0 +1,46 @@
+Phase:phase1
+Input: Token   
+Options: control = all
+
+Rule: clean_token_lemmas
+Priority: 20
+(
+{Token}
+): token_tmp
+-->
+{
+	gate.AnnotationSet binding_as = (gate.AnnotationSet) bindings.get("token_tmp");
+	gate.Annotation annot = binding_as.iterator().next();
+//	System.out.println(annot.getId());
+	FeatureMap fm = annot.getFeatures();
+	String lemma = (String) fm.get("lemma");
+	String form = (String) fm.get("form");
+	
+
+  if (lemma.startsWith("&"))
+      lemma = org.apache.commons.lang.StringEscapeUtils.unescapeXml(lemma);
+  if (form.startsWith("&"))
+    form = org.apache.commons.lang.StringEscapeUtils.unescapeXml(form);
+
+	
+	int slash =  lemma.indexOf('-', 1);
+	int under =  lemma.indexOf('_', 1);
+	
+	int substr_end = lemma.length();
+	
+	if (slash > 0) substr_end = slash;
+	if (under > 0) substr_end = Math.min(substr_end, under);
+
+	
+	char first_ch = lemma.charAt(0);
+	
+	if (Character.isUpperCase(form.charAt(0)))
+	{
+		first_ch = Character.toUpperCase(first_ch);			
+	}
+
+	String clean_lemma = first_ch + lemma.substring(1, substr_end);
+	
+	fm.put("clean_lemma", clean_lemma);
+}
+
