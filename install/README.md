@@ -124,6 +124,7 @@ Application server installation:
   Read, adjust, and run `prepare_appserver.sh` from this directory.
 
 * Adjust configuration in `~$USER/mt-$VERSION/config/appserver.cfg` according to 
+  your setup
   (add IPs and ports of the workers for the individual languages, as well as the 
   application server port.)
 

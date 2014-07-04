@@ -146,8 +146,11 @@ identified by *start* and *end* indices, indexing starts with a zero.
 As for tokenization, you obtain the following attributes:
 
 -   *src-tokenized*: string, space separated sequence of input tokens
+
 -   *tgt-tokenized*: string, space separated sequence of output tokens
+
 -   *alignment-raw*: phrase alignment information
+
 
     {
         "errorCode": 0, 
@@ -208,9 +211,12 @@ The meaning of indices is as follows:
 
 -   *src-start*: the start of an interval of tokenized words of the
     source sentence (we are indexing from 0)
+
 -   *src-end*: the end of an interval of tokenized words (inclusive)
+
 -   *tgt-start*: the start of an interval of tokenized words of the
     translated sentence (we are indexing from 0)
+
 -   *tgt-end*: the end of an interval of tokenized words (inclusive)
 
 The indexes refer to tokenized text in *src-tokenized* and
