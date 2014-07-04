@@ -152,61 +152,62 @@ As for tokenization, you obtain the following attributes:
 -   *alignment-raw*: phrase alignment information
 
 
-    {
-        "errorCode": 0, 
-        "translation": [
-            {
-                "translated": [
-                    {
-                        "text": "Es ist in Ordnung, aber ich muss die Pille.", 
-                        "tgt-tokenized": "Es ist in Ordnung , aber ich muss die Pille .", 
-                        "src-tokenized": "it 's ok , but i need that pill .", 
-                        "alignment-raw": [
-                            {
-                                "src-start": 0, 
-                                "tgt-start": 0, 
-                                "src-end": 1, 
-                                "tgt-end": 1
-                            }, 
-                            {
-                                "src-start": 2, 
-                                "tgt-start": 2, 
-                                "src-end": 4, 
-                                "tgt-end": 5
-                            }, 
-                            {
-                                "src-start": 5, 
-                                "tgt-start": 6, 
-                                "src-end": 6, 
-                                "tgt-end": 7
-                            }, 
-                            {
-                                "src-start": 7, 
-                                "tgt-start": 8, 
-                                "src-end": 7, 
-                                "tgt-end": 8
-                            }, 
-                            {
-                                "src-start": 8, 
-                                "tgt-start": 9, 
-                                "src-end": 8, 
-                                "tgt-end": 9
-                            }, 
-                            {
-                                "src-start": 9, 
-                                "tgt-start": 10, 
-                                "src-end": 9, 
-                                "tgt-end": 10
-                            }
-                        ]
-                    }
-                ], 
-                "translationId": "794dab3aaa784419b9081710c5cddb54"
-            }
-        ], 
-        "errorMessage": "OK"
-    }
-
+```
+{
+    "errorCode": 0, 
+    "translation": [
+        {
+            "translated": [
+                {
+                    "text": "Es ist in Ordnung, aber ich muss die Pille.", 
+                    "tgt-tokenized": "Es ist in Ordnung , aber ich muss die Pille .", 
+                    "src-tokenized": "it 's ok , but i need that pill .", 
+                    "alignment-raw": [
+                        {
+                            "src-start": 0, 
+                            "tgt-start": 0, 
+                            "src-end": 1, 
+                            "tgt-end": 1
+                        }, 
+                        {
+                            "src-start": 2, 
+                            "tgt-start": 2, 
+                            "src-end": 4, 
+                            "tgt-end": 5
+                        }, 
+                        {
+                            "src-start": 5, 
+                            "tgt-start": 6, 
+                            "src-end": 6, 
+                            "tgt-end": 7
+                        }, 
+                        {
+                            "src-start": 7, 
+                            "tgt-start": 8, 
+                            "src-end": 7, 
+                            "tgt-end": 8
+                        }, 
+                        {
+                            "src-start": 8, 
+                            "tgt-start": 9, 
+                            "src-end": 8, 
+                            "tgt-end": 9
+                        }, 
+                        {
+                            "src-start": 9, 
+                            "tgt-start": 10, 
+                            "src-end": 9, 
+                            "tgt-end": 10
+                        }
+                    ]
+                }
+            ], 
+            "translationId": "794dab3aaa784419b9081710c5cddb54"
+        }
+    ], 
+    "errorMessage": "OK"
+}
+```
 
 The meaning of indices is as follows:
 
