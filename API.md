@@ -16,7 +16,7 @@ method with the following parameters.
     *en*, *de*, *fr*) (**required**)
 -   *targetLang*: string -- ISO 639-1 code of the target language (*cs*,
     *en*, *de*, *fr*) (**required**)
--   *alignmentInfo*: string -- request alignment information (optional,
+-   *alignmentInfo*: boolean -- request alignment information (optional,
     default = "false")
 -   *nBestSize*: integer -- maximum number of translation options
     (optional, default = 1, i.e. one best translation is provided, the
