@@ -17,10 +17,10 @@ test_translation () {
     done
 }
 
-PORT=8888
+PORT=8080
 TIMEOUT=15
-SITE=http://quest.ms.mff.cuni.cz
-REQ_ADDR=/khresmoi
+SITE= # add server address here
+REQ_ADDR= # add server path here
 TEXT="Test"
 
 while getopts "p:m:t:s:r:" OPT; do
@@ -43,6 +43,11 @@ while getopts "p:m:t:s:r:" OPT; do
 done
 shift $((OPTIND - 1))
 
+if [[ -z "$SITE" ]]; then # exit graciously if the SITE parameter is not set
+    echo "SITE must be set (either in the script or on command-line)"; 
+    head $0; 
+    exit 1;
+fi
 RES=$( test_translation )
 
 if [ -n "$1" ]; then
