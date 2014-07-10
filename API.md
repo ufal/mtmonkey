@@ -18,7 +18,8 @@ method with the following parameters.
     *en*, *de*, *fr*) (**required**)
 -   *alignmentInfo*: boolean -- request alignment information (optional,
     default = "false")
--   *nBestSize*: integer -- maximum number of translation options
+-   *nBestSize*: integer -- maximum number of distinct translation 
+    variants to return
     (optional, default = 1, i.e. one best translation is provided, the
     maximum value is set to 10).
 -   *detokenize*: boolean -- indicates whether the translation result
