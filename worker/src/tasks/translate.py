@@ -9,7 +9,6 @@ from util.tokenize import Tokenizer
 from util.detokenize import Detokenizer
 from util.split_sentences import SentenceSplitter
 
-
 class Translator(object):
     """Base class for all classes that handle the 'translate' task for MTMonkeyWorkers"""
 
@@ -90,8 +89,8 @@ class MosesTranslator(Translator):
     def process_task(self, task):
         """Process translation task. Splits request into sentences, then translates and
         recases each sentence."""
-        doalign = unicode(task.get('alignmentInfo', '')).lower() in ['true', 't', 'yes', 'y', '1']
-        dodetok = not unicode(task.get('detokenize', '')).lower() in ['false', 'f', 'no', 'n', '0']
+        doalign = task.get('alignmentInfo', '').lower() in ['true', 't', 'yes', 'y', '1']
+        dodetok = not task.get('detokenize', '').lower() in ['false', 'f', 'no', 'n', '0']
         nbestsize = min(task.get('nBestSize', 1), 10)
         src_lines = self.splitter.split_sentences(task['text'])
         translated = [self._translate(line, doalign, dodetok, nbestsize) for line in src_lines]

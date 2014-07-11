@@ -8,7 +8,7 @@ import sys
 import getopt
 import ast
 from configobj import ConfigObj
-from tasks.translate import Translator
+from tasks.translate import MosesTranslator, StandaloneTranslator
 import socket
 
 class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
@@ -17,7 +17,7 @@ class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
     pass
 
 class MTMonkeyWorker(object):
-    """Processes tasks"""
+    """Processes tasks ('translate' is currently the only implemented one)"""
 
     def __init__(self, config, logger):
         """Create the translator object that will handle translation"""
@@ -43,7 +43,7 @@ class MTMonkeyWorker(object):
             try:
                 try:
                     return self._translator.process_task(task)
-                # check for Moses server overload, crash nicely
+                # check for translation server overload, crash nicely
                 except socket.error as se:
                     if se.strerror in ['Connection reset by peer', 'Connection timed out']:
                         self._logger.warning('Translation server overloaded: ' + str(se))
