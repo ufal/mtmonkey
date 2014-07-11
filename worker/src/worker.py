@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 import getopt
+import ast
 from configobj import ConfigObj
 from tasks.translate import Translator
 import socket
@@ -19,10 +20,20 @@ class MTMonkeyWorker(object):
     """Processes tasks"""
 
     def __init__(self, config, logger):
-        self._translator = Translator(config['TRANSLATE_PORT'],
-                                      config['RECASE_PORT'],
-                                      config.get('SOURCE_LANG', 'en'),
-                                      config.get('TARGET_LANG', 'en'))
+        """Create the translator object that will handle translation"""
+        # Standalone translator (just passes data to a XMLRPC server that handles everything)
+        if config.get('TRANSLATOR_TYPE').lower() == 'standalone':
+            self._translator = StandaloneTranslator(config['TRANSLATE_PORT'], 
+                                                    config.get('TRANSLATE_URL_PATH', ''),
+                                                    config.get('SRC_KEY', 'text'),
+                                                    config.get('TGT_KEY', 'translated'),
+                                                    ast.literal_eval(config.get('TRANSL_SETTING', '{}')))
+        # Moses translator (only the translation itself is done by Moses XMLRPC server)
+        else:
+            self._translator = MosesTranslator(config['TRANSLATE_PORT'],
+                                               config['RECASE_PORT'],
+                                               config.get('SOURCE_LANG', 'en'),
+                                               config.get('TARGET_LANG', 'en'))
         self._logger = logger
 
     def process_task(self, task):

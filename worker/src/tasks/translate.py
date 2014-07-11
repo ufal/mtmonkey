@@ -9,12 +9,71 @@ from util.tokenize import Tokenizer
 from util.detokenize import Detokenizer
 from util.split_sentences import SentenceSplitter
 
-class Translator:
-    """Handles the 'translate' task for KhresmoiWorker"""
+
+class Translator(object):
+    """Base class for all classes that handle the 'translate' task for MTMonkeyWorkers"""
+
+    def __init__(self):
+        pass
+
+    def process_task(self, task):
+        raise NotImplementedError()
+
+
+class StandaloneTranslator(Translator):
+    """This handles the 'translate' task via an XML-RPC server that is able to do
+    all parts of the translation process by itself."""
+
+    def __init__(self, translate_port, url_path, src_key, tgt_key, transl_setting):
+        """Store all translation server settings.
+
+        @param translate_port: the port on which the server operates (localhost assumed)
+        @param url_path: the URL path to the translation service
+        @param src_key: the dictionary key under which the source text is expected in the request
+        @param tgt_key: the dictionary key where the translation appears in the response
+        @param transl_setting: other (unchanging) settings to be passed to the server
+        """
+        self.translate_proxy_addr = "http://localhost:" + translate_port + url_path
+        self.transl_setting = transl_setting
+        self.src_key = src_key
+        self.tgt_key = tgt_key
+
+    def process_task(self, task):
+        """Just translating, ignoring all possible options."""
+        # translate the text
+        translate_proxy = xmlrpclib.ServerProxy(self.translate_proxy_addr)
+        transl_input = {}
+        transl_input.update(self.transl_setting)
+        transl_input[self.src_key] = task['text']
+        translation = translate_proxy.translate(transl_input)
+        import sys
+        print >> sys.stderr, translation
+        translation = translation[self.tgt_key]
+        # TODO add support for n-best etc. if the server supports them in any way
+        # (general API translation?)
+
+        # construct the resulting JSON (if the translation fails, the Exception will not be caught)
+        result = {'translation': [{'translated': [{'text': translation,
+                                                   'score': 100,
+                                                   'rank': 0}],
+                                   'translationId': uuid.uuid4().hex}], }
+        return result
+
+
+class MosesTranslator(Translator):
+    """Handles the 'translate' task for MTMonkeyWorkers using Moses XML-RPC servers
+    and built-in segmentation, tokenization, and detokenization.
+    """
 
     def __init__(self, translate_port, recase_port, source_lang, target_lang):
-        """Initialize a Translator object according to the given 
-        configuration settings."""
+        """Initialize a MosesTranslator object according to the given 
+        configuration settings.
+        
+        @param translate_port: the port at which the Moses translator operates
+        @param recase_port: the port at which the recaser operates
+        @param source_lang: source language (ISO-639-1 ID)
+        @param target_lang: target language (ISO-639-1 ID)
+        """
         # precompile XML-RPC Moses server addresses
         self.translate_proxy_addr = "http://localhost:" + translate_port + "/RPC2"
         self.recase_proxy_addr = "http://localhost:" + recase_port + "/RPC2"
