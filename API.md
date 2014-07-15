@@ -116,14 +116,14 @@ An example response when translation finished with error:
 
 #### Service Error Codes
 
-  Error Code   Description                                  Meaning
-  ------------ -------------------------------------------- ------------------------------------------------------------------------------
-  0            OK                                           When everything went well and the query has been translated.
-  1            System is temporarily down                   Particular required workers are currently off. Try again later.
-  2            System busy                                  Everything is running but system is currently overloaded. Try again later.
-  3            Invalid language pair                        Unknown language pair.
-  5            Parse error, missing or invalid argument …   Any parse error or missing attribute.
-  8            Unexpected worker error                      Worker experienced an unknown error during the translation. Try again later.
+| Error Code  | Description                                 | Meaning                                                                       |
+|-------------|---------------------------------------------|-------------------------------------------------------------------------------|
+| 0           | OK                                          | When everything went well and the query has been translated.                  |
+| 1           | System is temporarily down                  | Particular required workers are currently off. Try again later.               |
+| 2           | System busy                                 | Everything is running but system is currently overloaded. Try again later.    |
+| 3           | Invalid language pair                       | Unknown language pair.                                                        |
+| 5           | Parse error, missing or invalid argument …  | Any parse error or missing attribute.                                         |
+| 8           | Unexpected worker error                     | Worker experienced an unknown error during the translation. Try again later.  |
 
 #### HTTP Errors
 
