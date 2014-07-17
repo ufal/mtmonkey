@@ -102,9 +102,9 @@ An example response with one translation:
                         "rank": 0
                     }
                 ], 
-                "translationId": "794dab3aaa784419b9081710c5cddb54"
             }
         ], 
+        "translationId": "794dab3aaa784419b9081710c5cddb54"
     }
 
 An example response when translation finished with error:
