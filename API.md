@@ -9,15 +9,16 @@ method with the following parameters.
 
 ### Parameters
 
--   *action*: string, function name -- for testing purposes the only
-    option is *translate*. Stable version provides additional service
-    functions (**required**)
+-   *action*: string, function name -- the only
+    option is *translate*, other may be used for testing purposes (**required**)
 -   *sourceLang*: string -- ISO 639-1 code of the source language (*cs*,
     *en*, *de*, *fr*) (**required**)
 -   *targetLang*: string -- ISO 639-1 code of the target language (*cs*,
     *en*, *de*, *fr*) (**required**)
 -   *alignmentInfo*: boolean -- request alignment information (optional,
     default = "false")
+-   *text*: string -- text to be translated in UTF-8 character encoding
+    (**required**)
 -   *nBestSize*: integer -- maximum number of distinct translation 
     variants to return
     (optional, default = 1, i.e. one best translation is provided, the
@@ -25,8 +26,7 @@ method with the following parameters.
 -   *detokenize*: boolean -- indicates whether the translation result
     should be detokenized according to the rules for the target languge
     (optional, default = "true")
--   *text*: string -- text to be translated in UTF-8 character encoding
-    (**required**, maximum length is limited to 100 words)
+
 
 ### GET Method
 
@@ -62,36 +62,37 @@ then 200 OK retain their usual meaning (e.g. 500 Internal Error).
 
 ### Parameters
 
-The response structure includes one or more *translation* structures
-(depending on the presence of *nBestSize* parameter) or an *error*
-structure.
+The response structure includes:
 
-The **translation** structure consists of:
+-   *errorCode* (number): error code (see below), returned always
+-   *errorMessage* (string): a description of the error, returned always
+-   **translation** (list of structures): contains the translated data as a list of 
+    sentences, each of which contains the following:
 
--   *translated*: list of translations (of length 1, by default, or
-    longer if n-best lists requested)
--   *translationId*: string, globally unique ID of the transaction
+    -   *translated* (list of structures): list of translations of one sentence
+        (of length 1 by default, or longer if n-best lists were requested)
 
-The **translated** item consists of:
+        -   *text* (string): translated text in UTF-8 character encoding
+        -   *score* (number): translation score, expressing quality of
+            translation, meaningful only for comparison of multiple translations
+            of the same sentence
+        -   *rank* (integer): rank of the translation option (ranked according
+            to the scoring, counting from 0; this may be omitted as the rank
+            is given by the order in the *translated* list)
+        -   *src-tokenized* (string): tokenization of the source sentence (for
+            the translation of multiple sentences and/or alignment information)
+        -   Further items if alignment information or multiple translation
+            options are requested (see below).
 
--   *text*: string, translated text in UTF-8 character encoding
--   *score*: number, translation score, expressing quality of
-    translation, meaningful only for comparison of multiple translations
-    of one query
--   *rank*: integer, rank of the translation option (ranked according
-    the scoring, counting from 0)
--   Further items if alignment information or multiple translation
-    options are requested (see below).
+-   *translationId*: string, globally unique ID of the transaction 
+    (may be omitted)
 
-The **error** structure consists of:
-
--   *errorCode*: number, code of the error
--   *errorMessage*: detailed description of the error
 
 An example response with one translation:
 
     {
         "errorCode": 0, 
+        "errorMessage": "OK"
         "translation": [
             {
                 "translated": [
@@ -104,7 +105,6 @@ An example response with one translation:
                 "translationId": "794dab3aaa784419b9081710c5cddb54"
             }
         ], 
-        "errorMessage": "OK"
     }
 
 An example response when translation finished with error:
@@ -156,6 +156,7 @@ As for tokenization, you obtain the following attributes:
 ```
 {
     "errorCode": 0, 
+    "errorMessage": "OK"    
     "translation": [
         {
             "translated": [
@@ -203,10 +204,9 @@ As for tokenization, you obtain the following attributes:
                     ]
                 }
             ], 
-            "translationId": "794dab3aaa784419b9081710c5cddb54"
         }
     ], 
-    "errorMessage": "OK"
+    "translationId": "794dab3aaa784419b9081710c5cddb54"
 }
 ```
 
@@ -233,8 +233,10 @@ them is provided with a score.
 
 An example of a response with two translation options.
 
+```
     {
         "errorCode": 0, 
+        "errorMessage": "OK"
         "translation": [
             {
                 "translated": [
@@ -249,19 +251,28 @@ An example of a response with two translation options.
                         "rank": 1
                     }
                 ], 
-                "translationId": "794dab3aaa784419b9081710c5cddb54"
             }
         ], 
-        "errorMessage": "OK"
+        "translationId": "794dab3aaa784419b9081710c5cddb54"
     }
+```
 
-Testing from the command line
------------------------------
+Testing from the command line / browser window
+----------------------------------------------
 
 MTMonkey can be easily tested using the standard tool **curl** [5] as in
 the example below:
 
+```
     curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"de", "text": "It works." }' http://URL/PATH
+```
 
 This command sends a well-formed JSON request via HTTP POST method and
 displays the response.
+
+
+The GET method can be tested directly from the browser by providing the following URL format:
+
+```
+    http://URL/PATH?action=translate&sourceLang=en&targetLang=de&text=It+works.
+```
