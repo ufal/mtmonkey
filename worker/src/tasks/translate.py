@@ -93,15 +93,22 @@ class MosesTranslator(Translator):
         dodetok = not task.get('detokenize', '').lower() in ['false', 'f', 'no', 'n', '0']
         nbestsize = min(task.get('nBestSize', 1), 10)
         src_lines = self.splitter.split_sentences(task['text'])
-        translated = [self._translate(line, doalign, dodetok, nbestsize) for line in src_lines]
-        return _backward_transform({
+        ret_src_tok = doalign or len(src_lines) > 1
+        translated = [self._translate(line, doalign, dodetok, nbestsize, ret_src_tok) for line in src_lines]
+        return {
             'translationId': uuid.uuid4().hex,
-            'sentences': translated
-        }, doalign, dodetok)
+            'translation': translated
+        }
 
-    def _translate(self, src, doalign, dodetok, nbestsize):
+    def _translate(self, src, doalign, dodetok, nbestsize, ret_src_tok):
         """Translate and recase one sentence. Optionally, word alignment
-        between source and target is included in output."""
+        between source and target is included on the output.
+
+        @param src: source text (one sentence).
+        @param dodetok: detokenize output?
+        @param nbestsize: size of n-best lists on the output
+        @param ret_src_tok: return tokenized source sentences?
+        """
 
         # create server proxies (needed for each thread)
         translate_proxy = xmlrpclib.ServerProxy(self.translate_proxy_addr)
@@ -143,7 +150,7 @@ class MosesTranslator(Translator):
             'translated': hypos,
         }
 
-        if dodetok:
+        if ret_src_tok:
             result['src-tokenized'] = src_tokenized
 
         return result
@@ -158,7 +165,7 @@ def _add_tgt_end(align, tgttok):
 
 def _backward_transform(result, doalign, dodetok):
     """Transform the produced output structure to old format.
-    Soon to be deprecated."""
+    Deprecated - do not use anymore."""
     translation = []
     min_nbest_length = min([len(s['translated']) for s in result['sentences']])
     for rank in range(0, min_nbest_length):
