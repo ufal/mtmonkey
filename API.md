@@ -86,6 +86,12 @@ The response structure includes:
         the translation of multiple sentences and/or alignment information)
     
     -   *src* (string): source sentence in its original form (optional)
+    
+    -   *errorMessage* (string): if the translation of the particular sentence fails,
+        this may contain a detailed error description (optional)
+    
+    -   *errorCode* (number):: if the translation of the particular sentence fails,
+        this may contain a detailed error code (optional)
 
 
 -   *translationId*: string, globally unique ID of the transaction 
@@ -128,6 +134,7 @@ An example response when translation finished with error:
 | 3           | Invalid language pair                       | Unknown language pair.                                                        |
 | 5           | Parse error, missing or invalid argument …  | Any parse error or missing attribute.                                         |
 | 8           | Unexpected worker error                     | Worker experienced an unknown error during the translation. Try again later.  |
+| 99          | Some sentences could not be translated      | The MT system was not able to translate some of the input sentences.          |
 
 #### HTTP Errors
 
