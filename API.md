@@ -158,10 +158,12 @@ identified by *start* and *end* indices, indexing starts with a zero.
 As for tokenization, you obtain the following attributes:
 
 -   *src-tokenized*: string, space separated sequence of input tokens
+    (one per sentence)
 
--   *tgt-tokenized*: string, space separated sequence of output tokens
+-   *tokenized*: string, space separated sequence of output tokens
+    (one per n-best list variant)
 
--   *alignment-raw*: phrase alignment information
+-   *alignment-raw*: phrase alignment information (one per n-best list variant)
 
 
 ```
@@ -173,8 +175,7 @@ As for tokenization, you obtain the following attributes:
             "translated": [
                 {
                     "text": "Es ist in Ordnung, aber ich muss die Pille.", 
-                    "tgt-tokenized": "Es ist in Ordnung , aber ich muss die Pille .", 
-                    "src-tokenized": "it 's ok , but i need that pill .", 
+                    "tokenized": "Es ist in Ordnung , aber ich muss die Pille .", 
                     "alignment-raw": [
                         {
                             "src-start": 0, 
@@ -215,6 +216,7 @@ As for tokenization, you obtain the following attributes:
                     ]
                 }
             ], 
+            "src-tokenized": "it 's ok , but i need that pill .", 
         }
     ], 
     "translationId": "794dab3aaa784419b9081710c5cddb54"
