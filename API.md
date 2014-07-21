@@ -66,7 +66,7 @@ The response structure includes:
 
 -   *errorCode* (number): error code (see below), returned always
 -   *errorMessage* (string): a description of the error, returned always
--   **translation** (list of structures): contains the translated data as a list of 
+-   *translation* (list of structures): contains the translated data as a list of 
     sentences, each of which contains the following:
 
     -   *translated* (list of structures): list of translations of one sentence
@@ -79,10 +79,20 @@ The response structure includes:
         -   *rank* (integer): rank of the translation option (ranked according
             to the scoring, counting from 0; this may be omitted as the rank
             is given by the order in the *translated* list)
-        -   *src-tokenized* (string): tokenization of the source sentence (for
-            the translation of multiple sentences and/or alignment information)
         -   Further items if alignment information or multiple translation
             options are requested (see below).
+
+    -   *src-tokenized* (string): tokenization of the source sentence (for
+        the translation of multiple sentences and/or alignment information)
+    
+    -   *src* (string): source sentence in its original form (optional)
+    
+    -   *errorMessage* (string): if the translation of the particular sentence fails,
+        this may contain a detailed error description (optional)
+    
+    -   *errorCode* (number):: if the translation of the particular sentence fails,
+        this may contain a detailed error code (optional)
+
 
 -   *translationId*: string, globally unique ID of the transaction 
     (may be omitted)
@@ -124,6 +134,7 @@ An example response when translation finished with error:
 | 3           | Invalid language pair                       | Unknown language pair.                                                        |
 | 5           | Parse error, missing or invalid argument …  | Any parse error or missing attribute.                                         |
 | 8           | Unexpected worker error                     | Worker experienced an unknown error during the translation. Try again later.  |
+| 99          | Some sentences could not be translated      | The MT system was not able to translate some of the input sentences.          |
 
 #### HTTP Errors
 
