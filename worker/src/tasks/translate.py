@@ -114,6 +114,7 @@ class MosesTranslator(Translator):
 
         # create server proxies (needed for each thread)
         translate_proxy = xmlrpclib.ServerProxy(self.translate_proxy_addr)
+        recase_proxy = None
         if self.recase_proxy_addr is not None:  # recasing only if there is a recaser set up
             recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
 
