@@ -1,5 +1,9 @@
-MTMonkey API description
-========================
+MTMonkey Public API
+===================
+
+This API is used from clients to communicate with an MTMonkey application server.
+See below for the internal API used between the application server and the individual
+workers.
 
 Requests
 --------
@@ -289,3 +293,27 @@ The GET method can be tested directly from the browser by providing the followin
 ```
     http://URL/PATH?action=translate&sourceLang=en&targetLang=de&text=It+works.
 ```
+
+MTMonkey internal API
+=====================
+
+The internal API is used in the communication between an MTMonkey application server 
+and the individual workers. Two methods of communication are supported on the application
+server side: XML-RPC and JSON. The worker implementation included in this package communicates 
+via XML-RPC, whereas JSON support has been added to simplify alternative worker implementations.
+
+An XML-RPC worker should support the following main method:
+
+- **process_task** (dictionary) – this is used to request a translation, and should return
+    the translated text. The internal format of both the request and the response is exactly
+    the same as in the public API.
+
+Alternatively, a JSON worker should accept the same requests and produce the same responses
+as described in the public API. The communication channel (XML-RPC or JSON) must be given 
+to the application server in the configuration file (see ``config-example/appserver.cfg``
+for details).
+
+In addition, XML-RPC workers may support the following method for testing purposes:
+
+- **alive_check** (no parameters) – this returns ``1`` if the worker is currently running.
+
