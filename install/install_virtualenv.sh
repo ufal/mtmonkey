@@ -30,7 +30,7 @@ cd ..
 
 # Activate virtualenv and install needed libraries
 source virtualenv/bin/activate
-pip install flask validictory regex configobj
+pip install flask validictory regex configobj requests
 
 # clean up
 rm -rf virtualenv-$VEVER virtualenv-$VEVER.tar.gz virtualenv
