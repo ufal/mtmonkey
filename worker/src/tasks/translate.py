@@ -75,7 +75,9 @@ class MosesTranslator(Translator):
         """
         # precompile XML-RPC Moses server addresses
         self.translate_proxy_addr = "http://localhost:" + translate_port + "/RPC2"
-        self.recase_proxy_addr = "http://localhost:" + recase_port + "/RPC2"
+        self.recase_proxy_addr = None
+        if recase_port is not None:
+            self.recase_proxy_addr = "http://localhost:" + recase_port + "/RPC2"
 
         # initialize text processing tools (can be shared among threads)
         self.splitter = SentenceSplitter({'language': source_lang})
@@ -105,7 +107,8 @@ class MosesTranslator(Translator):
 
         # create server proxies (needed for each thread)
         translate_proxy = xmlrpclib.ServerProxy(self.translate_proxy_addr)
-        recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
+        if self.recase_proxy_addr is not None:  # recasing only if there is a recaser set up
+            recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
 
         # tokenize
         src_tokenized = self.tokenizer.tokenize(src)
@@ -122,16 +125,22 @@ class MosesTranslator(Translator):
         rank = 0
         hypos = []
         for hypo in translation['nbest']:
-            recased = recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
+            # recase (if there is a recaser set up)
+            if recase_proxy is not None:
+                recased = recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
+            else:
+                hypo['hyp']
+
+            # construct the output
             parsed_hypo = {
                 'text': recased,
                 'score': hypo['totalScore'],
                 'rank': rank,
             }
-            if dodetok:
+            if dodetok:  # detokenize if needed
                 parsed_hypo['text'] = self.detokenizer.detokenize(recased)
 
-            if doalign:
+            if doalign:  # provide alignment information if needed
                 parsed_hypo['tokenized'] = recased
                 parsed_hypo['alignment-raw'] = _add_tgt_end(hypo['align'], recased)
 

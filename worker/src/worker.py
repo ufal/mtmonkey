@@ -31,7 +31,7 @@ class MTMonkeyWorker(object):
         # Moses translator (only the translation itself is done by Moses XMLRPC server)
         else:
             self._translator = MosesTranslator(config['TRANSLATE_PORT'],
-                                               config['RECASE_PORT'],
+                                               config.get('RECASE_PORT'),
                                                config.get('SOURCE_LANG', 'en'),
                                                config.get('TARGET_LANG', 'en'))
         self._logger = logger
