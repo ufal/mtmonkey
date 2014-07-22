@@ -27,6 +27,7 @@
 
 if [[ -z "$VERSION" || -z "$SHARE" || -z "$USER" ]]; then
     echo "Usage: USER=username VERSION=version-name SHARE=/mnt/share [LOGIN=\"user@host\"] [PORTS=\"7001:8081:9001\"] [LANGS=\"en:de\"] prepare_worker.sh"
+    echo "PORTS = worker port:translation port:recaser port (leave empty if you don't want a recaser)"
     exit 1
 fi
 

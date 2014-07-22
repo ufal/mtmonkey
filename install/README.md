@@ -108,8 +108,8 @@ Autostart and automatic updates
   E.g.: `192.168.1.10:stable:en-de` if the models to be used on `192.168.1.10`
   are located in `/mnt/share/models-stable/en-de`. 
 
-  The model directories must contain `moses.ini` for translation model and 
-  `recaser.moses.ini` for recasing  model; both files must contain 
+  The model directories must contain `moses.ini` for translation model (and
+  `recaser.moses.ini` for recasing  model if needed); both files must contain
   *relative* paths to other files. If you need to use a different setting, you
   must modify workers configuration in the `~$USER/mt-$VERSION/config` directory.
 
