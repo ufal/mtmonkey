@@ -137,7 +137,7 @@ class MosesTranslator(Translator):
             if recase_proxy is not None:
                 recased = recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
             else:
-                hypo['hyp']
+                recased = hypo['hyp']
 
             # construct the output
             parsed_hypo = {
