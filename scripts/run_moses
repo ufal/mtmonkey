@@ -35,15 +35,23 @@ echo $$ > $BASEDIR/logs/.moses_loading
 
 # Run the startup commands
 cd $MODELS_DIR
-nohup $RECASE_CPUSET mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> $BASEDIR/logs/recaser.log 2>&1 &
-RECASER_PID=$!
 nohup $TRANSL_CPUSET mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> $BASEDIR/logs/translate.log 2>&1 &
 TRANSL_PID=$!
+if [[ -n "$RECASER_PORT" ]]; then
+    nohup $RECASE_CPUSET mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> $BASEDIR/logs/recaser.log 2>&1 &
+    RECASER_PID=$!
+fi
 
 # Wait for the servers to be loaded
-until nc -z localhost $RECASER_PORT && nc -z localhost $TRANSL_PORT; do
+until nc -z localhost $TRANSL_PORT; do
     sleep 10;
-    kill -0 $RECASER_PID $TRANSL_PID || { echo "Moses processes dead!"; exit 1; }
+    kill -0 $RECASER_PID $TRANSL_PID || { echo "Moses translation process dead!"; exit 1; }
 done
+if [[ -n "$RECASER_PORT" ]]; then
+    until nc -z localhost $RECASER_PORT; do
+        sleep 10;
+        kill -0 $RECASER_PID $TRANSL_PID || { echo "Moses translation process dead!"; exit 1; }
+    done
+fi
 
 rm $BASEDIR/logs/.moses_loading
