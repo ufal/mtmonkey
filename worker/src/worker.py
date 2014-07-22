@@ -22,7 +22,7 @@ class MTMonkeyWorker(object):
     def __init__(self, config, logger):
         """Create the translator object that will handle translation"""
         # Standalone translator (just passes data to a XMLRPC server that handles everything)
-        if config.get('TRANSLATOR_TYPE').lower() == 'standalone':
+        if config.get('TRANSLATOR_TYPE', '').lower() == 'standalone':
             self._translator = StandaloneTranslator(config['TRANSLATE_PORT'], 
                                                     config.get('TRANSLATE_URL_PATH', ''),
                                                     config.get('SRC_KEY', 'text'),
