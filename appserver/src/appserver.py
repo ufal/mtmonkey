@@ -5,11 +5,23 @@ import os
 import logging
 import validictory
 import xmlrpclib
+import requests
 import getopt
 import sys
 from threading import Lock
 from flask import Flask, request, abort, Response
 from socket import error as socket_err
+
+class JsonProxy(object):
+    """A simple proxy that sends JSON-encoded requests to workers over HTTP."""
+
+    def __init__(self, addr):
+        self.addr = addr
+
+    def process_task(self, task):
+        r = requests.post(self.addr, data=json.dumps(task), headers={'content-type': 'application/json'})
+        return r.json()
+
 
 class WorkerNotFoundException(Exception): pass
 
@@ -18,7 +30,27 @@ class WorkerCollection:
     available workers."""
 
     def __init__(self, workers):
-        self.workers = workers
+        # initialize list of workers
+        self.workers = {}
+        for pair_id, workers_list in workers.items():
+            self.workers[pair_id] = []
+            for worker_desc in workers_list:
+                # parse worker specification (allowing JSON/XMLRPC workers, various
+                # address formats)
+                if ' ' in worker_desc:
+                    worker_type, worker_addr = worker_desc.split(' ')
+                else:
+                    worker_type = 'xml'
+                    worker_addr = worker_desc
+                if not worker_addr.startswith('http'):
+                    worker_addr = 'http://' + worker_addr
+                if not '/' in worker_addr[7:]:
+                    worker_addr += '/'
+                if worker_type == 'json':  # allow JSON workers
+                    self.workers[pair_id].append((worker_addr, JsonProxy))
+                else:  # default to XML-RPC
+                    self.workers[pair_id].append((worker_addr, xmlrpclib.ServerProxy))
+        # initialize next worker numbers
         self.nextworker = dict((pair_id, 0) for pair_id in workers)
         self.lock = Lock()
 
@@ -72,7 +104,7 @@ class MTMonkeyService:
     
         # acquire a worker
         try:
-            worker = self.workers.get(pair_id)
+            worker_addr, worker_type = self.workers.get(pair_id)
         except WorkerNotFoundException:
             self.logger.warning("Requested unknown language pair " + pair_id)
             return {
@@ -81,7 +113,7 @@ class MTMonkeyService:
             }
     
         # call the worker
-        worker_proxy = xmlrpclib.ServerProxy("http://" + worker + "/")
+        worker_proxy = worker_type(worker_addr)
         try:
             result = worker_proxy.process_task(task)
         except (socket_err, xmlrpclib.Fault,
@@ -92,11 +124,11 @@ class MTMonkeyService:
                 "errorMessage": str(e)
             }
         
-        # check for errors returned by worker (default error code: 8, may be overridden)
-        if ('error' in result):
+        # check for errors returned by worker (default worker error code: 8, may be overridden)
+        if 'error' in result or 'errorMessage' in result:
             return {
                 "errorCode": result.get('errorCode', 8),
-                "errorMessage": result['error']
+                "errorMessage": result.get('error', result.get('errorMessage', ""))
             }
     
         # OK, return output of the worker
