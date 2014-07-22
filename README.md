@@ -25,6 +25,10 @@ This system consists of:
 * and **support scripts** for self-checks, auto-starting and easy model
   distribution.
 
+The communication between the main application server and workers proceeds
+via XML-RPC requests, but workers accepting JSON requests are also supported
+on the application server side, allowing alternative worker implementations.
+
 There may be more workers for the same language pair. Workers may
 run on the same physical machine or on several different machines.
 For a more detailed description of the overall architecture of MTMonkey,
@@ -74,7 +78,7 @@ API description
 ---------------
 
 For a detailed description of the API used by MTMonkey,
-see the paper referenced above and `API.md`.
+see `API.md` and the paper referenced above.
 
 Acknowledgements
 ----------------
