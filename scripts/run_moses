@@ -5,6 +5,12 @@
 # Switches: -t, -r -- setting CPU affinity for both Moses servers.
 #           (see taskset -c)
 
+# check if we're actually running in Bash
+if [ "$BASH_VERSION" = '' ]; then
+    echo "This script must be run in bash (not sh)."; 
+    exit 1;
+fi
+
 # Parse options
 usage(){ echo "Usage: $0 [-t transl_cpu_list] [-r recase_cpu_list]" 1>&2; exit 1; }
 
@@ -23,6 +29,7 @@ while getopts "r:t:" OPT; do
 done
 shift $((OPTIND-1))
 
+
 # Find out current MT base directory
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && dirname `pwd` )"
 
@@ -32,25 +39,27 @@ echo $$ > $BASEDIR/logs/.moses_loading
 # Pre-set environment
 . $BASEDIR/scripts/moses_setenv.sh
 . $BASEDIR/config/config_moses.sh
+TRANSL_LOGFILE=$BASEDIR/logs/translate.log
+RECASE_LOGFILE=$BASEDIR/logs/recaser.log
 
 # Run the startup commands
 cd $MODELS_DIR
-nohup $TRANSL_CPUSET mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> $BASEDIR/logs/translate.log 2>&1 &
+nohup $TRANSL_CPUSET mosesserver --server-port $TRANSL_PORT  -f $TRANSL_INI  >> $TRANSL_LOGFILE 2>&1 &
 TRANSL_PID=$!
 if [[ -n "$RECASER_PORT" ]]; then
-    nohup $RECASE_CPUSET mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> $BASEDIR/logs/recaser.log 2>&1 &
+    nohup $RECASE_CPUSET mosesserver --server-port $RECASER_PORT -f $RECASER_INI >> $RECASE_LOGFILE 2>&1 &
     RECASER_PID=$!
 fi
 
 # Wait for the servers to be loaded
 until nc -z localhost $TRANSL_PORT; do
     sleep 10;
-    kill -0 $RECASER_PID $TRANSL_PID || { echo "Moses translation process dead!"; exit 1; }
+    kill -0 $TRANSL_PID || { echo "Moses translation process is not running. Please check $TRANSL_LOGFILE for errors."; exit 1; }
 done
 if [[ -n "$RECASER_PORT" ]]; then
     until nc -z localhost $RECASER_PORT; do
         sleep 10;
-        kill -0 $RECASER_PID $TRANSL_PID || { echo "Moses translation process dead!"; exit 1; }
+        kill -0 $RECASER_PID || { echo "Moses recaser process is not running. Please check $RECASE_LOGFILE for errors."; exit 1; }
     done
 fi
 
