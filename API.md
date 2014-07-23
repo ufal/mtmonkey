@@ -101,6 +101,12 @@ The response structure includes:
 -   *translationId*: string, globally unique ID of the transaction 
     (may be omitted)
 
+-   *timeWork*: string (float + units), the amount of time the worker took to translate 
+    the request (optional)
+
+-   *timeWait*: string (float + units), the amount of the translation has waited
+    to be processed (optional)
+
 
 An example response with one translation:
 
