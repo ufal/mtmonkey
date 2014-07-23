@@ -39,8 +39,9 @@ Prepare the needed resources in the shared directory:
 This must be done on a machine where the shared directory is directly accessible
 (locally or through NFS).
 
-* Install Moses to to `/mnt/share/moses-$VERSION` (according to Moses installation
-  instructions).
+* Install Moses into `/mnt/share/` (according to 
+  [Moses installation instructions](http://www.statmt.org/moses/?n=Development.GetStarted)), 
+  then rename the `mosesdecoder` directory as `moses-$VERSION`.
 
 * Install Python virtual environment to `/mnt/share/virtualenv`: 
   Download, read, adjust, and run `install_virtualenv.sh` from this directory.
