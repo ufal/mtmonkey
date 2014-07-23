@@ -125,10 +125,11 @@ class MTMonkeyService:
             }
         
         # check for errors returned by worker (default worker error code: 8, may be overridden)
-        if 'error' in result or 'errorMessage' in result:
+        errorMessage = result.get('error', result.get('errorMessage'))
+        if errorMessage not in [None, '', 'OK']:
             return {
                 "errorCode": result.get('errorCode', 8),
-                "errorMessage": result.get('error', result.get('errorMessage', ""))
+                "errorMessage": errorMessage
             }
     
         # OK, return output of the worker
