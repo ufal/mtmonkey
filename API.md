@@ -283,7 +283,7 @@ An example of a response with two translation options.
 Testing from the command line / browser window
 ----------------------------------------------
 
-MTMonkey can be easily tested using the standard tool **curl** [5] as in
+MTMonkey can be easily tested using the standard `curl` tool as in
 the example below:
 
 ```
