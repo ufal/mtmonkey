@@ -1,5 +1,6 @@
 var origText = "";
 
+/* This calls query.php to translate the input text. */
 function translate() {
     $("#cannot").fadeOut();
     origText = $('#src').val();
@@ -79,26 +80,7 @@ function showSentenceAlignment(sen, idx) {
     $("#align").append(e);
 }
 
-var typingTimer;
-var doneTypingInterval = 900;
-
-function prep() {
-    prep_timer();    
-}
-
-function prep_timer() {
-/* TIMER!!!
-    $('#src').keyup(function() {
-        clearTimeout(typingTimer);
-        if ($('#src').val) {
-            typingTimer = setTimeout(doneTyping, doneTypingInterval);
-        }
-    });
-*/
-}
-
 function doneTyping() {
-    clearTimeout(typingTimer);
     translate();
 }
 
@@ -117,6 +99,8 @@ function setupHovers() {
     );
 }
 
+/* Change #radio5 to the number of your main pivot language (English here),
+ * change the numbers fading in/out to adjust to the number of language pairs. */
 function langSetup(isFromEnglish) {
     
     clearTimeout(typingTimer);
@@ -138,6 +122,7 @@ function langSetup(isFromEnglish) {
     }
 }
 
+/* Change the `radioX' numbers here to adjust for the number of language pairs. */
 function design() {
     
     $('#src').focus();
@@ -157,6 +142,5 @@ function design() {
 
 /* This is run after the page is built */
 $(document).ready(function() {
-    prep();
     design();
 });

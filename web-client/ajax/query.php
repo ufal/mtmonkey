@@ -1,4 +1,5 @@
 <?php
+        # TODO setup your Appserver's URL here
         $url = "SETUP YOUR APPSERVER'S URL HERE";
         $curl = curl_init($url);
         $q = array(
