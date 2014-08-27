@@ -24,8 +24,6 @@ function translate() {
             "json");
 }
 
-var k = 0;
-
 function show(data) {
     $('.working').fadeOut();
 
@@ -43,7 +41,6 @@ function show(data) {
         // Each sentences
         $("#align").empty();
         $("#align").append('<h1>Phrase alignment information (mouse hover)</h1>');
-        k = 0;
         sentences.forEach(showSentenceAlignment);
         // Hovers
         setupHovers();
@@ -55,7 +52,7 @@ function show(data) {
     catch(exc){ alert(exc); for(key in data){alert(key);} }
 }
 
-function showSentenceAlignment(sen) {
+function showSentenceAlignment(sen, idx) {
 
     // computing zipped alignment
     align = sen['alignment-raw'];
@@ -74,13 +71,12 @@ function showSentenceAlignment(sen) {
         var x = $('<div class="line" />');
         for (var i=0; i<zip.length; i++) {
             var token = zip[i][j];
-            x.append('<span class="token" tokenorder="' + (i + 10000*k) + '">' +
+            x.append('<span class="token" tokenorder="' + (i + 10000*idx) + '">' +
                         token + '</span>');
         }
         e.append(x);
     }
     $("#align").append(e);
-    k++;
 }
 
 var typingTimer;

@@ -1,5 +1,5 @@
 <?php
-        $url = "http://cuni1-khresmoi.ms.mff.cuni.cz:8080/khresmoi";
+        $url = "SETUP YOUR APPSERVER'S URL HERE";
         $curl = curl_init($url);
         $q = array(
                 "action" => "translate",
