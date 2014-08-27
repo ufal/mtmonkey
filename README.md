@@ -84,13 +84,13 @@ see [API.md](API.md) and the paper referenced above.
 MTMonkey clients
 ----------------
 
-The package includes [cmdline-client](command-line) and [web-client](web-based)
+The package includes [command-line](cmdline-client) and [web-based](web-client)
 clients that can connect to MTMonkey servers. Please see the respective
 directories for documentation.
 
 In addition, you can easily send requests to MTMonkey from command-line
 using the `curl` tool, or from your browser by typing the correct URL.
-See the [API.md#testing-from-the-command-line--browser-window](API description) for more information.
+See the [API description](API.md#testing-from-the-command-line--browser-window) for more information.
 
 Acknowledgements
 ----------------
