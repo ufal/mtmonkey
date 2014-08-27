@@ -1,9 +1,12 @@
 <!DOCTYPE html>
+<?php
+
+?>
 <html lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="js/jquery.js" type="text/javascript"></script>
-  <script src="js/khresmoi_src.js"></script>
+  <script src="js/mtmonkey_query.js"></script>
   <link href="css/main.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -12,7 +15,7 @@
       <div style="float:left;">
           <img src="img/logo.png" alt="Logo" style="width:200px;float:right;" />
       </div>
-      <span style="float:right;margin-top:34px;">CUNI Machine Translation Service</span>
+      <span style="float:right;margin-top:34px;">MTMonkey AJAX web client</span>
     </div>  <!-- header -->
 
     <div id="main">

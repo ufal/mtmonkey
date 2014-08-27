@@ -22,18 +22,6 @@ textarea:focus,input:focus{outline:0;}
 #wrap {width:1100px; margin:0 auto; background-color:#f8f8f0; }
 #main {width:1100px; padding-top: 8px; height:200px; }
 #right {cursor:pointer; }
-/*
-#right {width:898px; background-color:#e8e8e8; padding:4px;
- margin-top: 24px;
--moz-box-shadow: 4px 4px 5px #888;
--webkit-box-shadow: 4px 4px 5px #888;
-box-shadow: 4px 4px 5px #888;
-cursor:pointer;
-margin:0 auto;
-border-radius:3px;
-border: 1px solid;
-}
-*/
 #footer {clear:both; margin-top:16px; }
 
 #source { width:540px; float:left; margin-right:8px;}
@@ -42,15 +30,6 @@ border: 1px solid;
 #cannot {display:none;font-size:14px;}
 
 #align-wrap { 
-/*
--moz-box-shadow: 2px 2px 4px #888;
--webkit-box-shadow: 2px 2px 4px #888;
-box-shadow: 2px 2px 4px #888;
-background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
-background:-ms-linear-gradient(top, white 0%, #F3F3F3 100%);
-background:linear-gradient(top, white 0%, #F3F3F3 100%);
-background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
-*/
 min-height:140px;
 width:1080px;
 margin-top:24px;
@@ -70,30 +49,16 @@ cursor:pointer; }
 #q textarea { margin: 8px !important; }
 #q textarea {color-background:white !important; margin:8px;}
 #r textarea {margin:8px; }
-/* #q:hover, #r:hover { background-color:white !important; font-size:16px; cursor:pointer; } */
 
 #src { background-color: #fff !important; }
 #dest { font-weight: bold; font-size: 16px/20px; }
 #header{color:#23658b;
-/*
-background:-moz-linear-gradient(top, #23658b 0%, #1c506e
-100%);background:-webkit-gradient(linear, left top, left bottom, color-stop(0%, #23658b),
-color-stop(100%, #1c506e));background:-webkit-linear-gradient(top, #23658b 0%, #1c506e
-100%);background:-o-linear-gradient(top, #23658b 0%, #1c506e
-100%);background:-ms-linear-gradient(top, #23658b 0%, #1c506e
-100%);background:linear-gradient(top, #23658b 0%, #1c506e
-100%);*/
 padding:16px 18px;font-size:36px;overflow:hidden;position:relative;}
 
 #inp { margin:16px; width:90%; }
 div.line { margin-bottom:8px; width:90%;
 padding:0px 2px;
 background-color:white;
-/*
-background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);
-background:-ms-linear-gradient(top, white 0%, #F3F3F3 100%);
-background:linear-gradient(top, white 0%, #F3F3F3 100%);
-background:-webkit-linear-gradient(top, white 0%, #F3F3F3 100%);*/
 }
 div.sentence { margin-bottom:24px; }
 
