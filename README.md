@@ -68,21 +68,21 @@ Contents of this package
 * `worker` – source codes of the worker, incl. text pre- and post-processing
              tools.
 
-Installation
-------------
+Usage
+-----
+
+### Installation ###
 
 For installation notes for both workers and the application
 server, see [install/README.md](install/README.md).
 
 
-API description
----------------
+### API description ###
 
 For a detailed description of the API used by MTMonkey,
 see [API.md](API.md) and the paper referenced above.
 
-MTMonkey clients
-----------------
+### MTMonkey clients ###
 
 The package includes [command-line](cmdline-client) and [web-based](web-client)
 clients that can connect to MTMonkey servers. Please see the respective
@@ -91,6 +91,8 @@ directories for documentation.
 In addition, you can easily send requests to MTMonkey from command-line
 using the `curl` tool, or from your browser by typing the correct URL.
 See the [API description](API.md#testing-from-the-command-line--browser-window) for more information.
+
+***
 
 Acknowledgements
 ----------------
