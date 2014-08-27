@@ -59,11 +59,12 @@ Contents of this package
 ------------------------
 
 * `appserver` – source codes of the application server
+* `cmdline-client` – command-line clients for MTMonkey
 * `config-example` – example configuration files
 * `images` – just logos and images
 * `install` – installation scripts and instructions
 * `scripts` – application server, worker and Moses servers startup scripts
-* `web-client` – a simple PHP-based web client for the service
+* `web-client` – two different web clients for the service
 * `worker` – source codes of the worker, incl. text pre- and post-processing
              tools.
 
@@ -71,14 +72,25 @@ Installation
 ------------
 
 For installation notes for both workers and the application
-server, see `install/README.md`.
+server, see [install/README.md](install/README.md).
 
 
 API description
 ---------------
 
 For a detailed description of the API used by MTMonkey,
-see `API.md` and the paper referenced above.
+see [API.md](API.md) and the paper referenced above.
+
+MTMonkey clients
+----------------
+
+The package includes [cmdline-client](command-line) and [web-client](web-based)
+clients that can connect to MTMonkey servers. Please see the respective
+directories for documentation.
+
+In addition, you can easily send requests to MTMonkey from command-line
+using the `curl` tool, or from your browser by typing the correct URL.
+See the [API.md#testing-from-the-command-line--browser-window](API description) for more information.
 
 Acknowledgements
 ----------------
