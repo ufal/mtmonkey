@@ -84,9 +84,13 @@ class MTMonkeyService:
         args = request.args.to_dict()
         args['action'] = 'translate'
 
-        # XXX the optional nBestSize is manually converted to integer
+        # required type conversions (GET doesn't have any notion of types)
         if 'nBestSize' in args:
             args['nBestSize'] = int(args['nBestSize'])
+        if 'alignmentInfo' in args:
+            args['alignmentInfo'] = args['alignmentInfo'].lower() in ['true', 't', 'yes', 'y', '1']
+        if 'detokenize' in args:
+            args['detokenize'] = not args['detokenize'].lower() in ['false', 'f', 'no', 'n', '0']
 
         result = self._dispatch_task(args)
         self.logger.info('Received new task [GET]')
@@ -118,7 +122,7 @@ class MTMonkeyService:
             result = worker_proxy.process_task(task)
         except (socket_err, xmlrpclib.Fault,
                 xmlrpclib.ProtocolError, xmlrpclib.ResponseError) as e:
-            self.logger.error("Call to worker %s failed: %s" % (worker, task))
+            self.logger.error("Call to worker %s failed: %s" % (worker_addr, task))
             return {
                 "errorCode": 1,
                 "errorMessage": str(e)

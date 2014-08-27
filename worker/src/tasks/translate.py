@@ -91,9 +91,13 @@ class MosesTranslator(Translator):
     def process_task(self, task):
         """Process translation task. Splits request into sentences, then translates and
         recases each sentence."""
-        doalign = task.get('alignmentInfo', '').lower() in ['true', 't', 'yes', 'y', '1']
-        dodetok = not task.get('detokenize', '').lower() in ['false', 'f', 'no', 'n', '0']
+        # check parameters
+        # be lenient and allow anything that can map to a boolean for alignmentInfo and detokenize
+        doalign = unicode(task.get('alignmentInfo', '')).lower() in ['true', 't', 'yes', 'y', '1']
+        dodetok = not unicode(task.get('detokenize', '')).lower() in ['false', 'f', 'no', 'n', '0']
         nbestsize = min(task.get('nBestSize', 1), 10)
+
+        # run the translation
         src_lines = self.splitter.split_sentences(task['text'])
         ret_src_tok = doalign or len(src_lines) > 1
         translated = [self._translate(line, doalign, dodetok, nbestsize, ret_src_tok) for line in src_lines]
