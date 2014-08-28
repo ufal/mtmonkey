@@ -113,8 +113,17 @@ function langSetup() {
         $('label[for="' + $(this).attr('id') + '"]').hide();
     });
 
+    curDestLang = $('input[name=radio-dest]:checked').val();
     compatible = $('input[name="radio-src"]:checked').data('compatible');
+    if ($.inArray(curDestLang, compatible) < 0){
+        $('#radio-dest-' + curDestLang).attr('checked', '');
+        curDestLang = null;
+    }
     for (var i = 0; i < compatible.length; ++i){
+        if (curDestLang == null){
+            $('#radio-dest-' + compatible[i]).attr('checked', 'checked');
+            curDestLang = compatible[i];
+        }
         $('#radio-dest-' + compatible[i]).fadeIn();
         $('label[for="radio-dest-' + compatible[i] + '"]').fadeIn();
     }
