@@ -23,12 +23,6 @@ Copy the whole `ajax/` subdirectory to path on your web server that
 gets processed by PHP. Then you need to:
 
 1. Set up the server URL in `query.php`
-2. Edit `index.php` to add correct radio buttons for all supported languages.
-3. Edit `js/mtmonkey_query.js` to adjust for the number of supported language
-    pairs and the main pivot language (if it is not English).
+2. Edit `index.php` and add supported language pairs to the `$lang_pairs`
+   variable.
 
-
-TODOs
------
-
-* Make the AJAX client more flexible

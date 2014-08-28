@@ -6,9 +6,9 @@ function translate() {
     origText = $('#src').val();
     if (!origText || 0 == origText.length)
         return;
-    srcLang = $('input[name=radio-src]:checked').attr('l');
-    destLang = $('input[name=radio-dest]:checked').attr('l');
-    if ((srcLang != "en" && destLang != "en") || (srcLang == destLang)) {
+    srcLang = $('input[name=radio-src]:checked').val();
+    destLang = $('input[name=radio-dest]:checked').val();
+    if (srcLang == destLang) {
         $("#cannot").fadeIn();
         return;
     }
@@ -25,32 +25,35 @@ function translate() {
             "json");
 }
 
+/* This processes the request result */
 function show(data) {
     $('.working').fadeOut();
+    try {
+        if (data['errorCode'] != 0){
+            $("#dest").val('Error ' + data['errorCode'] + ': ' + data['errorMessage']);
+        }
+        else {
+            var sentences = data['translation'][0]['translated'];
+            // Total translation
+            var totalTranslation = "";
+            for (var i=0; i<sentences.length; i++)
+                totalTranslation += sentences[i]['text'] + " ";
+            $("#dest").val(totalTranslation);
+            // Each sentences
+            $("#align").empty();
+            $("#align").append('<h1>Phrase alignment information (mouse hover)</h1>');
+            sentences.forEach(showSentenceAlignment);
+            // Hovers
+            setupHovers();
 
-    try {    
-    if (data['errorCode'] != 0){
-        $("#dest").val('Error ' + data['errorCode'] + ': ' + data['errorMessage']);
+            $("#align").fadeIn('slow');
+        }
+        $('#r').text(JSON.stringify(data, undefined, 2));
     }
-    else {
-        var sentences = data['translation'][0]['translated'];
-        // Total translation
-        var totalTranslation = "";
-        for (var i=0; i<sentences.length; i++)
-            totalTranslation += sentences[i]['text'] + " ";
-        $("#dest").val(totalTranslation);
-        // Each sentences
-        $("#align").empty();
-        $("#align").append('<h1>Phrase alignment information (mouse hover)</h1>');
-        sentences.forEach(showSentenceAlignment);
-        // Hovers
-        setupHovers();
-
-        $("#align").fadeIn('slow');
+    catch(exc){
+        alert(exc);
+        for(key in data){alert(key);}
     }
-    $('#r').text(JSON.stringify(data, undefined, 2));
-    }
-    catch(exc){ alert(exc); for(key in data){alert(key);} }
 }
 
 function showSentenceAlignment(sen, idx) {
@@ -99,26 +102,21 @@ function setupHovers() {
     );
 }
 
-/* Change #radio5 to the number of your main pivot language (English here),
- * change the numbers fading in/out to adjust to the number of language pairs. */
-function langSetup(isFromEnglish) {
+/* Shows only compatible language pairs for a source language */
+function langSetup() {
     
-    clearTimeout(typingTimer);
-    /*  $('#src').val(''); */
     $('#dest').val('');
     $('#align').fadeOut();
-    
-    if (isFromEnglish) {
-        $('#radio5').hide(); $('label[for="radio5"]').hide();
-        for (var i=6; i<=8; i++) {
-            $("#radio"+i).fadeIn(); $('label[for="radio' + i + '"]').fadeIn();
-        }
-    } 
-    else {
-        for (var i=6; i<=8; i++) {
-            $("#radio"+i).hide(); $('label[for="radio' + i + '"]').hide();
-        }
-        $('#radio5').fadeIn(); $('label[for="radio5"]').fadeIn();
+
+    $('input[name="radio-dest"]').each(function(){
+        $(this).hide();
+        $('label[for="' + $(this).attr('id') + '"]').hide();
+    });
+
+    compatible = $('input[name="radio-src"]:checked').data('compatible');
+    for (var i = 0; i < compatible.length; ++i){
+        $('#radio-dest-' + compatible[i]).fadeIn();
+        $('label[for="radio-dest-' + compatible[i] + '"]').fadeIn();
     }
 }
 
@@ -126,18 +124,13 @@ function langSetup(isFromEnglish) {
 function design() {
     
     $('#src').focus();
-    $('#radio6').click(function() {  doneTyping();  });
-    $('#radio7').click(function() {  doneTyping();  });
-    $('#radio8').click(function() {  doneTyping();  });
-    $('#go').mouseup(function() { console.log('go');  doneTyping(); });
+    $('input[name="radio-src"]').click(function(){ langSetup(); doneTyping(); });
+    $('input[name="radio-dest"]').click(function(){ doneTyping(); });
+    $('#go').mouseup(function() {  doneTyping();  });
     $('#detail-show').click(function() {
         $('#detail').fadeToggle(380);
     });
     /**/
-    $('#radio1').click(function() { $('#radio7').attr('checked','checked'); langSetup(true); doneTyping(); });
-    $('#radio2').click(function() { $('#radio5').attr('checked','checked'); langSetup(false); doneTyping(); });
-    $('#radio3').click(function() { $('#radio5').attr('checked','checked'); langSetup(false); doneTyping(); });
-    $('#radio4').click(function() { $('#radio5').attr('checked','checked'); langSetup(false); doneTyping(); });
 }
 
 /* This is run after the page is built */

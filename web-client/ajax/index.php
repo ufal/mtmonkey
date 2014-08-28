@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <?php
+# TODO set your supported language pairs here
+$lang_pairs = array('en-de', 'de-en', 'en-fr', 'fr-en', 'en-cs', 'cs-en');
+
+$lang_names = array();
+$src_langs = array();
+$dest_langs = array();
+
+# Get language names for ISO codes
+foreach ($lang_pairs as $pair){
+    $langs = preg_split('/-/', $pair);
+    foreach ($langs as $lang){
+        if (!isset($lang_names[$lang])){
+            $lang_names[$lang] = locale_get_display_language($lang, 'en');
+        }
+    }
+    if (!isset($src_langs[$langs[0]])){
+        $src_langs[$langs[0]] = array();
+    }
+    array_push($src_langs[$langs[0]], $langs[1]);
+    if (FALSE === array_search($langs[1], $dest_langs)){
+        array_push($dest_langs, $langs[1]);
+    }
+}
 
 ?>
 <html lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="js/jquery.js" type="text/javascript"></script>
-  <script src="js/mtmonkey_query.js"></script>
+  <script src="js/mtmonkey_query.js" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function(){
+<?php
+foreach ($src_langs as $src => $dests){
+    print "\t$('#radio-src-$src').data('compatible', ['" . implode("', '", $dests) . "']);\n";
+}
+?>
+    langSetup();
+});
+  </script>
   <link href="css/main.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -22,11 +55,14 @@
         <!-- Source -->
         <div id="source">
             <div id="src-lang">
-                <input type="radio" id="radio1" name="radio-src" l="en" checked="checked"
-                /><label for="radio1">English</label>
-                <input type="radio" id="radio2" name="radio-src" l="fr" /><label for="radio2">French</label>
-                <input type="radio" id="radio3" name="radio-src" l="de" /><label for="radio3">German</label>
-                <input type="radio" id="radio4" name="radio-src" l="cs" /><label for="radio4">Czech</label>
+<?php
+foreach ($src_langs as $src => $dests){
+    # keep 1st language pair checked by default
+    $checked = strpos($lang_pairs[0], $src) === 0 ? 'checked="checked"' : '';
+    print "\t\t\t<input type=\"radio\" id=\"radio-src-$src\" name=\"radio-src\" value=\"$src\" $checked/>";
+    print "<label for=\"radio-src-$src\">" . $lang_names[$src] . "</label>\n";
+}
+?>
             </div>
             <div>
                 <textarea id="src" name="text" wrap="SOFT" tabindex="0"
@@ -36,12 +72,14 @@
 
         <div id="destination">
             <div id="dest-lang">
-                <input type="radio" id="radio5" style="display:none;" name="radio-dest" l="en"
-                /><label style="display:none;" for="radio5">English</label>
-                <input type="radio" id="radio6" name="radio-dest" l="fr" /><label for="radio6">French</label>
-                <input type="radio" id="radio7" name="radio-dest" l="de" checked="checked"
-                /><label for="radio7">German</label>
-                <input type="radio" id="radio8" name="radio-dest" l="cs" /><label for="radio8">Czech</label>
+<?php
+foreach ($dest_langs as $dest){
+    # keep 1st language pair checked by default
+    $checked = substr($lang_pairs[0], -strlen($dest)) === $dest ? 'checked="checked"' : '';
+    print "\t\t\t<input type=\"radio\" id=\"radio-dest-$dest\" name=\"radio-dest\" value=\"$dest\" $checked/>";
+    print "<label for=\"radio-dest-$dest\">" . $lang_names[$dest] . "</label>\n";
+}
+?>
             </div>
             <div>
                 <textarea id="dest" disabled="disabled" name="text" wrap="SOFT"
@@ -72,7 +110,7 @@
       <hr>
       <div id="logo">
 This work was funded by the European Union in the context of the KHRESMOI project (grant number 257528).<br>
-© 2012-2013 Charles University, Institute of Formal and Applied Linguistics</div>
+© 2012-2014 Charles University, Institute of Formal and Applied Linguistics</div>
     </div>  <!-- footer -->
   </div>  <!-- wrap -->
 </body>
