@@ -93,20 +93,23 @@ class MosesTranslator(Translator):
         recases each sentence."""
         # check parameters
         # be lenient and allow anything that can map to a boolean for alignmentInfo and detokenize
-        doalign = unicode(task.get('alignmentInfo', '')).lower() in ['true', 't', 'yes', 'y', '1']
-        dodetok = not unicode(task.get('detokenize', '')).lower() in ['false', 'f', 'no', 'n', '0']
+        doalign = _convert_boolean(task.get('alignmentInfo', ''), False)
+        dodetok = _convert_boolean(task.get('detokenize', ''), True)
+        dotok = _convert_boolean(task.get('tokenize', ''), True)
+        dosegment = _convert_boolean(task.get('segment', ''), True)
+
         nbestsize = min(task.get('nBestSize', 1), 10)
 
         # run the translation
-        src_lines = self.splitter.split_sentences(task['text'])
+        src_lines = self.splitter.split_sentences(task['text']) if dosegment else [ task['text'] ]
         ret_src_tok = doalign or len(src_lines) > 1
-        translated = [self._translate(line, doalign, dodetok, nbestsize, ret_src_tok) for line in src_lines]
+        translated = [self._translate(line, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment) for line in src_lines]
         return {
             'translationId': uuid.uuid4().hex,
             'translation': translated
         }
 
-    def _translate(self, src, doalign, dodetok, nbestsize, ret_src_tok):
+    def _translate(self, src, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment):
         """Translate and recase one sentence. Optionally, word alignment
         between source and target is included on the output.
 
@@ -123,7 +126,7 @@ class MosesTranslator(Translator):
             recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
 
         # tokenize
-        src_tokenized = self.tokenizer.tokenize(src)
+        src_tokenized = self.tokenizer.tokenize(src) if dotok else src
 
         # translate
         translation = translate_proxy.translate({
@@ -201,3 +204,11 @@ def _backward_transform(result, doalign, dodetok):
         translation.append({'translated': translated, 'translationId': result['translationId']})
 
     return { 'translation': translation }
+
+def _convert_boolean(value, default):
+    if unicode(value).lower() in ['false', 'f', 'no', 'n', '0']:
+        return False
+    elif unicode(value).lower() in ['true', 't', 'yes', 'y', '1']:
+        return True
+    else:
+        return default

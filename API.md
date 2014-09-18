@@ -27,6 +27,12 @@ method with the following parameters.
     variants to return
     (optional, default = 1, i.e. one best translation is provided, the
     maximum value is set to 10).
+-   *tokenize*: boolean -- indicates whether the input should be tokenized 
+    according to the rules for the source languge
+    (optional, default = "true")
+-   *segment*: boolean -- indicates whether the input should be split
+    into individual sentences before translation
+    (optional, default = "true")
 -   *detokenize*: boolean -- indicates whether the translation result
     should be detokenized according to the rules for the target languge
     (optional, default = "true")
