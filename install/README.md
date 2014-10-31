@@ -80,7 +80,7 @@ Autostart and automatic updates
 ```bash
     VERSION=stable
     USER=mt
-    cp ~$USER/mt-$VERSION/git/install/mtmworker_init /etc/init.d/mtmworker-$VERSION
+    cp /home/$USER/mt-$VERSION/git/install/mtmworker_init /etc/init.d/mtmworker-$VERSION
 
     cd /etc/rc2.d; ln -s ../init.d/mtmworker-$VERSION S99z_mtmworker-$VERSION;
     cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmworker-$VERSION rc$r.d; done
