@@ -2,7 +2,7 @@
 MTMonkey installation instructions
 ==================================
 
-We assume that $VERSION is 'dev' or 'stable' and $USER is the user account
+We assume that `$VERSION` is 'dev' or 'stable' and `$USER` is the user account
 that will own and run the services.
 
 Prerequisities:
@@ -19,7 +19,6 @@ Before installing MTMonkey, you must have the following packages installed
     * If Moses is to be compiled on a certain worker machine -- all packages
       needed by Moses installation (including `libxmlrpc-c++-dev` so that XML-RPC
       support is compiled).
-
     * If Moses is only to be copied to a worker machine: `libxmlrpc-c++` is
       needed to run it.
 
@@ -73,7 +72,7 @@ Autostart and automatic updates
   adjust the crontab of $USER according to the mtmonkey.crontab file.
 
 * If you need the workers to be started and updated on the machine startup, 
-  add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
+  copy the file `mtmworker_init` from this directory to `/etc/init.d` and link it to 
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs (as root!):
 
@@ -135,7 +134,7 @@ Autostart and automatic updates
 -------------------------------
 
 * If you need the application server to be started and updated on the machine startup,
-  add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
+  copy the file `mtmappserver_init` from this directory to `/etc/init.d` and link it to 
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs (as root!):
 
