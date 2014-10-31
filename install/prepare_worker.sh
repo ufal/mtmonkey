@@ -25,27 +25,36 @@
 #   models/ = directory for MT models
 #
 
-if [[ -z "$VERSION" || -z "$SHARE" || -z "$USER" ]]; then
+if [[ -z "$VERSION" || -z "$USER" ]]; then
     echo "Usage: USER=username VERSION=version-name SHARE=/mnt/share [LOGIN=\"user@host\"] [PORTS=\"7001:8081:9001\"] [LANGS=\"en:de\"] prepare_worker.sh"
     echo "PORTS = worker port:translation port:recaser port (leave empty if you don't want a recaser)"
+    echo "SHARE = path to shared directory from where Moses & models & Virtualenv are copied (leave empty if you want to set this up manually)"
     exit 1
 fi
 
-if [[ -n "$LOGIN" ]]; then
-    USERHOST=$LOGIN
-    LOGIN="-e ssh $LOGIN:" # prepare parameter for rsync
-fi
-
-# copy virtualenv
+# Enter the main home directory
 cd /home/$USER
-rsync -avs $LOGIN$SHARE/virtualenv .
+
+if [[ -n "$SHARE" ]]; then
+    if [[ -n "$LOGIN" ]]; then
+        USERHOST=$LOGIN
+        LOGIN="-e ssh $LOGIN:" # prepare parameter for rsync
+    fi
+
+    # copy virtualenv
+    rsync -avs $LOGIN$SHARE/virtualenv .
+else
+    echo "No SHARE set. You will need to set up Moses, models, and Virtualenv manually."
+fi
 
 # create the main MT directory
 mkdir mt-$VERSION
 cd mt-$VERSION
 
-# copy Moses
-rsync -avs $LOGIN$SHARE/moses-$VERSION/* moses/
+if [[ -n "$SHARE" ]]; then
+    # copy Moses
+    rsync -avs $LOGIN$SHARE/moses-$VERSION/* moses/
+fi
 
 # Clone worker Git (you may change the origin here if you want to use your own modifications)
 git clone https://github.com/ufal/mtmonkey.git git
@@ -60,10 +69,12 @@ ln -s git/worker/src worker
 # copy default config
 cp git/config-example/{config_moses.sh,config_remote.sh,worker.cfg} config
 
-# override share settings according to the source share
-sed -i -r "/^export REMOTE=/s:=.*$:=$SHARE:;" config/config_remote.sh
-if [[ -n "$LOGIN" ]]; then
-    sed -i -r "/export LOGIN=/s/^.*$/export LOGIN=$USERHOST/;" config/config_remote.sh
+if [[ -n "$SHARE" ]]; then
+    # override share settings according to the source share
+    sed -i -r "/^export REMOTE=/s:=.*$:=$SHARE:;" config/config_remote.sh
+    if [[ -n "$LOGIN" ]]; then
+        sed -i -r "/export LOGIN=/s/^.*$/export LOGIN=$USERHOST/;" config/config_remote.sh
+    fi
 fi
 
 # override ports settings
