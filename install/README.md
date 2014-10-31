@@ -69,7 +69,8 @@ Autostart and automatic updates
 -------------------------------
 
 * If you want the workers to be checked periodically and restarted on fail,
-  adjust the crontab of $USER according to the mtmonkey.crontab file.
+  adjust the crontab of `$USER` according to the `mtmonkey.crontab` file
+  from this directory.
 
 * If you need the workers to be started and updated on the machine startup, 
   copy the file `mtmworker_init` from this directory to `/etc/init.d` and link it to 
@@ -79,7 +80,7 @@ Autostart and automatic updates
 ```bash
     VERSION=stable
     USER=mt
-    cp install/mtmworker_init /etc/init.d/mtmworker-$VERSION
+    cp ~$USER/mt-$VERSION/git/install/mtmworker_init /etc/init.d/mtmworker-$VERSION
 
     cd /etc/rc2.d; ln -s ../init.d/mtmworker-$VERSION S99z_mtmworker-$VERSION;
     cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmworker-$VERSION rc$r.d; done
@@ -141,7 +142,7 @@ Autostart and automatic updates
 ```bash
     VERSION=stable
     USER=mt
-    cp install/mtmappserver_init /etc/init.d/mtmappserver-$VERSION
+    cp ~$USER/appserver-$VERSION/git/install/mtmappserver_init /etc/init.d/mtmappserver-$VERSION
 
     cd /etc/rc2.d; ln -s ../init.d/mtmappserver-$VERSION S99z_mtmappserver-$VERSION;
     cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmappserver-$VERSION rc$r.d; done
