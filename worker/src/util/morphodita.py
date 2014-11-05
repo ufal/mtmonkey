@@ -9,9 +9,6 @@ import locale
 class Morphodita:
     def __init__(self, model_path):
         self.tagger = Tagger.load(model_path)
-        self.forms = Forms()
-        self.lemmas = TaggedLemmas()
-        self.tokens = TokenRanges()
         self.tokenizer = self.tagger.newTokenizer()
 
     def __encode_entities(self, text):
@@ -28,16 +25,20 @@ class Morphodita:
         return token # mixed case, leave as is
 
     def tokenize(self, text, stc=False):
+        forms = Forms()
+        lemmas = TaggedLemmas()
+        tokens = TokenRanges()
+
         text = self.__encode_entities(text)
         self.tokenizer.setText(text)
         out = ""
         t = 0
-        while self.tokenizer.nextSentence(self.forms, self.tokens):
+        while self.tokenizer.nextSentence(forms, tokens):
             if stc:
-                self.tagger.tag(self.forms, self.lemmas)
+                self.tagger.tag(forms, lemmas)
 
-            for i in range(len(self.tokens)):
-                token = self.tokens[i]
+            for i in range(len(tokens)):
+                token = tokens[i]
                 if t != token.start:
                     out += text[t : token.start]
                 if len(out) != 0:
@@ -45,7 +46,7 @@ class Morphodita:
 
                 tokenstr = text[token.start : token.start + token.length]
                 if stc:
-                    tokenstr = self.__perform_case(self.lemmas[i].lemma, tokenstr)
+                    tokenstr = self.__perform_case(lemmas[i].lemma, tokenstr)
                     
                 out += tokenstr
                 t = token.start + token.length
