@@ -15,7 +15,7 @@ class Morphodita:
         self.tokenizer = self.tagger.newTokenizer()
 
     def __encode_entities(self, text):
-        return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+        return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('|', '&pipe;').replace('"', '&quot;')
 
     def __perform_case(self, lemma, token):
         lemma = Regex('[\^_-].*').sub("", lemma)

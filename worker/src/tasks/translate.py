@@ -5,6 +5,8 @@ import uuid
 import xmlrpclib
 import operator
 import os
+from util.morphodita import Morphodita
+from util.normalize_english import EnglishNormalizer
 from util.tokenize import Tokenizer
 from util.detokenize import Detokenizer
 from util.split_sentences import SentenceSplitter
@@ -64,7 +66,7 @@ class MosesTranslator(Translator):
     and built-in segmentation, tokenization, and detokenization.
     """
 
-    def __init__(self, translate_port, recase_port, source_lang, target_lang):
+    def __init__(self, translate_port, recase_port, source_lang, target_lang, morphodita_model):
         """Initialize a MosesTranslator object according to the given 
         configuration settings.
         
@@ -81,8 +83,8 @@ class MosesTranslator(Translator):
 
         # initialize text processing tools (can be shared among threads)
         self.splitter = SentenceSplitter({'language': source_lang})
-        self.tokenizer = Tokenizer({'lowercase': True,
-                                    'moses_escape': True})
+        self.normalizer = Normalizer()
+        self.tokenizer = Morphodita(morphodita_model)
         self.detokenizer = Detokenizer({'moses_deescape': True,
                                         'capitalize_sents': True,
                                         'language': target_lang})
@@ -126,7 +128,8 @@ class MosesTranslator(Translator):
             recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
 
         # tokenize
-        src_tokenized = self.tokenizer.tokenize(src) if dotok else src
+        src_norm = self.normalizer.normalize(src)
+        src_tokenized = self.tokenizer.tokenize(src_norm, True) if dotok else src_norm
 
         # translate
         translation = translate_proxy.translate({
