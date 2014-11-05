@@ -64,14 +64,14 @@ class EnglishNormalizer:
             }
 
     def __fix_english_quotation_pairs(self, s):
-        s = Regex(r"“(" + self.noquo + r")*”").sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
-        s = Regex(r'"(' + self.noquo + r')*"').sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
-        s = Regex(r"``(" + self.noquoapo + r")*''").sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
-        s = Regex(r"``(" + self.noquo + r")*''").sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
+        s = Regex(r"“(" + self.noquo + r"*)”").sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
+        s = Regex(r'"(' + self.noquo + r'*)"').sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
+        s = Regex(r"``(" + self.noquoapo + r"*)''").sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
+        s = Regex(r"``(" + self.noquo + r"*)''").sub(self.doubleopenmark + r"\1" + self.doubleclosemark, s)
 
-        s = Regex(r"`(" + self.noapo + r")*'").sub(self.singleopenmark + r"\1" + self.singleclosemark, s)
-        s = Regex(r"‚(" + self.noapo + r")*‘").sub(self.singleopenmark + r"\1" + self.singleclosemark, s)
-        s = Regex(r"‘(" + self.noapo + r")*’").sub(self.singleopenmark + r"\1" + self.singleclosemark, s)
+        s = Regex(r"`(" + self.noapo + r"*)'").sub(self.singleopenmark + r"\1" + self.singleclosemark, s)
+        s = Regex(r"‚(" + self.noapo + r"*)‘").sub(self.singleopenmark + r"\1" + self.singleclosemark, s)
+        s = Regex(r"‘(" + self.noapo + r"*)’").sub(self.singleopenmark + r"\1" + self.singleclosemark, s)
 
         s = Regex(r'"( )').sub(self.doubleclosemark + r"\1", s)
         s = Regex(r'"$').sub(self.doubleclosemark, s)
