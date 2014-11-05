@@ -83,7 +83,7 @@ class MosesTranslator(Translator):
 
         # initialize text processing tools (can be shared among threads)
         self.splitter = SentenceSplitter({'language': source_lang})
-        self.normalizer = Normalizer()
+        self.normalizer = EnglishNormalizer()
         self.tokenizer = Morphodita(morphodita_model)
         self.detokenizer = Detokenizer({'moses_deescape': True,
                                         'capitalize_sents': True,
