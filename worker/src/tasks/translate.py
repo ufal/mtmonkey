@@ -129,7 +129,7 @@ class MosesTranslator(Translator):
 
         # tokenize
         src_norm = self.normalizer.normalize(src)
-        src_tokenized = self.tokenizer.tokenize(src_norm, True) if dotok else src_norm
+        src_tokenized = self.tokenizer.tokenize(src_norm, True, True) if dotok else src_norm
 
         # translate
         translation = translate_proxy.translate({
