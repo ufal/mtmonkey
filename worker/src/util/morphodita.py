@@ -24,7 +24,7 @@ class Morphodita:
             return token.upper()
         return token # mixed case, leave as is
 
-    def tokenize(self, text, stc=False):
+    def tokenize(self, text, stc=False, further=False):
         forms = Forms()
         lemmas = TaggedLemmas()
         tokens = TokenRanges()
@@ -50,9 +50,40 @@ class Morphodita:
                     
                 out += tokenstr
                 t = token.start + token.length
+
         if len(out) != 0 and t != len(text):
             out += " " + text[t : ]
-        return Regex("  *").sub(" ", out)
+
+        out = Regex("  *").sub(" ", out)
+        if further:
+            out = self.__further_tokenize(out)
+
+        return out
+
+    def __further_tokenize(self, text):
+        # unescape
+        text = Regex(r"&pipe;").sub(r"|", text)
+        text = Regex(r"&lt;").sub(r"<", text)
+        text = Regex(r"&gt;").sub(r">", text)
+        text = Regex(r"&amp;").sub(r"&", text)
+
+        text = Regex(r"([\p{N}\p{P}\p{S}])([\p{L}])").sub(r"\1 \2", text)
+        text = Regex(r"([\p{L}\p{P}\p{S}])([\p{N}])").sub(r"\1 \2", text)
+        text = Regex(r"([\p{L}\p{N}\p{S}])([\p{P}])").sub(r"\1 \2", text)
+        text = Regex(r"([\p{L}\p{N}\p{P}])([\p{S}])").sub(r"\1 \2", text)
+
+        text = Regex(r"([\p{L}])([\p{N}\p{P}\p{S}])").sub(r"\1 \2", text)
+        text = Regex(r"([\p{N}])([\p{L}\p{P}\p{S}])").sub(r"\1 \2", text)
+        text = Regex(r"([\p{P}])([\p{L}\p{N}\p{S}])").sub(r"\1 \2", text)
+        text = Regex(r"([\p{S}])([\p{L}\p{N}\p{P}])").sub(r"\1 \2", text)
+
+        # re-escape
+        text = Regex(r"&").sub(r"&amp;", text)
+        text = Regex(r"\|").sub(r"&pipe;", text)
+        text = Regex(r"<").sub(r"&lt;", text)
+        text = Regex(r">").sub(r"&gt;", text)
+
+        return text
 
 
 if __name__ == '__main__':
@@ -62,4 +93,4 @@ if __name__ == '__main__':
     tokenizer = Morphodita(sys.argv[1])
     for line in sys.stdin:
         line = line.rstrip('\r\n')
-        print tokenizer.tokenize(line, True)
+        print tokenizer.tokenize(line, True, True)
