@@ -34,7 +34,8 @@ class MTMonkeyWorker(object):
                                                config.get('RECASE_PORT'),
                                                config.get('SOURCE_LANG', 'en'),
                                                config.get('TARGET_LANG', 'en'),
-                                               config.get('MORPHODITA_MODEL'))
+                                               config.get('MORPHODITA_MODEL'),
+                                               config.get('MORPHODITA_INCLUDE_LEMMA'))
         self._logger = logger
 
     def process_task(self, task):

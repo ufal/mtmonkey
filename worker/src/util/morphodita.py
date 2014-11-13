@@ -24,7 +24,7 @@ class Morphodita:
             return token.upper()
         return token # mixed case, leave as is
 
-    def tokenize(self, text, stc=False, further=False):
+    def tokenize(self, text, stc=False, further=False, include_lemma=False):
         forms = Forms()
         lemmas = TaggedLemmas()
         tokens = TokenRanges()
@@ -47,7 +47,10 @@ class Morphodita:
                 tokenstr = text[token.start : token.start + token.length]
                 if stc:
                     tokenstr = self.__perform_case(lemmas[i].lemma, tokenstr)
-                    
+                   
+                if include_lemma:
+                    tokenstr += "|" + lemmas[i].lemma
+
                 out += tokenstr
                 t = token.start + token.length
 

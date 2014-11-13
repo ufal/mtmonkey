@@ -66,7 +66,7 @@ class MosesTranslator(Translator):
     and built-in segmentation, tokenization, and detokenization.
     """
 
-    def __init__(self, translate_port, recase_port, source_lang, target_lang, morphodita_model):
+    def __init__(self, translate_port, recase_port, source_lang, target_lang, morphodita_model, morphodita_include_lemma):
         """Initialize a MosesTranslator object according to the given 
         configuration settings.
         
@@ -85,6 +85,7 @@ class MosesTranslator(Translator):
         self.splitter = SentenceSplitter({'language': source_lang})
         self.normalizer = EnglishNormalizer()
         self.tokenizer = Morphodita(morphodita_model)
+        self.include_lemma = morphodita_include_lemma
         self.detokenizer = Detokenizer({'moses_deescape': True,
                                         'capitalize_sents': True,
                                         'language': target_lang})
@@ -129,7 +130,7 @@ class MosesTranslator(Translator):
 
         # tokenize
         src_norm = self.normalizer.normalize(src)
-        src_tokenized = self.tokenizer.tokenize(src_norm, True, True) if dotok else src_norm
+        src_tokenized = self.tokenizer.tokenize(src_norm, True, True, self.include_lemma) if dotok else src_norm
 
         # translate
         translation = translate_proxy.translate({
