@@ -59,9 +59,24 @@ class Morphodita:
 
         out = Regex("  *").sub(" ", out)
         if further:
-            out = self.__further_tokenize(out)
+            if include_lemma:
+                out = self.__further_tokenize_factored(out)
+            else:
+                out = self.__further_tokenize(out)
 
+        print out
         return out
+
+    # XXX hacky fix for factored input -- first factor is always the one to tokenize, others are copied
+    def __further_tokenize_factored(self, text):
+        out = []
+        tokens = text.split(" ")
+        for token in tokens:
+            factors = token.split("|", 1)
+            minitokens = self.__further_tokenize(factors[0]).split(" ")
+            for minitoken in minitokens:
+                out.append(minitoken + "|" + factors[1])
+        return " ".join(out)
 
     def __further_tokenize(self, text):
         # unescape
