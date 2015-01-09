@@ -33,7 +33,8 @@ class MTMonkeyWorker(object):
             self._translator = MosesTranslator(config['TRANSLATE_PORT'],
                                                config.get('RECASE_PORT'),
                                                config.get('SOURCE_LANG', 'en'),
-                                               config.get('TARGET_LANG', 'en'))
+                                               config.get('TARGET_LANG', 'en'),
+                                               int(config.get('THREADS', '4')))
         self._logger = logger
 
     def process_task(self, task):

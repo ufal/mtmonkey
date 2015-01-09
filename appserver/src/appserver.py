@@ -88,9 +88,13 @@ class MTMonkeyService:
         if 'nBestSize' in args:
             args['nBestSize'] = int(args['nBestSize'])
         if 'alignmentInfo' in args:
-            args['alignmentInfo'] = args['alignmentInfo'].lower() in ['true', 't', 'yes', 'y', '1']
+            args['alignmentInfo'] = self._convert_boolean(args['alignmentInfo'], False)
         if 'detokenize' in args:
-            args['detokenize'] = not args['detokenize'].lower() in ['false', 'f', 'no', 'n', '0']
+            args['detokenize'] = self._convert_boolean(args['detokenize'], True)
+        if 'tokenize' in args:
+            args['tokenize'] = self._convert_boolean(args['tokenize'], True)
+        if 'segment' in args:
+            args['segment'] = self._convert_boolean(args['segment'], True)
 
         result = self._dispatch_task(args)
         self.logger.info('Received new task [GET]')
@@ -159,12 +163,22 @@ class MTMonkeyService:
                 "text": {"type": "string"},
                 "nBestSize": {"type": "integer", "required": False},
                 "detokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
+                "tokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
+                "segment": {"type": ['boolean', 'string', 'integer'], "required": False},
                 "alignmentInfo": {"type": ['boolean', 'string', 'integer'], "required": False},
                 "docType": {"type": "string", "required": False},
                 "profileType": {"type": "string", "required": False},
             },
         }
         validictory.validate(task, schema)
+
+    def _convert_boolean(self, value, default):
+        if value.lower() in ['false', 'f', 'no', 'n', '0']:
+            return False
+        elif value.lower() in ['true', 't', 'yes', 'y', '1']:
+            return True
+        else:
+            return default
 
 #
 # main

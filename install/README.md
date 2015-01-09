@@ -2,7 +2,7 @@
 MTMonkey installation instructions
 ==================================
 
-We assume that $VERSION is 'dev' or 'stable' and $USER is the user account
+We assume that `$VERSION` is 'dev' or 'stable' and `$USER` is the user account
 that will own and run the services.
 
 Prerequisities:
@@ -19,7 +19,6 @@ Before installing MTMonkey, you must have the following packages installed
     * If Moses is to be compiled on a certain worker machine -- all packages
       needed by Moses installation (including `libxmlrpc-c++-dev` so that XML-RPC
       support is compiled).
-
     * If Moses is only to be copied to a worker machine: `libxmlrpc-c++` is
       needed to run it.
 
@@ -70,17 +69,18 @@ Autostart and automatic updates
 -------------------------------
 
 * If you want the workers to be checked periodically and restarted on fail,
-  adjust the crontab of $USER according to the mtmonkey.crontab file.
+  adjust the crontab of `$USER` according to the `mtmonkey.crontab` file
+  from this directory.
 
 * If you need the workers to be started and updated on the machine startup, 
-  add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
+  copy the file `mtmworker_init` from this directory to `/etc/init.d` and link it to 
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs (as root!):
 
 ```bash
     VERSION=stable
     USER=mt
-    cp install/mtmworker_init /etc/init.d/mtmworker-$VERSION
+    cp /home/$USER/mt-$VERSION/git/install/mtmworker_init /etc/init.d/mtmworker-$VERSION
 
     cd /etc/rc2.d; ln -s ../init.d/mtmworker-$VERSION S99z_mtmworker-$VERSION;
     cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmworker-$VERSION rc$r.d; done
@@ -135,14 +135,14 @@ Autostart and automatic updates
 -------------------------------
 
 * If you need the application server to be started and updated on the machine startup,
-  add the file `mtmonkey` from this directory to `/etc/init.d` and link it to 
+  copy the file `mtmappserver_init` from this directory to `/etc/init.d` and link it to 
   the individual runlevels as the very last service to be started. Then prepare
   a directory for startup logs (as root!):
 
 ```bash
     VERSION=stable
     USER=mt
-    cp install/mtmappserver_init /etc/init.d/mtmappserver-$VERSION
+    cp ~$USER/appserver-$VERSION/git/install/mtmappserver_init /etc/init.d/mtmappserver-$VERSION
 
     cd /etc/rc2.d; ln -s ../init.d/mtmappserver-$VERSION S99z_mtmappserver-$VERSION;
     cd ..; for r in 3 4 5; do cp -P rc2.d/S99z_mtmappserver-$VERSION rc$r.d; done
