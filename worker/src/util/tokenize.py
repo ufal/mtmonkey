@@ -136,6 +136,11 @@ class Tokenizer(object):
             text = text.lower()
         return text
 
+    def process_string(self, text):
+        """
+        Redirect function to make it compatible with other pre-/post-processors
+        """
+        return self.tokenize(text)
 
 def display_usage():
     """\

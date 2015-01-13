@@ -19,9 +19,7 @@ use strict;
 use Time::HiRes;
 use Thread;
 
-my $mydir = "$RealBin/../share/nonbreaking_prefixes";
-print $mydir;
-
+my $mydir = "$RealBin/nonbreaking_prefixes";
 my %NONBREAKING_PREFIX = ();
 my @protected_patterns = ();
 my $protected_patterns_file = "";
