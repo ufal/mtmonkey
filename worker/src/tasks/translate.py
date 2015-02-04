@@ -180,7 +180,8 @@ class MosesTranslator(Translator):
         if dotok:
             for preprocessor in self.preprocessors:
                 src = preprocessor.process_string(src)
-                logger.warning("Preprocessed source after {}: {}".format(preprocessor.__class__.__name__, src))
+                #commented out as causing utf-8 errors    
+                #logger.warning("Preprocessed source after {}: {}".format(preprocessor.__class__.__name__, src))
         # translate
         translation = translate_proxy.translate({
             "text": src,
