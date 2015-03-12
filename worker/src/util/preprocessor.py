@@ -62,6 +62,7 @@ class CommandlinePreprocessor(Preprocessor):
         string = string.encode('utf-8')
         #write to the stdin pipe followed by some space bytes in order to flush
         self.process.stdin.write('{0}{1}\n'.format(string, ' '*10240))
+        #self.process.stdin.write(string.strip())
         self.process.stdin.flush()   
         self.process.stdout.flush()
         

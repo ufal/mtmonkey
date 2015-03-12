@@ -105,7 +105,8 @@ class MosesTranslator(Translator):
         self.preprocessors = []
         self.postprocessors = []
         if normalizer:
-            self.normalizer = Normalizer(source_lang)
+            normalizer = Normalizer(source_lang)
+            self.preprocessors.append(normalizer)
         if not perl_tokenizer:
             tokenizer = Tokenizer({'lowercase': True,
                                     'moses_escape': True})
@@ -113,7 +114,7 @@ class MosesTranslator(Translator):
             detokenizer = Detokenizer({'moses_deescape': True,
                                         'capitalize_sents': True,
                                         'language': target_lang}) 
-            self.postprocessors.append(tokenizer)
+            self.postprocessors.append(detokenizer)
         else:
             tokenizer = PerlTokenizer(source_lang)
             self.preprocessors.append(tokenizer)
@@ -150,10 +151,14 @@ class MosesTranslator(Translator):
         src_lines = self.splitter.split_sentences(task['text']) if dosegment else [ task['text'] ]
         ret_src_tok = doalign or len(src_lines) > 1
 
-        def _translator(line):
-            return self._translate(line, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment)
+        #def _translator(line):
+        #    return self._translate(line, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment)
+        #
+        #translated = parallel_map(_translator, src_lines)
+        translated = []
+        for line in src_lines:
+            translated.append(self._translate(line, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment))
 
-        translated = parallel_map(_translator, src_lines)
 
         return {
             'translationId': uuid.uuid4().hex,
@@ -177,8 +182,10 @@ class MosesTranslator(Translator):
             recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
 
         # preprocess
+        src_original = src
         if dotok:
             for preprocessor in self.preprocessors:
+                #logger.warning("Preprocessed source before {}: {}".format(preprocessor.__class__.__name__, src))
                 src = preprocessor.process_string(src)
                 #commented out as causing utf-8 errors    
                 #logger.warning("Preprocessed source after {}: {}".format(preprocessor.__class__.__name__, src))
@@ -209,7 +216,9 @@ class MosesTranslator(Translator):
             }
             if dodetok:  # postprocess if needed
                 for postprocessor in self.postprocessors:
+                    #logger.warning("Postprocessed output before {}: {}".format(postprocessor.__class__.__name__, postprocessed))
                     postprocessed = postprocessor.process_string(postprocessed)
+                    #logger.warning("Postprocessed output after {}: {}".format(postprocessor.__class__.__name__, postprocessed))
             parsed_hypo['text'] = postprocessed
             if doalign:  # provide alignment information if needed
                 parsed_hypo['tokenized'] = postprocessed
@@ -219,12 +228,12 @@ class MosesTranslator(Translator):
             hypos.append(parsed_hypo)
 
         result = {
-            'src': src,
+            'src': src_original,
             'translated': hypos,
         }
 
         if ret_src_tok:
-            result['src-tokenized'] = src_tokenized
+            result['src-tokenized'] = src
 
         return result
 
