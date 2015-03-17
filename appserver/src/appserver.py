@@ -103,6 +103,8 @@ class MTMonkeyService:
     def _dispatch_task(self, task):
         """Dispatch task to worker and return its output (and/or error code)"""
         pair_id = "%s-%s" % (task['sourceLang'], task['targetLang'])
+        if 'systemId' in task:
+            pair_id += '.' + task['systemId']
     
         # validate the task
         try:
@@ -160,6 +162,7 @@ class MTMonkeyService:
                 "userId": {"type": "string", "required": False},
                 "sourceLang": {"type": "string"},
                 "targetLang": {"type": "string"},
+                "systemId": {"type": "string"},
                 "text": {"type": "string"},
                 "nBestSize": {"type": "integer", "required": False},
                 "detokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
