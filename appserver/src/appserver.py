@@ -162,7 +162,7 @@ class MTMonkeyService:
                 "userId": {"type": "string", "required": False},
                 "sourceLang": {"type": "string"},
                 "targetLang": {"type": "string"},
-                "systemId": {"type": "string"},
+                "systemId": {"type": "string", "required": False},
                 "text": {"type": "string"},
                 "nBestSize": {"type": "integer", "required": False},
                 "detokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
