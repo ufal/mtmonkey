@@ -53,16 +53,6 @@ class WorkerCollection:
         # initialize next worker numbers
         self.nextworker = dict((pair_id, 0) for pair_id in workers)
         self.lock = Lock()
-        # initialize list of supported systemIds per pair
-        self.systems_for_pair = {}
-        for pair_id in workers.keys():
-            system_id = ''
-            if '.' in pair_id:
-                pair_id, system_id = pair_id.split('.', 1)
-            if not pair_id in self.systems_for_pair:
-                self.systems_for_pair[pair_id] = set()
-            self.systems_for_pair[pair_id].add(system_id)
-
 
     def get(self, pair_id):
         """Get a worker for the given language pair"""
@@ -73,6 +63,9 @@ class WorkerCollection:
             self.nextworker[pair_id] = (worker_id + 1) % len(self.workers[pair_id])
             return self.workers[pair_id][worker_id]
 
+    def keys(self):
+        return self.workers.keys()
+
 class MTMonkeyService:
     """MTMonkey web service; calls workers which process individual language pairs
     and returns their outputs in JSON"""
@@ -80,6 +73,15 @@ class MTMonkeyService:
     def __init__(self, workers, logger):
         self.workers = workers
         self.logger  = logger
+        # initialize list of supported systemIds per pair
+        self.systems_for_pair = {}
+        for pair_id in workers.keys():
+            system_id = ''
+            if '.' in pair_id:
+                pair_id, system_id = pair_id.split('.', 1)
+            if not pair_id in self.systems_for_pair:
+                self.systems_for_pair[pair_id] = set()
+            self.systems_for_pair[pair_id].add(system_id)
 
     def post(self):
         """Handle POST requests"""
