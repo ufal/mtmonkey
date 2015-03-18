@@ -19,6 +19,8 @@ method with the following parameters.
     *en*, *de*, *fr*) (**required**)
 -   *targetLang*: string -- ISO 639-1 code of the target language (*cs*,
     *en*, *de*, *fr*) (**required**)
+-   *systemId*: string -- an aditional identification of the system variant that 
+    should be used for translation (optional, default = empty string)
 -   *alignmentInfo*: boolean -- request alignment information (optional,
     default = "false")
 -   *text*: string -- text to be translated in UTF-8 character encoding
@@ -147,7 +149,7 @@ An example response when translation finished with error:
 | 0           | OK                                          | When everything went well and the query has been translated.                  |
 | 1           | System is temporarily down                  | Particular required workers are currently off. Try again later.               |
 | 2           | System busy                                 | Everything is running but system is currently overloaded. Try again later.    |
-| 3           | Invalid language pair                       | Unknown language pair.                                                        |
+| 3           | Invalid language pair / system ID                       | Unknown language pair or system ID.                                                        |
 | 5           | Parse error, missing or invalid argument …  | Any parse error or missing attribute.                                         |
 | 8           | Unexpected worker error                     | Worker experienced an unknown error during the translation. Try again later.  |
 | 99          | Some sentences could not be translated      | The MT system was not able to translate some of the input sentences.          |
