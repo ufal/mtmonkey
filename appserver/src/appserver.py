@@ -53,6 +53,16 @@ class WorkerCollection:
         # initialize next worker numbers
         self.nextworker = dict((pair_id, 0) for pair_id in workers)
         self.lock = Lock()
+        # initialize list of supported systemIds per pair
+        self.systems_for_pair = {}
+        for pair_id in workers.keys():
+            system_id = ''
+            if '.' in pair_id:
+                pair_id, system_id = pair_id.split('.', 1)
+            if not pair_id in self.systems_for_pair:
+                self.systems_for_pair[pair_id] = set()
+            self.systems_for_pair[pair_id].add(system_id)
+
 
     def get(self, pair_id):
         """Get a worker for the given language pair"""
@@ -116,7 +126,15 @@ class MTMonkeyService:
         try:
             worker_addr, worker_type = self.workers.get(pair_id)
         except WorkerNotFoundException:
-            self.logger.warning("Requested unknown language pair " + pair_id)
+            self.logger.warning("Requested unknown language pair/system ID" + pair_id)
+            systemId = ''
+            if '.' in pair_id:
+                pair_id, system_id = pair_id.split('.', 1)
+            if pair_id not in self.systems_for_pair:
+                err_msg = "Language pair not supported: " + pair_id
+            else:
+                err_msg = "Invalid systemId '%s' for %s." % (system_id, pair_id)
+                err_msg += "Available values: ('%s')." % "', '".join(self.systems_for_pair[pair_id])
             return {
                 "errorCode": 3,
                 "errorMessage": "Language pair not supported: " + pair_id
