@@ -82,6 +82,7 @@ class MTMonkeyService:
             if not pair_id in self.systems_for_pair:
                 self.systems_for_pair[pair_id] = set()
             self.systems_for_pair[pair_id].add(system_id)
+        self.logger.info(self.systems_for_pair)
 
     def post(self):
         """Handle POST requests"""
@@ -129,17 +130,17 @@ class MTMonkeyService:
             worker_addr, worker_type = self.workers.get(pair_id)
         except WorkerNotFoundException:
             self.logger.warning("Requested unknown language pair/system ID" + pair_id)
-            systemId = ''
+            system_id = ''
             if '.' in pair_id:
                 pair_id, system_id = pair_id.split('.', 1)
             if pair_id not in self.systems_for_pair:
                 err_msg = "Language pair not supported: " + pair_id
             else:
                 err_msg = "Invalid systemId '%s' for %s." % (system_id, pair_id)
-                err_msg += "Available values: ('%s')." % "', '".join(self.systems_for_pair[pair_id])
+                err_msg += " Available: '%s'." % "', '".join(self.systems_for_pair[pair_id])
             return {
                 "errorCode": 3,
-                "errorMessage": "Language pair not supported: " + pair_id
+                "errorMessage": err_msg
             }
     
         # call the worker
