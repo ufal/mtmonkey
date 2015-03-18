@@ -128,6 +128,10 @@ Application server installation:
   your setup
   (add IPs and ports of the workers for the individual languages, as well as the 
   application server port.)
+  * The example configuration file shows the data format.
+  * If you have workers for different system variants, you may want to specify the system
+    IDs for them. Note that if you do not specify workers for a language pair _without_ any
+    system ID, it will become a required parameter in all queries for this language pair.
 
 * You may now run the application server via `~$USER/mt-$VERSION/scripts/run_appserver`.
 
