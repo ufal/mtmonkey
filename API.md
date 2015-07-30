@@ -56,12 +56,14 @@ The requests via the POST method conform to the JSON format.
 
 An example of a request in JSON format is given below:
 
-    {
-        "action": "translate",
-        "sourceLang": "en",
-        "targetLang": "de",
-        "text": "I got a flu."
-    }
+```json
+{
+    "action": "translate",
+    "sourceLang": "en",
+    "targetLang": "de",
+    "text": "I got a flu."
+}
+```
 
 Response
 --------
@@ -118,29 +120,32 @@ The response structure includes:
 
 An example response with one translation:
 
-    {
-        "errorCode": 0, 
-        "errorMessage": "OK"
-        "translation": [
-            {
-                "translated": [
-                    {
-                        "text": "Es ist in Ordnung, aber ich muss die Pille.", 
-                        "score": 100,
-                        "rank": 0
-                    }
-                ], 
-            }
-        ], 
-        "translationId": "794dab3aaa784419b9081710c5cddb54"
-    }
+```json
+{
+    "errorCode": 0, 
+    "errorMessage": "OK",
+    "translation": [
+        {
+            "translated": [
+                {
+                    "text": "Es ist in Ordnung, aber ich muss die Pille.", 
+                    "score": 100,
+                    "rank": 0
+                }
+            ], 
+        }
+    ], 
+    "translationId": "794dab3aaa784419b9081710c5cddb54"
+}
+```
 
 An example response when translation finished with error:
-
-    {
-        "errorCode": 1,
-        "errorMessage": "System is temporarily down"
-    }
+```json
+{
+    "errorCode": 1,
+    "errorMessage": "System is temporarily down"
+}
+```
 
 #### Service Error Codes
 
@@ -184,10 +189,10 @@ As for tokenization, you obtain the following attributes:
 -   *alignment-raw*: phrase alignment information (one per n-best list variant)
 
 
-```
+```json
 {
     "errorCode": 0, 
-    "errorMessage": "OK"    
+    "errorMessage": "OK", 
     "translation": [
         {
             "translated": [
@@ -264,28 +269,28 @@ them is provided with a score.
 
 An example of a response with two translation options.
 
-```
-    {
-        "errorCode": 0, 
-        "errorMessage": "OK"
-        "translation": [
-            {
-                "translated": [
-                    {
-                        "text": "Es ist in Ordnung, aber ich muss die Pille.",
-                        "score": 100,
-                        "rank": 0
-                    },
-                    {
-                        "text": "Es ist OK, aber ich brauche diese Pille.",
-                        "score": 96,
-                        "rank": 1
-                    }
-                ], 
-            }
-        ], 
-        "translationId": "794dab3aaa784419b9081710c5cddb54"
-    }
+```json
+{
+    "errorCode": 0, 
+    "errorMessage": "OK",
+    "translation": [
+        {
+            "translated": [
+                {
+                    "text": "Es ist in Ordnung, aber ich muss die Pille.",
+                    "score": 100,
+                    "rank": 0
+                },
+                {
+                    "text": "Es ist OK, aber ich brauche diese Pille.",
+                    "score": 96,
+                    "rank": 1
+                }
+            ], 
+        }
+    ], 
+    "translationId": "794dab3aaa784419b9081710c5cddb54"
+}
 ```
 
 Testing from the command line / browser window
@@ -294,7 +299,7 @@ Testing from the command line / browser window
 MTMonkey can be easily tested using the standard `curl` tool as in
 the example below:
 
-```
+```bash
     curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"de", "text": "It works." }' http://URL/PATH
 ```
 
