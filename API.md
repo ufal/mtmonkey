@@ -336,3 +336,22 @@ In addition, XML-RPC workers may support the following method for testing purpos
 
 - **alive_check** (no parameters) – this returns ``1`` if the worker is currently running.
 
+### Testing from the command line
+
+First save the XML request to a file `myquery.xml`
+```xml
+<?xml version="1.0"?>
+<methodCall>
+  <methodName>process_task</methodName>
+  <params><param><value><struct>
+    <member><name>action</name><value><string>translate</string></value></member>
+    <member><name>sourceLang</name><value><string>en</string></value></member>
+    <member><name>targetLang</name><value><string>de</string></value></member>
+    <member><name>text</name><value><string>This is a test.</string></value></member>    
+  </struct></value></param></params>
+</methodCall>
+```
+Now use it with ``curl``:
+```bash
+curl -X POST -d @myquery.xml http://WORKER-URL:PORT/PATH
+```
