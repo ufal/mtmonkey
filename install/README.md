@@ -65,8 +65,8 @@ Prepare configuration (do this for all workers):
   to the used language pair and models (if only the language pair/model directory
   differs and you want to use automatic model distribution, skip this step).
 
-Autostart and automatic updates
--------------------------------
+Autostart and automatic updates (optional)
+------------------------------------------
 
 * If you want the workers to be checked periodically and restarted on fail,
   adjust the crontab of `$USER` according to the `mtmonkey.crontab` file
@@ -135,8 +135,8 @@ Application server installation:
 
 * You may now run the application server via `~$USER/mt-$VERSION/scripts/run_appserver`.
 
-Autostart and automatic updates
--------------------------------
+Autostart and automatic updates (optional)
+------------------------------------------
 
 * If you need the application server to be started and updated on the machine startup,
   copy the file `mtmappserver_init` from this directory to `/etc/init.d` and link it to 
