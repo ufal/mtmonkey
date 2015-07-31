@@ -323,9 +323,9 @@ via XML-RPC, whereas JSON support has been added to simplify alternative worker 
 
 An XML-RPC worker should support the following main method:
 
-- **process_task** (dictionary) – this is used to request a translation, and should return
+- **process_task** (multiple parameters) – this is used to request a translation, and should return
     the translated text. The internal format of both the request and the response is exactly
-    the same as in the public API.
+    the same as in the public API (see above for list of parameters).
 
 Alternatively, a JSON worker should accept the same requests and produce the same responses
 as described in the public API. The communication channel (XML-RPC or JSON) must be given 
