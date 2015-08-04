@@ -13,6 +13,8 @@ has sourceLang => ( is => 'rw', isa => 'Str', default => 'cs' );
 
 has targetLang => ( is => 'rw', isa => 'Str', default => 'en' );
 
+has systemId => ( is => 'ro', isa => 'Str', default => '' );
+
 sub call {
     my ($self, $text) = @_;
 
@@ -22,6 +24,7 @@ sub call {
         targetLang => $self->targetLang,
         text => $text,
         alignmentInfo => "false",
+        systemId => $self->systemId,
     };
 
     my $curl = WWW::Curl::Easy->new;
