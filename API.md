@@ -22,7 +22,7 @@ method with the following parameters.
 -   *systemId*: string -- an aditional identification of the system variant that 
     should be used for translation (optional, default = empty string)
 -   *alignmentInfo*: boolean -- request alignment information (optional,
-    default = "false")
+    default = false)
 -   *text*: string -- text to be translated in UTF-8 character encoding
     (**required**)
 -   *nBestSize*: integer -- maximum number of distinct translation 
@@ -31,13 +31,13 @@ method with the following parameters.
     maximum value is set to 10).
 -   *tokenize*: boolean -- indicates whether the input should be tokenized 
     according to the rules for the source languge
-    (optional, default = "true")
+    (optional, default = true)
 -   *segment*: boolean -- indicates whether the input should be split
     into individual sentences before translation
-    (optional, default = "true")
+    (optional, default = true)
 -   *detokenize*: boolean -- indicates whether the translation result
     should be detokenized according to the rules for the target languge
-    (optional, default = "true")
+    (optional, default = true)
 
 
 ### GET Method
