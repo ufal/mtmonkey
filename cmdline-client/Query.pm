@@ -23,7 +23,7 @@ sub call {
         sourceLang => $self->sourceLang,
         targetLang => $self->targetLang,
         text => $text,
-        alignmentInfo => "false",
+        alignmentInfo => JSON::false,
         systemId => $self->systemId,
     };
 
