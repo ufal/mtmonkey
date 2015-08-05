@@ -10,10 +10,12 @@ use autodie;
 
 use Query;
 use Getopt::Long;
+use IO::Handle;
 
 binmode STDIN, ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
+STDOUT->autoflush(1);
 
 {
     # converting command line arguments to UTF-8
