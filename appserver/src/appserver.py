@@ -169,7 +169,21 @@ class MTMonkeyService:
         return result
     
     def _wrap_result(self, result):
-        """Wrap the output in JSON"""
+        """Wrap the output in JSON and fix old API"""
+
+        # When the input text contains more sentences, translation of each has a separate structure.
+        # The old API used result["translation"][NBESTLIST_N]["translated"][SENTENCE_NUMBER]
+        # The new API uses result["translation"][SENTENCE_NUMBER]["translated"][NBESTLIST_N]
+        # See https://github.com/ufal/mtmonkey/blob/master/API.md
+        # So let's detect the old API and convert it to the new API
+        # to allow backward compatibility with old workers (possibly not MT-Monkey-based).
+        if len(result["translation"]) == 1:
+            translated = result["translation"][0]["translated"]
+            if len(translated) > 1 and all(i["rank"] == 0 for i in translated):
+                newtranslation = [{"translated":[i,], "src-tokenized": i["src-tokenized"]} for i in translated]
+                for x in newtranslation: del x["translated"][0]["src-tokenized"]
+                result["translation"] = newtranslation
+
         return Response(json.dumps(result, encoding='utf-8',
                                    ensure_ascii=False, indent=4),
                         mimetype='application/javascript')
