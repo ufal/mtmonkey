@@ -72,7 +72,7 @@ class MTMonkeyService:
 
     def __init__(self, workers, logger):
         self.workers = workers
-        self.logger  = logger
+        self.logger = logger
         # initialize list of supported systemIds per pair
         self.systems_for_pair = {}
         for pair_id in workers.keys():
@@ -91,7 +91,7 @@ class MTMonkeyService:
         self.logger.info('Received new task [POST]')
         result = self._dispatch_task(request.json)
         return self._wrap_result(result)
-    
+
     def get(self):
         """Handle GET requests"""
         args = request.args.to_dict()
@@ -118,13 +118,13 @@ class MTMonkeyService:
         pair_id = "%s-%s" % (task['sourceLang'], task['targetLang'])
         if 'systemId' in task:
             pair_id += '.' + task['systemId']
-    
+
         # validate the task
         try:
             self._validate(task)
         except ValueError as e:
             return { "errorCode": 5, "errorMessage": str(e) }
-    
+
         # acquire a worker
         try:
             worker_addr, worker_type = self.workers.get(pair_id)
@@ -142,7 +142,7 @@ class MTMonkeyService:
                 "errorCode": 3,
                 "errorMessage": err_msg
             }
-    
+
         # call the worker
         worker_proxy = worker_type(worker_addr)
         try:
@@ -154,7 +154,7 @@ class MTMonkeyService:
                 "errorCode": 1,
                 "errorMessage": str(e)
             }
-        
+
         # check for errors returned by worker (default worker error code: 8, may be overridden)
         errorMessage = result.get('error', result.get('errorMessage'))
         if errorMessage not in [None, '', 'OK']:
@@ -162,12 +162,12 @@ class MTMonkeyService:
                 "errorCode": result.get('errorCode', 8),
                 "errorMessage": errorMessage
             }
-    
+
         # OK, return output of the worker
         result["errorCode"] = 0
         result["errorMessage"] = "OK"
         return result
-    
+
     def _wrap_result(self, result):
         """Wrap the output in JSON and fix old API"""
 
@@ -177,17 +177,21 @@ class MTMonkeyService:
         # See https://github.com/ufal/mtmonkey/blob/master/API.md
         # So let's detect the old API and convert it to the new API
         # to allow backward compatibility with old workers (possibly not MT-Monkey-based).
-        if len(result["translation"]) == 1:
+        if ("translation" in result and len(result["translation"]) == 1
+                and "translated" in result["translation"][0]):
+
             translated = result["translation"][0]["translated"]
             if len(translated) > 1 and all(i["rank"] == 0 for i in translated):
-                newtranslation = [{"translated":[i,], "src-tokenized": i["src-tokenized"]} for i in translated]
-                for x in newtranslation: del x["translated"][0]["src-tokenized"]
+                newtranslation = [{"translated": [i, ], "src-tokenized": i["src-tokenized"]}
+                                  for i in translated]
+                for x in newtranslation:
+                    del x["translated"][0]["src-tokenized"]
                 result["translation"] = newtranslation
 
         return Response(json.dumps(result, encoding='utf-8',
                                    ensure_ascii=False, indent=4),
                         mimetype='application/javascript')
-        
+
     def _validate(self, task):
         """Validate task according to schema"""
         schema = {
@@ -225,7 +229,7 @@ class MTMonkeyService:
 def main():
     # Create Flask app
     app = Flask(__name__)
-    
+
     # Initialize logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
     logger = logging.getLogger('server')
@@ -236,7 +240,7 @@ def main():
         logger.info("Loaded config from file appserver.cfg")
     except:
         pass
-    
+
     # read command-line options
     opts, args = getopt.getopt(sys.argv[1:], 'c:')
     for opt, arg in opts:
@@ -248,7 +252,7 @@ def main():
             logger.error("Unknown command-line option: " + opt)
 
     # initialize workers collection
-    workers = WorkerCollection(app.config['WORKERS'])  
+    workers = WorkerCollection(app.config['WORKERS'])
 
     # initialize MTMonkey service
     mtmonkey = MTMonkeyService(workers, logger)
