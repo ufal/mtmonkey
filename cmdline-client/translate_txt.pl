@@ -10,10 +10,12 @@ use autodie;
 
 use Query;
 use Getopt::Long;
+use IO::Handle;
 
 binmode STDIN, ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
+STDOUT->autoflush(1);
 
 {
     # converting command line arguments to UTF-8
@@ -23,15 +25,16 @@ binmode STDERR, ':utf8';
     @ARGV = map { decode $codeset, $_ } @ARGV;
 }
 
-my $USAGE = "Usage: $0 -u url -f sourceLang -t targetLang < in.txt > out.txt\n";
+my $USAGE = "Usage: $0 -u url -f sourceLang -t targetLang --system systemID < in.txt > out.txt\n";
 
 my $url;
-my ($sourceLang, $targetLang);
+my ($sourceLang, $targetLang, $systemId);
 
 GetOptions(
     'url|u=s' => \$url,
     'sourceLang|srcLang|src|from|f=s' => \$sourceLang,
     'targetLang|trgLang|trg|to|t=s' => \$targetLang,
+    'systemId|systemID|system=s' => \$systemId,
 ) or die($USAGE);
 
 if (!$url or !$sourceLang or !$targetLang or @ARGV){
@@ -42,6 +45,7 @@ my $query = Query->new({
         sourceLang => $sourceLang,
         targetLang => $targetLang,
         url => $url,
+        systemId => $systemId,
     });
 
 my $line_no = 0;

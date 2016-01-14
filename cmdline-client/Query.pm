@@ -13,6 +13,8 @@ has sourceLang => ( is => 'rw', isa => 'Str', default => 'cs' );
 
 has targetLang => ( is => 'rw', isa => 'Str', default => 'en' );
 
+has systemId => ( is => 'ro', isa => 'Str', default => '' );
+
 sub call {
     my ($self, $text) = @_;
 
@@ -21,7 +23,8 @@ sub call {
         sourceLang => $self->sourceLang,
         targetLang => $self->targetLang,
         text => $text,
-        alignmentInfo => "false",
+        #alignmentInfo => JSON::false,
+        systemId => $self->systemId,
     };
 
     my $curl = WWW::Curl::Easy->new;
@@ -44,8 +47,13 @@ sub call {
         my $returned_data = decode_json($response);
         my $errorCode = $returned_data->{errorCode};
         if ( $errorCode == 0) {
-            my $translation =
-            $returned_data->{translation}->[0]->{translated}->[0]->{text};
+            # If the input line was segmented into more sentences,
+            # concatenate those sentences' translations into one string.
+            # Take only the 1-best translation
+            # (nBestSize default value is 1, so there should be no other variants anyway).
+            my @sentences = @{$returned_data->{translation}};
+            my $translation = join ' ', map {$_->{translated}->[0]->{text}} @sentences;
+
             if ( defined $translation ) {
                 return $translation;
             }

@@ -19,8 +19,10 @@ method with the following parameters.
     *en*, *de*, *fr*) (**required**)
 -   *targetLang*: string -- ISO 639-1 code of the target language (*cs*,
     *en*, *de*, *fr*) (**required**)
+-   *systemId*: string -- an aditional identification of the system variant that 
+    should be used for translation (optional, default = empty string)
 -   *alignmentInfo*: boolean -- request alignment information (optional,
-    default = "false")
+    default = false)
 -   *text*: string -- text to be translated in UTF-8 character encoding
     (**required**)
 -   *nBestSize*: integer -- maximum number of distinct translation 
@@ -29,13 +31,13 @@ method with the following parameters.
     maximum value is set to 10).
 -   *tokenize*: boolean -- indicates whether the input should be tokenized 
     according to the rules for the source languge
-    (optional, default = "true")
+    (optional, default = true)
 -   *segment*: boolean -- indicates whether the input should be split
     into individual sentences before translation
-    (optional, default = "true")
+    (optional, default = true)
 -   *detokenize*: boolean -- indicates whether the translation result
     should be detokenized according to the rules for the target languge
-    (optional, default = "true")
+    (optional, default = true)
 
 
 ### GET Method
@@ -54,12 +56,14 @@ The requests via the POST method conform to the JSON format.
 
 An example of a request in JSON format is given below:
 
-    {
-        "action": "translate",
-        "sourceLang": "en",
-        "targetLang": "de",
-        "text": "I got a flu."
-    }
+```json
+{
+    "action": "translate",
+    "sourceLang": "en",
+    "targetLang": "de",
+    "text": "I got a flu."
+}
+```
 
 Response
 --------
@@ -116,29 +120,32 @@ The response structure includes:
 
 An example response with one translation:
 
-    {
-        "errorCode": 0, 
-        "errorMessage": "OK"
-        "translation": [
-            {
-                "translated": [
-                    {
-                        "text": "Es ist in Ordnung, aber ich muss die Pille.", 
-                        "score": 100,
-                        "rank": 0
-                    }
-                ], 
-            }
-        ], 
-        "translationId": "794dab3aaa784419b9081710c5cddb54"
-    }
+```json
+{
+    "errorCode": 0, 
+    "errorMessage": "OK",
+    "translation": [
+        {
+            "translated": [
+                {
+                    "text": "Es ist in Ordnung, aber ich muss die Pille.", 
+                    "score": 100,
+                    "rank": 0
+                }
+            ], 
+        }
+    ], 
+    "translationId": "794dab3aaa784419b9081710c5cddb54"
+}
+```
 
 An example response when translation finished with error:
-
-    {
-        "errorCode": 1,
-        "errorMessage": "System is temporarily down"
-    }
+```json
+{
+    "errorCode": 1,
+    "errorMessage": "System is temporarily down"
+}
+```
 
 #### Service Error Codes
 
@@ -147,7 +154,7 @@ An example response when translation finished with error:
 | 0           | OK                                          | When everything went well and the query has been translated.                  |
 | 1           | System is temporarily down                  | Particular required workers are currently off. Try again later.               |
 | 2           | System busy                                 | Everything is running but system is currently overloaded. Try again later.    |
-| 3           | Invalid language pair                       | Unknown language pair.                                                        |
+| 3           | Invalid language pair / system ID                       | Unknown language pair or system ID.                                                        |
 | 5           | Parse error, missing or invalid argument …  | Any parse error or missing attribute.                                         |
 | 8           | Unexpected worker error                     | Worker experienced an unknown error during the translation. Try again later.  |
 | 99          | Some sentences could not be translated      | The MT system was not able to translate some of the input sentences.          |
@@ -182,10 +189,10 @@ As for tokenization, you obtain the following attributes:
 -   *alignment-raw*: phrase alignment information (one per n-best list variant)
 
 
-```
+```json
 {
     "errorCode": 0, 
-    "errorMessage": "OK"    
+    "errorMessage": "OK", 
     "translation": [
         {
             "translated": [
@@ -262,28 +269,28 @@ them is provided with a score.
 
 An example of a response with two translation options.
 
-```
-    {
-        "errorCode": 0, 
-        "errorMessage": "OK"
-        "translation": [
-            {
-                "translated": [
-                    {
-                        "text": "Es ist in Ordnung, aber ich muss die Pille.",
-                        "score": 100,
-                        "rank": 0
-                    },
-                    {
-                        "text": "Es ist OK, aber ich brauche diese Pille.",
-                        "score": 96,
-                        "rank": 1
-                    }
-                ], 
-            }
-        ], 
-        "translationId": "794dab3aaa784419b9081710c5cddb54"
-    }
+```json
+{
+    "errorCode": 0, 
+    "errorMessage": "OK",
+    "translation": [
+        {
+            "translated": [
+                {
+                    "text": "Es ist in Ordnung, aber ich muss die Pille.",
+                    "score": 100,
+                    "rank": 0
+                },
+                {
+                    "text": "Es ist OK, aber ich brauche diese Pille.",
+                    "score": 96,
+                    "rank": 1
+                }
+            ], 
+        }
+    ], 
+    "translationId": "794dab3aaa784419b9081710c5cddb54"
+}
 ```
 
 Testing from the command line / browser window
@@ -292,7 +299,7 @@ Testing from the command line / browser window
 MTMonkey can be easily tested using the standard `curl` tool as in
 the example below:
 
-```
+```bash
     curl -i -H "Content-Type: application/json" -X POST -d '{ "action":"translate", "sourceLang":"en", "targetLang":"de", "text": "It works." }' http://URL/PATH
 ```
 
@@ -316,9 +323,12 @@ via XML-RPC, whereas JSON support has been added to simplify alternative worker 
 
 An XML-RPC worker should support the following main method:
 
-- **process_task** (dictionary) – this is used to request a translation, and should return
+- **process_task** (multiple parameters) – this is used to request a translation, and should return
     the translated text. The internal format of both the request and the response is exactly
-    the same as in the public API.
+    the same as in the public API ([see above](#parameters) for list of parameters).
+    
+    - note that the *sourceLang* and *targetLang* parameters are optional and ignored since 
+      the XML-RPC worker can only handle one language pair.
 
 Alternatively, a JSON worker should accept the same requests and produce the same responses
 as described in the public API. The communication channel (XML-RPC or JSON) must be given 
@@ -329,3 +339,22 @@ In addition, XML-RPC workers may support the following method for testing purpos
 
 - **alive_check** (no parameters) – this returns ``1`` if the worker is currently running.
 
+### Testing from the command line
+
+First save the XML request to a file `myquery.xml`
+```xml
+<?xml version="1.0"?>
+<methodCall>
+  <methodName>process_task</methodName>
+  <params><param><value><struct>
+    <member><name>action</name><value><string>translate</string></value></member>
+    <member><name>sourceLang</name><value><string>en</string></value></member>
+    <member><name>targetLang</name><value><string>de</string></value></member>
+    <member><name>text</name><value><string>This is a test.</string></value></member>    
+  </struct></value></param></params>
+</methodCall>
+```
+Now use it with ``curl``:
+```bash
+curl -X POST -d @myquery.xml http://WORKER-URL:PORT/PATH
+```
