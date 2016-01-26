@@ -5,10 +5,18 @@ import uuid
 import xmlrpclib
 import operator
 import os
+import logging as logger
 from util.parallel import parallel_map
 from util.tokenize import Tokenizer
 from util.detokenize import Detokenizer
 from util.split_sentences import SentenceSplitter
+
+from util.preprocessor import Tokenizer as PerlTokenizer
+from util.preprocessor import Detokenizer as PerlDetokenizer
+from util.preprocessor import Truecaser
+from util.preprocessor import Detruecaser
+from util.preprocessor import Normalizer
+from util.preprocessor import CompoundSplitter
 
 class Translator(object):
     """Base class for all classes that handle the 'translate' task for MTMonkeyWorkers"""
@@ -62,10 +70,20 @@ class StandaloneTranslator(Translator):
 
 class MosesTranslator(Translator):
     """Handles the 'translate' task for MTMonkeyWorkers using Moses XML-RPC servers
-    and built-in segmentation, tokenization, and detokenization.
+    and built-in segmentation, tokenization, and detokenization. 
+    @ivar translate_proxy_addr: proxy address for the translation server
+    @ivar recase_proxy_addr: proxy address for the recaser-decoder server
+    @ivar splitter: the sentence splitter class to be used along all threads
+    @type splitter: SentenceSplitter
+    @ivar preprocessors: a list of pre-processing classes supporting the function 
+    "process_string" to run before text is sent to the decoder
+    @ivar postprocessors: a list of post-processing classes to run after text is 
+    sent to the decoder
+    @ivar threads: desired number of threads
+    @type threads: int
     """
 
-    def __init__(self, translate_port, recase_port, source_lang, target_lang, threads):
+    def __init__(self, translate_port, recase_port, source_lang, target_lang, threads, truecaser_model=None, splitter_model=None, perl_tokenizer=None, normalizer=None):
         """Initialize a MosesTranslator object according to the given 
         configuration settings.
         
@@ -77,16 +95,43 @@ class MosesTranslator(Translator):
         # precompile XML-RPC Moses server addresses
         self.translate_proxy_addr = "http://localhost:" + translate_port + "/RPC2"
         self.recase_proxy_addr = None
-        if recase_port is not None:
+        if recase_port is not None and recase_port.strip() != "":
             self.recase_proxy_addr = "http://localhost:" + recase_port + "/RPC2"
 
         # initialize text processing tools (can be shared among threads)
         self.splitter = SentenceSplitter({'language': source_lang})
-        self.tokenizer = Tokenizer({'lowercase': True,
+        # put sentence-level pre- and post-processors in two lists
+        # depending on whether they are enabled from the settings
+        self.preprocessors = []
+        self.postprocessors = []
+        if normalizer:
+            normalizer = Normalizer(source_lang)
+            self.preprocessors.append(normalizer)
+        if not perl_tokenizer:
+            tokenizer = Tokenizer({'lowercase': True,
                                     'moses_escape': True})
-        self.detokenizer = Detokenizer({'moses_deescape': True,
+            self.preprocessors.append(tokenizer)
+            detokenizer = Detokenizer({'moses_deescape': True,
                                         'capitalize_sents': True,
-                                        'language': target_lang})
+                                        'language': target_lang}) 
+            self.postprocessors.append(detokenizer)
+        else:
+            tokenizer = PerlTokenizer(source_lang)
+            self.preprocessors.append(tokenizer)
+            detokenizer = PerlDetokenizer(target_lang)
+            self.postprocessors.append(detokenizer)
+        if truecaser_model:
+            truecaser = Truecaser(source_lang, truecaser_model)
+            self.preprocessors.append(truecaser)
+            detruecaser = Detruecaser(target_lang)
+            self.postprocessors.append(detruecaser)
+        if splitter_model:
+            compound_splitter = CompoundSplitter(source_lang, splitter_model)
+            self.preprocessors.append(compound_splitter)
+
+        #post-processors to run in the opposite order as pre-processors
+        self.postprocessors.reverse()
+
         self.threads = threads
 
 
@@ -106,10 +151,14 @@ class MosesTranslator(Translator):
         src_lines = self.splitter.split_sentences(task['text']) if dosegment else [ task['text'] ]
         ret_src_tok = doalign or len(src_lines) > 1
 
-        def _translator(line):
-            return self._translate(line, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment)
+        #def _translator(line):
+        #    return self._translate(line, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment)
+        #
+        #translated = parallel_map(_translator, src_lines)
+        translated = []
+        for line in src_lines:
+            translated.append(self._translate(line, doalign, dodetok, nbestsize, ret_src_tok, dotok, dosegment))
 
-        translated = parallel_map(_translator, src_lines)
 
         return {
             'translationId': uuid.uuid4().hex,
@@ -132,12 +181,17 @@ class MosesTranslator(Translator):
         if self.recase_proxy_addr is not None:  # recasing only if there is a recaser set up
             recase_proxy = xmlrpclib.ServerProxy(self.recase_proxy_addr)
 
-        # tokenize
-        src_tokenized = self.tokenizer.tokenize(src) if dotok else src
-
+        # preprocess
+        src_original = src
+        if dotok:
+            for preprocessor in self.preprocessors:
+                #logger.warning("Preprocessed source before {}: {}".format(preprocessor.__class__.__name__, src))
+                src = preprocessor.process_string(src)
+                #commented out as causing utf-8 errors    
+                #logger.warning("Preprocessed source after {}: {}".format(preprocessor.__class__.__name__, src))
         # translate
         translation = translate_proxy.translate({
-            "text": src_tokenized,
+            "text": src,
             "align": doalign,
             "nbest": nbestsize,
             "nbest-distinct": True,
@@ -149,33 +203,37 @@ class MosesTranslator(Translator):
         for hypo in translation['nbest']:
             # recase (if there is a recaser set up)
             if recase_proxy is not None:
-                recased = recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
+                postprocessed = recase_proxy.translate({"text": hypo['hyp']})['text'].strip()
             else:
-                recased = hypo['hyp']
+                postprocessed = hypo['hyp']
 
             # construct the output
             parsed_hypo = {
-                'text': recased,
+                'text': postprocessed,
+                'text-unprocessed': hypo['hyp'],
                 'score': hypo['totalScore'],
                 'rank': rank,
             }
-            if dodetok:  # detokenize if needed
-                parsed_hypo['text'] = self.detokenizer.detokenize(recased)
-
+            if dodetok:  # postprocess if needed
+                for postprocessor in self.postprocessors:
+                    #logger.warning("Postprocessed output before {}: {}".format(postprocessor.__class__.__name__, postprocessed))
+                    postprocessed = postprocessor.process_string(postprocessed)
+                    #logger.warning("Postprocessed output after {}: {}".format(postprocessor.__class__.__name__, postprocessed))
+            parsed_hypo['text'] = postprocessed
             if doalign:  # provide alignment information if needed
-                parsed_hypo['tokenized'] = recased
-                parsed_hypo['alignment-raw'] = _add_tgt_end(hypo['align'], recased)
+                parsed_hypo['tokenized'] = postprocessed
+                parsed_hypo['alignment-raw'] = _add_tgt_end(hypo['align'], postprocessed)
 
             rank += 1
             hypos.append(parsed_hypo)
 
         result = {
-            'src': src,
+            'src': src_original,
             'translated': hypos,
         }
 
         if ret_src_tok:
-            result['src-tokenized'] = src_tokenized
+            result['src-tokenized'] = src
 
         return result
 

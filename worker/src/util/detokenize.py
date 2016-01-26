@@ -150,6 +150,10 @@ class Detokenizer(object):
             text = text[0].upper() + text[1:]
         return text
 
+    def process_string(self, text):
+        return self.detokenize(text)
+    
+  
 
 def display_usage():
     """\

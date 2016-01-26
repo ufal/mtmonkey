@@ -34,7 +34,11 @@ class MTMonkeyWorker(object):
                                                config.get('RECASE_PORT'),
                                                config.get('SOURCE_LANG', 'en'),
                                                config.get('TARGET_LANG', 'en'),
-                                               int(config.get('THREADS', '4')))
+                                               int(config.get('THREADS', '4')),
+                                               config.get("TRUECASER_MODEL", None),
+                                               config.get("SPLITTER_MODEL", None),
+                                               config.get("PERL_TOKENIZER", None),
+                                               config.get("NORMALIZER", None))
         self._logger = logger
 
     def process_task(self, task):
