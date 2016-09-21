@@ -8,6 +8,7 @@ import xmlrpclib
 import requests
 import getopt
 import sys
+import defaultdict
 from threading import Lock
 from flask import Flask, request, abort, Response
 from socket import error as socket_err
@@ -22,7 +23,6 @@ class JsonProxy(object):
         r = requests.post(self.addr, data=json.dumps(task), headers={'content-type': 'application/json'})
         return r.json()
 
-
 class WorkerNotFoundException(Exception): pass
 
 class WorkerCollection:
@@ -31,28 +31,30 @@ class WorkerCollection:
 
     def __init__(self, workers):
         # initialize list of workers
-        self.workers = {}
+        self._workers = defaultdict(list)
         for pair_id, workers_list in workers.items():
-            self.workers[pair_id] = []
             for worker_desc in workers_list:
-                # parse worker specification (allowing JSON/XMLRPC workers, various
-                # address formats)
-                if ' ' in worker_desc:
-                    worker_type, worker_addr = worker_desc.split(' ')
-                else:
-                    worker_type = 'xml'
-                    worker_addr = worker_desc
-                if not worker_addr.startswith('http'):
-                    worker_addr = 'http://' + worker_addr
-                if not '/' in worker_addr[7:]:
-                    worker_addr += '/'
-                if worker_type == 'json':  # allow JSON workers
-                    self.workers[pair_id].append((worker_addr, JsonProxy))
-                else:  # default to XML-RPC
-                    self.workers[pair_id].append((worker_addr, xmlrpclib.ServerProxy))
+                self.add(pair_id, worker_desc)
+
         # initialize next worker numbers
         self.nextworker = dict((pair_id, 0) for pair_id in workers)
         self.lock = Lock()
+
+    def add(self, pair_id, worker_desc):
+        # is worker type directly specified
+        if ' ' in worker_desc:
+            worker_type, worker_addr = worker_desc.split(' ')
+        else:
+            worker_type = 'xml' # default to XML workers (original MTMonkey)
+            worker_addr = worker_desc
+
+        worker_addr = self._normalize_url(worker_addr)
+
+        # JSON workers use JsonProxy, XML-RPC workers use xmlrpclib
+        proxy_cls = JsonProxy if worker_type == 'json' else xmlrpclib.ServerProxy
+
+        # add our worker
+        self._workers[pair_id].append((worker_addr, proxy_cls))
 
     def get(self, pair_id):
         """Get a worker for the given language pair"""
@@ -60,11 +62,19 @@ class WorkerCollection:
             raise WorkerNotFoundException
         with self.lock:
             worker_id = self.nextworker[pair_id]
-            self.nextworker[pair_id] = (worker_id + 1) % len(self.workers[pair_id])
-            return self.workers[pair_id][worker_id]
+            self.nextworker[pair_id] = (worker_id + 1) % len(self._workers[pair_id])
+            return self._workers[pair_id][worker_id]
 
     def keys(self):
-        return self.workers.keys()
+        return self._workers.keys()
+
+    # normalize worker URL to include "http://" and "/"
+    def _normalize_url(self, url):
+        if not url.startswith('http'):
+            url = 'http://' + url
+        if not url.endswith('/'):
+            url += '/'
+        return url
 
 class MTMonkeyService:
     """MTMonkey web service; calls workers which process individual language pairs
@@ -112,6 +122,16 @@ class MTMonkeyService:
         result = self._dispatch_task(args)
         self.logger.info('Received new task [GET]')
         return self._wrap_result(result)
+    
+    def worker_api(self):
+        """Handle POST requests from worker nodes"""
+        if not request.json:
+            abort(400)
+
+        try:
+            validictory.validate(MTMonkeyService._worker_api_schema, request.json)
+        except ValueError as e:
+            return { "errorCode": 5, "errorMessage": str(e) }
 
     def _dispatch_task(self, task):
         """Dispatch task to worker and return its output (and/or error code)"""
@@ -121,13 +141,13 @@ class MTMonkeyService:
 
         # validate the task
         try:
-            self._validate(task)
+            validictory.validate(MTMonkeyService._public_api_schema, task)
         except ValueError as e:
             return { "errorCode": 5, "errorMessage": str(e) }
 
         # acquire a worker
         try:
-            worker_addr, worker_type = self.workers.get(pair_id)
+            worker_addr, worker_proxy_class = self.workers.get(pair_id)
         except WorkerNotFoundException:
             self.logger.warning("Requested unknown language pair/system ID" + pair_id)
             system_id = ''
@@ -144,7 +164,7 @@ class MTMonkeyService:
             }
 
         # call the worker
-        worker_proxy = worker_type(worker_addr)
+        worker_proxy = worker_proxy_class(worker_addr)
         try:
             result = worker_proxy.process_task(task)
         except (socket_err, xmlrpclib.Fault,
@@ -192,28 +212,6 @@ class MTMonkeyService:
                                    ensure_ascii=False, indent=4),
                         mimetype='application/javascript')
 
-    def _validate(self, task):
-        """Validate task according to schema"""
-        schema = {
-            "type": "object",
-            "properties": {
-                "action": {"type": "string"},
-                "userId": {"type": "string", "required": False},
-                "sourceLang": {"type": "string"},
-                "targetLang": {"type": "string"},
-                "systemId": {"type": "string", "required": False},
-                "text": {"type": "string"},
-                "nBestSize": {"type": "integer", "required": False},
-                "detokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
-                "tokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
-                "segment": {"type": ['boolean', 'string', 'integer'], "required": False},
-                "alignmentInfo": {"type": ['boolean', 'string', 'integer'], "required": False},
-                "docType": {"type": "string", "required": False},
-                "profileType": {"type": "string", "required": False},
-            },
-        }
-        validictory.validate(task, schema)
-
     def _convert_boolean(self, value, default):
         if value.lower() in ['false', 'f', 'no', 'n', '0']:
             return False
@@ -221,6 +219,35 @@ class MTMonkeyService:
             return True
         else:
             return default
+
+    _public_api_schema = {
+        "type": "object",
+        "properties": {
+            "action": {"type": "string"},
+            "userId": {"type": "string", "required": False},
+            "sourceLang": {"type": "string"},
+            "targetLang": {"type": "string"},
+            "systemId": {"type": "string", "required": False},
+            "text": {"type": "string"},
+            "nBestSize": {"type": "integer", "required": False},
+            "detokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
+            "tokenize": {"type": ['boolean', 'string', 'integer'], "required": False},
+            "segment": {"type": ['boolean', 'string', 'integer'], "required": False},
+            "alignmentInfo": {"type": ['boolean', 'string', 'integer'], "required": False},
+            "docType": {"type": "string", "required": False},
+            "profileType": {"type": "string", "required": False},
+        },
+    }
+
+    _worker_api_schema = {
+        "type": "object",
+        "properties": {
+            "action": {"type": "string"},
+            "sourceLang": {"type": "string"},
+            "targetLang": {"type": "string"},
+            "passPhrase": {"type": "string"},
+        },
+    }
 
 #
 # main
@@ -260,6 +287,7 @@ def main():
     # register routes
     app.route(app.config['URL'], methods=['POST'])(mtmonkey.post)
     app.route(app.config['URL'])(mtmonkey.get)
+    app.route(app.config['URL'] + "/worker-api", methods=['POST'])(mtmonkey.worker_api)
 
     # run
     app.run(host="", port=app.config['PORT'], threaded=True)
