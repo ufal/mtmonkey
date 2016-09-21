@@ -80,9 +80,11 @@ class MTMonkeyService:
     """MTMonkey web service; calls workers which process individual language pairs
     and returns their outputs in JSON"""
 
-    def __init__(self, workers, logger):
+    def __init__(self, workers, logger, passphrase):
         self.workers = workers
         self.logger = logger
+        self._passphrase = passphrase
+
         # initialize list of supported systemIds per pair
         self.systems_for_pair = {}
         for pair_id in workers.keys():
@@ -125,13 +127,36 @@ class MTMonkeyService:
     
     def worker_api(self):
         """Handle POST requests from worker nodes"""
+
+        # is this valid JSON
         if not request.json:
             abort(400)
 
+        # are we configured to handle worker API requests?
+        if not self._passphrase:
+            return { "errorCode": 102, "errorMessage": "server does not allow worker API" }
+
+        # does the JSON conform to our schema
         try:
             validictory.validate(MTMonkeyService._worker_api_schema, request.json)
         except ValueError as e:
-            return { "errorCode": 5, "errorMessage": str(e) }
+            return { "errorCode": 100, "errorMessage": str(e) }
+
+        # authenticate the worker using passphrase
+        if request.json['passPhrase'] != self._passphrase:
+            return { "errorCore": 103, "errorMessage": "invalid passphrase" }
+
+        # everything is fine, what action is this?
+        if request.json['action'] == 'register':
+            # add a new worker to our collection, TODO do not allow duplicate entries
+            addr = request.remote_addr
+            port = request.json['realPort']
+            srcLang = request.json['srcLang']
+            tgtLang = request.json['tgtLang']
+            self.workers.add(srcLang + "-" + tgtLang, addr.rstrip(['/']) + ":" + port)
+            return { "errorCode": 0 }
+        else:
+            return { "errorCode": 101, "errorMessage": "unsupported action: " + request.json['action'] }
 
     def _dispatch_task(self, task):
         """Dispatch task to worker and return its output (and/or error code)"""
@@ -245,6 +270,7 @@ class MTMonkeyService:
             "action": {"type": "string"},
             "sourceLang": {"type": "string"},
             "targetLang": {"type": "string"},
+            "realPort": {"type": "int"},
             "passPhrase": {"type": "string"},
         },
     }
@@ -278,11 +304,14 @@ def main():
         else:
             logger.error("Unknown command-line option: " + opt)
 
+    # passphrase to identify authorized workers
+    passphrase = config.get('PASSPHRASE')
+
     # initialize workers collection
     workers = WorkerCollection(app.config['WORKERS'])
 
     # initialize MTMonkey service
-    mtmonkey = MTMonkeyService(workers, logger)
+    mtmonkey = MTMonkeyService(workers, logger, passphrase)
 
     # register routes
     app.route(app.config['URL'], methods=['POST'])(mtmonkey.post)
