@@ -132,19 +132,19 @@ class MTMonkeyService:
         if not request.json:
             abort(400)
 
-        # are we configured to handle worker API requests?
-        if not self._passphrase:
-            return { "errorCode": 102, "errorMessage": "server does not allow worker API" }
-
         # does the JSON conform to our schema
         try:
             validictory.validate(MTMonkeyService._worker_api_schema, request.json)
         except ValueError as e:
             return { "errorCode": 100, "errorMessage": str(e) }
 
+        # are we configured to handle worker API requests?
+        if not self._passphrase:
+            return { "errorCode": 101, "errorMessage": "server does not allow worker API" }
+
         # authenticate the worker using passphrase
         if request.json['passPhrase'] != self._passphrase:
-            return { "errorCore": 103, "errorMessage": "invalid passphrase" }
+            return { "errorCore": 102, "errorMessage": "invalid passphrase" }
 
         # everything is fine, what action is this?
         if request.json['action'] == 'register':
@@ -156,7 +156,7 @@ class MTMonkeyService:
             self.workers.add(srcLang + "-" + tgtLang, addr.rstrip(['/']) + ":" + port)
             return { "errorCode": 0 }
         else:
-            return { "errorCode": 101, "errorMessage": "unsupported action: " + request.json['action'] }
+            return { "errorCode": 103, "errorMessage": "unsupported action: " + request.json['action'] }
 
     def _dispatch_task(self, task):
         """Dispatch task to worker and return its output (and/or error code)"""
