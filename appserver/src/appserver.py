@@ -8,7 +8,7 @@ import xmlrpclib
 import requests
 import getopt
 import sys
-import defaultdict
+from collections import defaultdict
 from threading import Lock
 from flask import Flask, request, abort, Response
 from socket import error as socket_err
@@ -305,7 +305,11 @@ def main():
             logger.error("Unknown command-line option: " + opt)
 
     # passphrase to identify authorized workers
-    passphrase = config.get('PASSPHRASE')
+    passphrase = app.config.get('PASSPHRASE')
+    if passphrase:
+        logger.info("passphrase specified, will accept worker API requests")
+    else:
+        logger.info("no passphrase given, worker API will not be available")
 
     # initialize workers collection
     workers = WorkerCollection(app.config['WORKERS'])
