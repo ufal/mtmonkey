@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-ARG CPU_CORES 4
+ARG CPU_CORES=4
 
 RUN \
   apt-get update \
