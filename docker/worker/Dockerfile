@@ -10,6 +10,7 @@ RUN \
     python-pip \
     build-essential \
     pkg-config \
+    libboost-all-dev \
     automake \
     libtool \
     wget \
