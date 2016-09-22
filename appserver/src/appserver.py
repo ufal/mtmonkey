@@ -29,7 +29,9 @@ class WorkerCollection:
     """Collection of MT workers; provides thread-safe round-robin selection among
     available workers."""
 
-    def __init__(self, workers):
+    def __init__(self, workers, logger):
+        self._logger = logger
+
         # initialize list of workers
         self._workers = defaultdict(list)
         for pair_id, workers_list in workers.items():
@@ -55,6 +57,8 @@ class WorkerCollection:
 
         # add our worker
         self._workers[pair_id].append((worker_addr, proxy_cls))
+
+        self._logger.info("added worker: " + worker_addr + ", type=" + worker_type)
 
     def get(self, pair_id):
         """Get a worker for the given language pair"""
@@ -312,7 +316,7 @@ def main():
         logger.info("no passphrase given, worker API will not be available")
 
     # initialize workers collection
-    workers = WorkerCollection(app.config['WORKERS'])
+    workers = WorkerCollection(app.config['WORKERS'], logger)
 
     # initialize MTMonkey service
     mtmonkey = MTMonkeyService(workers, logger, passphrase)
