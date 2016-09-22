@@ -154,7 +154,7 @@ class MTMonkeyService:
         if request.json['action'] == 'register':
             # add a new worker to our collection, TODO do not allow duplicate entries
             addr = request.remote_addr
-            port = request.json['realPort']
+            port = request.json['port']
             src_lang = request.json['sourceLang']
             tgt_lang = request.json['targetLang']
             self.workers.add(src_lang + "-" + tgt_lang, addr.rstrip('/') + ":" + str(port))
@@ -274,7 +274,7 @@ class MTMonkeyService:
             "action": {"type": "string"},
             "sourceLang": {"type": "string"},
             "targetLang": {"type": "string"},
-            "realPort": {"type": "integer"},
+            "port": {"type": "integer"},
             "passPhrase": {"type": "string"},
         },
     }

@@ -79,7 +79,7 @@ class AppServerInterface(object):
             "passPhrase": self._passphrase,
             "sourceLang": src_lang,
             "targetLang": tgt_lang,
-            "realPort": int(port),
+            "port": int(port),
         }
         req = requests.post(self._server_url + "/worker-api", json=data)
 
