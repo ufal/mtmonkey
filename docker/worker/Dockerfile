@@ -1,5 +1,7 @@
 FROM ubuntu:16:04
 
+ARG CPU_CORES 4
+
 RUN \
   apt-get update \
   && apt-get install -y \
@@ -19,7 +21,7 @@ RUN \
 RUN \
   git clone https://github.com/moses-smt/mosesdecoder.git \
   && cd mosesdecoder \
-  && ./bjam \
+  && ./bjam -j $CPU_CORES \
   && cd ..
 
 RUN \
@@ -28,3 +30,11 @@ RUN \
 
 RUN \
   git clone https://github.com/ufal/mtmonkey
+
+VOLUME /mt-model
+
+EXPOSE 8080
+
+COPY docker-entrypoint.sh /
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
