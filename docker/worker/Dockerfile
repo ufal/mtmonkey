@@ -1,4 +1,4 @@
-FROM ubuntu:16:04
+FROM ubuntu:16.04
 
 ARG CPU_CORES 4
 
