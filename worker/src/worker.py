@@ -7,6 +7,7 @@ import os
 import sys
 import getopt
 import ast
+import requests
 from configobj import ConfigObj
 from tasks.translate import MosesTranslator, StandaloneTranslator
 import socket
@@ -67,6 +68,23 @@ class MTMonkeyWorker(object):
         """Just checking that the server is up and running."""
         return 1
 
+class AppServerInterface(object):
+    def __init__(self, server_url, passphrase):
+        self._server_url = server_url
+        self._passphrase = passphrase
+
+    def register(self, src_lang, tgt_lang, port):
+        data = {
+            "action": "register",
+            "passPhrase": self._passphrase,
+            "sourceLang": src_lang,
+            "targetLang": tgt_lang,
+            "realPort": int(port),
+        }
+        req = requests.post(self._server_url + "/worker-api", json=data)
+
+        print req.json()
+
 def main():
     # set up logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
@@ -93,6 +111,27 @@ def main():
     server.register_instance(MTMonkeyWorker(config, logger))
 
     logger.info("Server started")
+
+    print config
+
+    # Depending on configuration, also register the worker with the appserver.
+    if 'APPSERVER_URL' in config:
+        if not 'PASSPHRASE' in config:
+            raise Exception("Appserver URL for registration given but no passphrase")
+        
+        port = config['PORT']
+        if 'PUBLIC_PORT' in config:
+            # We are a Docker container or some other weirdness, the port visible to
+            # the outside world differs from our config['PORT']. This variable tells
+            # us the real port so that we can correctly register with the appserver.
+            port = config['PUBLIC_PORT']
+
+        appserver = AppServerInterface(config['APPSERVER_URL'], config['PASSPHRASE'])
+        logger.info("registering with appserver: " + config['APPSERVER_URL'])
+        try:
+            appserver.register(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+        except Exception as e:
+            logger.error("failed to register worker with appserver: " + e.message)
 
     # Run the server's main loop
     server.serve_forever()

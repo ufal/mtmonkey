@@ -134,29 +134,29 @@ class MTMonkeyService:
 
         # does the JSON conform to our schema
         try:
-            validictory.validate(MTMonkeyService._worker_api_schema, request.json)
+            validictory.validate(request.json, MTMonkeyService._worker_api_schema)
         except ValueError as e:
-            return { "errorCode": 100, "errorMessage": str(e) }
+            return json.dumps({ "errorCode": 100, "errorMessage": str(e) })
 
         # are we configured to handle worker API requests?
         if not self._passphrase:
-            return { "errorCode": 101, "errorMessage": "server does not allow worker API" }
+            return json.dumps({ "errorCode": 101, "errorMessage": "server does not allow worker API" })
 
         # authenticate the worker using passphrase
         if request.json['passPhrase'] != self._passphrase:
-            return { "errorCore": 102, "errorMessage": "invalid passphrase" }
+            return json.dumps({ "errorCode": 102, "errorMessage": "invalid passphrase" })
 
         # everything is fine, what action is this?
         if request.json['action'] == 'register':
             # add a new worker to our collection, TODO do not allow duplicate entries
             addr = request.remote_addr
             port = request.json['realPort']
-            srcLang = request.json['srcLang']
-            tgtLang = request.json['tgtLang']
-            self.workers.add(srcLang + "-" + tgtLang, addr.rstrip(['/']) + ":" + port)
-            return { "errorCode": 0 }
+            src_lang = request.json['sourceLang']
+            tgt_lang = request.json['targetLang']
+            self.workers.add(src_lang + "-" + tgt_lang, addr.rstrip('/') + ":" + str(port))
+            return json.dumps({ "errorCode": 0 })
         else:
-            return { "errorCode": 103, "errorMessage": "unsupported action: " + request.json['action'] }
+            return json.dumps({ "errorCode": 103, "errorMessage": "unsupported action: " + request.json['action'] })
 
     def _dispatch_task(self, task):
         """Dispatch task to worker and return its output (and/or error code)"""
@@ -166,7 +166,7 @@ class MTMonkeyService:
 
         # validate the task
         try:
-            validictory.validate(MTMonkeyService._public_api_schema, task)
+            validictory.validate(task, MTMonkeyService._public_api_schema)
         except ValueError as e:
             return { "errorCode": 5, "errorMessage": str(e) }
 
@@ -270,7 +270,7 @@ class MTMonkeyService:
             "action": {"type": "string"},
             "sourceLang": {"type": "string"},
             "targetLang": {"type": "string"},
-            "realPort": {"type": "int"},
+            "realPort": {"type": "integer"},
             "passPhrase": {"type": "string"},
         },
     }
