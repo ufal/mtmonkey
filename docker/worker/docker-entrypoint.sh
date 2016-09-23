@@ -30,12 +30,11 @@ if [ -z "$MTMONKEY_APPSERVER_URL" ] \
   die "One of the required environment variables was not provided"
 fi
 
-
 # start Moses2 server
 cd "$MODELDIR"
 nohup /mosesdecoder/bin/moses2 \
-  --threads $CPU_CORES --server --server-port=$MOSES_SERVER_PORT -f moses.ini \
-  |& sed 's/^/[MOSESSERVER ]/' &
+  --threads $CPU_CORES --server --server-port $MOSES_SERVER_PORT -f moses.ini \
+  |& sed 's/^/[MOSESSERVER] /' &
 cd ..
 
 # create config file for MTMonkey

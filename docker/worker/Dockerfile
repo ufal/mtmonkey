@@ -32,6 +32,12 @@ RUN \
 RUN \
   git clone https://github.com/ufal/mtmonkey
 
+# FIXME for the meantime, will merge to master soon
+RUN \
+  cd mtmonkey \
+  && git checkout dockerization \
+  && cd ..
+
 VOLUME /mt-model
 
 EXPOSE 8080
