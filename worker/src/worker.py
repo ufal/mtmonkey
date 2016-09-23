@@ -131,7 +131,7 @@ def main():
         try:
             appserver.register(config['SOURCE_LANG'], config['TARGET_LANG'], port)
         except Exception as e:
-            logger.error("failed to register worker with appserver: " + e.message)
+            logger.error("failed to register worker with appserver: " + str(e))
 
     # Run the server's main loop
     server.serve_forever()
