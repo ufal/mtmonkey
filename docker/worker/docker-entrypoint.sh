@@ -54,6 +54,6 @@ EOF
 # the worker is reachable on (for instance, when the worker runs inside a 
 # virtual machine, the IP address may wrongly indicate the physical host).
 # This allows to set the address to be reported to the appserver.
-[ -z "$PUBLIC_ADDR" ] || echo "PUBLIC_ADDR = $MTMONKEY_PUBLIC_ADDR" >> /worker.cfg
+[ -z "$MTMONKEY_PUBLIC_ADDR" ] || echo "PUBLIC_ADDR = $MTMONKEY_PUBLIC_ADDR" >> /worker.cfg
 
 exec python /mtmonkey/worker/src/worker.py -c /worker.cfg
