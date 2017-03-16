@@ -43,22 +43,40 @@ class WorkerCollection:
         self.lock = Lock()
 
     def add(self, pair_id, worker_desc):
-        # is worker type directly specified
-        if ' ' in worker_desc:
-            worker_type, worker_addr = worker_desc.split(' ')
-        else:
-            worker_type = 'xml' # default to XML workers (original MTMonkey)
-            worker_addr = worker_desc
-
-        worker_addr = self._normalize_url(worker_addr)
+        worker_addr, worker_type = self._parse_worker_desc(worker_desc)
 
         # JSON workers use JsonProxy, XML-RPC workers use xmlrpclib
         proxy_cls = JsonProxy if worker_type == 'json' else xmlrpclib.ServerProxy
 
-        # add our worker
-        self._workers[pair_id].append((worker_addr, proxy_cls))
+        # check if the worker already exists in the collection
+        exists = False
+        for existing_addr, existing_cls in self._workers[pair_id]:
+            if existing_addr == worker_addr:
+                self._logger.info("not adding existing worker: " + worker_addr)
+                exists = True
 
-        self._logger.info("added worker: " + worker_addr + ", type=" + worker_type)
+        # add our worker
+        if not exists:
+            self._workers[pair_id].append((worker_addr, proxy_cls))
+            self._logger.info("added worker: " + worker_addr + ", type=" + worker_type)
+
+    def remove(self, pair_id, worker_desc):
+        worker_addr, worker_type = self._parse_worker_desc(worker_desc)
+
+        new_workers = []
+
+        found = False
+        for addr, cls in self._workers[pair_id]:
+            if addr != worker_addr:
+                new_workers.append((addr, cls))
+            else:
+                found = True
+
+        self._workers[pair_id] = new_workers
+        if found:
+            self._logger.info("removed worker: " + worker_addr + ", type=" + worker_type)
+        else:
+            self._logger.info("could not remove unknown worker: " + worker_addr + ", type=" + worker_type)
 
     def get(self, pair_id):
         """Get a worker for the given language pair"""
@@ -69,8 +87,22 @@ class WorkerCollection:
             self.nextworker[pair_id] = (worker_id + 1) % len(self._workers[pair_id])
             return self._workers[pair_id][worker_id]
 
+    def get_all(self, pair_id):
+        return self._workers[pair_id]
+
     def keys(self):
         return self._workers.keys()
+
+    def _parse_worker_desc(self, worker_desc):
+        # is worker type directly specified
+        if ' ' in worker_desc:
+            worker_type, worker_addr = worker_desc.split(' ')
+        else:
+            worker_type = 'xml' # default to XML workers (original MTMonkey)
+            worker_addr = worker_desc
+
+        worker_addr = self._normalize_url(worker_addr)
+        return worker_addr, worker_type
 
     # normalize worker URL to include "http://" and "/"
     def _normalize_url(self, url):
@@ -152,13 +184,29 @@ class MTMonkeyService:
 
         # everything is fine, what action is this?
         if request.json['action'] == 'register':
-            # add a new worker to our collection, TODO do not allow duplicate entries
+            # add a new worker to our collection
             addr = request.remote_addr
             port = request.json['port']
             src_lang = request.json['sourceLang']
             tgt_lang = request.json['targetLang']
-            self.workers.add(src_lang + "-" + tgt_lang, addr.rstrip('/') + ":" + str(port))
+            pair_id = src_lang + "-" + tgt_lang
+            worker_id = addr.rstrip('/') + ":" + str(port)
+            self.workers.add(pair_id, worker_id)
             return json.dumps({ "errorCode": 0 })
+        elif request.json['action'] == 'remove':
+            addr = request.json['address'] if 'address' in request.json else request.remote_addr
+            port = request.json['port']
+            src_lang = request.json['sourceLang']
+            tgt_lang = request.json['targetLang']
+            pair_id = src_lang + "-" + tgt_lang
+            worker_id = addr.rstrip('/') + ":" + str(port)
+            self.workers.remove(pair_id, worker_id)
+            return json.dumps({ "errorCode": 0 })
+        elif request.json['action'] == 'list':
+            out = {}
+            for key in self.workers.keys():
+                out[key] = self.workers.get_all(key)
+            return json.dumps({ "errorCode": 0, "list": out })
         else:
             return json.dumps({ "errorCode": 103, "errorMessage": "unsupported action: " + request.json['action'] })
 
@@ -272,6 +320,7 @@ class MTMonkeyService:
         "type": "object",
         "properties": {
             "action": {"type": "string"},
+            "address": {"type": "string", "required": False},
             "sourceLang": {"type": "string"},
             "targetLang": {"type": "string"},
             "port": {"type": "integer"},

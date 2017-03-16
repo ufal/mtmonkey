@@ -11,6 +11,7 @@ import requests
 from configobj import ConfigObj
 from tasks.translate import MosesTranslator, StandaloneTranslator
 import socket
+import atexit
 
 class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
                            SimpleXMLRPCServer.SimpleXMLRPCServer):
@@ -85,6 +86,18 @@ class AppServerInterface(object):
 
         print req.json()
 
+    def remove(self, src_lang, tgt_lang, port):
+        data = {
+            "action": "remove",
+            "passPhrase": self._passphrase,
+            "sourceLang": src_lang,
+            "targetLang": tgt_lang,
+            "port": int(port),
+        }
+        req = requests.post(self._server_url + "/worker-api", json=data)
+
+        print req.json()
+
 def main():
     # set up logging
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(message)s")
@@ -130,6 +143,8 @@ def main():
         logger.info("registering with appserver: " + config['APPSERVER_URL'])
         try:
             appserver.register(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+            remove_fn = lambda:appserver.remove(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+            atexit.register(remove_fn)
         except Exception as e:
             logger.error("failed to register worker with appserver: " + str(e))
 
