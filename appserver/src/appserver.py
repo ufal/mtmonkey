@@ -58,7 +58,9 @@ class WorkerCollection:
         # add our worker
         if not exists:
             self._workers[pair_id].append((worker_addr, proxy_cls))
-            self._logger.info("added worker: " + worker_addr + ", type=" + worker_type)
+            self._logger.info("added worker: " + worker_addr
+                              + ", type=" + worker_type
+                              + ", pair=" + pair_id)
 
     def remove(self, pair_id, worker_desc):
         worker_addr, worker_type = self._parse_worker_desc(worker_desc)
