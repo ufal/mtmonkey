@@ -147,12 +147,8 @@ def main():
             appserver.register(config['SOURCE_LANG'], config['TARGET_LANG'], port)
 
             # also gracefully unregister ourselves at exit
-            def remove_fn():
-                appserver.remove(config['SOURCE_LANG'], config['TARGET_LANG'], port)
-
-            def exit_fn(x, y):
-                remove_fn()
-                sys.exit(0)
+            remove_fn = lambda: appserver.remove(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+            exit_fn = lambda x, y: sys.exit(0)
 
             atexit.register(remove_fn)
             signal.signal(signal.SIGTERM, exit_fn)
