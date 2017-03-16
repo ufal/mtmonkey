@@ -39,7 +39,7 @@ class WorkerCollection:
                 self.add(pair_id, worker_desc)
 
         # initialize next worker numbers
-        self.nextworker = dict((pair_id, 0) for pair_id in workers)
+        self.nextworker = defaultdict(int) # initialized to 0
         self.lock = Lock()
 
     def add(self, pair_id, worker_desc):
