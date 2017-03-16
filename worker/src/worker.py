@@ -12,6 +12,7 @@ from configobj import ConfigObj
 from tasks.translate import MosesTranslator, StandaloneTranslator
 import socket
 import atexit
+import signal
 
 class ThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
                            SimpleXMLRPCServer.SimpleXMLRPCServer):
@@ -142,9 +143,20 @@ def main():
         appserver = AppServerInterface(config['APPSERVER_URL'], config['PASSPHRASE'])
         logger.info("registering with appserver: " + config['APPSERVER_URL'])
         try:
+            # register the worker
             appserver.register(config['SOURCE_LANG'], config['TARGET_LANG'], port)
-            remove_fn = lambda:appserver.remove(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+
+            # also gracefully unregister ourselves at exit
+            def remove_fn():
+                appserver.remove(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+
+            def exit_fn(x, y):
+                remove_fn()
+                sys.exit(0)
+
             atexit.register(remove_fn)
+            signal.signal(signal.SIGTERM, exit_fn)
+
         except Exception as e:
             logger.error("failed to register worker with appserver: " + str(e))
 
