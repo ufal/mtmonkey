@@ -184,24 +184,21 @@ class MTMonkeyService:
         if request.json['passPhrase'] != self._passphrase:
             return json.dumps({ "errorCode": 102, "errorMessage": "invalid passphrase" })
 
-        # everything is fine, what action is this?
+        # everything is fine, parse the request
+        addr = request.json['address'] if 'address' in request.json else request.remote_addr
+        port = request.json['port']
+        src_lang = request.json['sourceLang']
+        tgt_lang = request.json['targetLang']
+        pair_id = src_lang + "-" + tgt_lang
+        worker_id = addr.rstrip('/') + ":" + str(port)
+
+        # what action is this?
         if request.json['action'] == 'register':
             # add a new worker to our collection
-            addr = request.remote_addr
-            port = request.json['port']
-            src_lang = request.json['sourceLang']
-            tgt_lang = request.json['targetLang']
-            pair_id = src_lang + "-" + tgt_lang
-            worker_id = addr.rstrip('/') + ":" + str(port)
             self.workers.add(pair_id, worker_id)
             return json.dumps({ "errorCode": 0 })
         elif request.json['action'] == 'remove':
-            addr = request.json['address'] if 'address' in request.json else request.remote_addr
-            port = request.json['port']
-            src_lang = request.json['sourceLang']
-            tgt_lang = request.json['targetLang']
-            pair_id = src_lang + "-" + tgt_lang
-            worker_id = addr.rstrip('/') + ":" + str(port)
+            # remove a worker from the collection
             self.workers.remove(pair_id, worker_id)
             return json.dumps({ "errorCode": 0 })
         elif request.json['action'] == 'list':

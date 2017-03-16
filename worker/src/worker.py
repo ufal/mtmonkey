@@ -75,7 +75,7 @@ class AppServerInterface(object):
         self._server_url = server_url
         self._passphrase = passphrase
 
-    def register(self, src_lang, tgt_lang, port):
+    def register(self, src_lang, tgt_lang, port, addr):
         data = {
             "action": "register",
             "passPhrase": self._passphrase,
@@ -83,11 +83,13 @@ class AppServerInterface(object):
             "targetLang": tgt_lang,
             "port": int(port),
         }
+        if addr:
+            data['address'] = addr
         req = requests.post(self._server_url + "/worker-api", json=data)
 
         print req.json()
 
-    def remove(self, src_lang, tgt_lang, port):
+    def remove(self, src_lang, tgt_lang, port, addr):
         data = {
             "action": "remove",
             "passPhrase": self._passphrase,
@@ -95,6 +97,8 @@ class AppServerInterface(object):
             "targetLang": tgt_lang,
             "port": int(port),
         }
+        if addr:
+            data['address'] = addr
         req = requests.post(self._server_url + "/worker-api", json=data)
 
         print req.json()
@@ -140,14 +144,20 @@ def main():
             # us the real port so that we can correctly register with the appserver.
             port = config['PUBLIC_PORT']
 
+        addr = None
+        if 'PUBLIC_ADDR' in config:
+            # Also report the IP address that we are visible on. This can be useful
+            # e.g. when running inside a virtual machine.
+            addr = config['PUBLIC_ADDR']
+
         appserver = AppServerInterface(config['APPSERVER_URL'], config['PASSPHRASE'])
         logger.info("registering with appserver: " + config['APPSERVER_URL'])
         try:
             # register the worker
-            appserver.register(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+            appserver.register(config['SOURCE_LANG'], config['TARGET_LANG'], port, addr)
 
             # also gracefully unregister ourselves at exit
-            remove_fn = lambda: appserver.remove(config['SOURCE_LANG'], config['TARGET_LANG'], port)
+            remove_fn = lambda: appserver.remove(config['SOURCE_LANG'], config['TARGET_LANG'], port, addr)
             exit_fn = lambda x, y: sys.exit(0)
 
             atexit.register(remove_fn)

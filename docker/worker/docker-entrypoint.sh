@@ -7,6 +7,7 @@
 # MTMONKEY_APPSERVER_URL ... URL of appserver to register to
 # MTMONKEY_PASSPHRASE ... secret passphrase to authenticate worker with appserver
 # MTMONKEY_PUBLIC_PORT ... actual port that we are visible on
+# MTMONKEY_PUBLIC_ADDR ... IP address we are visible on (optional)
 # MTMONKEY_SRCLANG ... source language
 # MTMONKEY_TGTLANG ... target langauge
 
@@ -48,5 +49,11 @@ THREADS = $CPU_CORES
 APPSERVER_URL = '$MTMONKEY_APPSERVER_URL'
 PASSPHRASE = '$MTMONKEY_PASSPHRASE'
 EOF
+
+# In some situations, the IP address that the appserver sees is not the one
+# the worker is reachable on (for instance, when the worker runs inside a 
+# virtual machine, the IP address may wrongly indicate the physical host).
+# This allows to set the address to be reported to the appserver.
+[ -z "$PUBLIC_ADDR" ] || echo "PUBLIC_ADDR = $MTMONKEY_PUBLIC_ADDR" >> /worker.cfg
 
 exec python /mtmonkey/worker/src/worker.py -c /worker.cfg
