@@ -80,7 +80,7 @@ class WorkerCollection:
 
     def get(self, pair_id):
         """Get a worker for the given language pair"""
-        if not pair_id in self.workers:
+        if not pair_id in self._workers:
             raise WorkerNotFoundException
         with self.lock:
             worker_id = self.nextworker[pair_id]
