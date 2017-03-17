@@ -33,7 +33,7 @@ fi
 
 # start Moses2 server
 cd "$MODELDIR"
-nohup /mosesdecoder/bin/moses2 \
+nohup /mosesdecoder/bin/mosesserver \
   --threads $CPU_CORES --server --server-port $MOSES_SERVER_PORT -f moses.ini \
   |& sed 's/^/[MOSESSERVER] /' &
 cd ..
