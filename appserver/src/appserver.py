@@ -74,7 +74,13 @@ class WorkerCollection:
             else:
                 found = True
 
-        self._workers[pair_id] = new_workers
+        if new_workers:
+            self._workers[pair_id] = new_workers
+        else:
+            del self._workers[pair_id]
+            if self.nextworker[pair_id]:
+                del self.nextworker[pair_id]
+
         if found:
             self._logger.info("removed worker: " + worker_addr + ", type=" + worker_type)
         else:
