@@ -77,9 +77,9 @@ class WorkerCollection:
         if new_workers:
             self._workers[pair_id] = new_workers
         else:
-            del self._workers[pair_id]
-            if self.nextworker[pair_id]:
-                del self.nextworker[pair_id]
+            # this was the last worker for the current language pair
+            self._workers.pop(pair_id, None)
+            self.nextworker.pop(pair_id, None)
 
         if found:
             self._logger.info("removed worker: " + worker_addr + ", type=" + worker_type)
