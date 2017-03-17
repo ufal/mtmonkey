@@ -138,9 +138,9 @@ class MosesTranslator(Translator):
         # translate
         translation = translate_proxy.translate({
             "text": src_tokenized,
-            "align": doalign,
+            "align": str(doalign),
             "nbest": nbestsize,
-            "nbest-distinct": True,
+            "nbest-distinct": str(True),
         })
 
         # provide n-best lists
