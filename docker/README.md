@@ -56,7 +56,7 @@ Model preparation
 
 MTMonkey uses [Docker
 volumes](https://docs.docker.com/engine/tutorials/dockervolumes/) to provide
-Moses models to the container. If you have a trained Moses model, put all the
+Moses models to the container. Once you have a trained Moses model, put all the
 required files into a directory and make sure that the primary configuration
 file `moses.ini` uses only relative paths. For example, a language model feature
 could be defined as follows:
