@@ -144,7 +144,8 @@ class MTMonkeyService:
         """Handle POST requests"""
         if not request.json:
             abort(400)
-        self.logger.info('Received new task [POST]')
+        self.logger.info('Received new task [POST] from ' + self._get_remote_address(request))
+        self.logger.debug(request.json)
         result = self._dispatch_task(request.json)
         return self._wrap_result(result)
 
@@ -165,8 +166,9 @@ class MTMonkeyService:
         if 'segment' in args:
             args['segment'] = self._convert_boolean(args['segment'], True)
 
+        self.logger.info('Received new task [GET] from ' +  self._get_remote_address(request))
+        self.logger.debug(args)
         result = self._dispatch_task(args)
-        self.logger.info('Received new task [GET]')
         return self._wrap_result(result)
     
     def worker_api(self):
@@ -293,6 +295,13 @@ class MTMonkeyService:
         return Response(json.dumps(result, encoding='utf-8',
                                    ensure_ascii=False, indent=4),
                         mimetype='application/javascript')
+
+    def _get_remote_address(self, request):
+        if request.headers.getlist("X-Forwarded-For"):
+            return request.headers.getlist("X-Forwarded-For")[0]
+        else:
+            return request.remote_addr
+
 
     def _convert_boolean(self, value, default):
         if value.lower() in ['false', 'f', 'no', 'n', '0']:
