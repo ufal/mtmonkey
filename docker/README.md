@@ -40,6 +40,17 @@ add the following line:
 PASSPHRASE = 'verysecret'
 ```
 
+Because workers in Docker automatically register with the server, there is no
+need to specify which workers are available. A minimal configuration file looks
+as follows:
+
+```
+PORT = 8080
+WORKERS = {}
+URL = '/mtmonkey'
+PASSPHRASE = 'verysecret'
+```
+
 Model preparation
 -----------------
 
