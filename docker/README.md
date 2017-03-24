@@ -108,3 +108,7 @@ the IP address of the request. In some cases, this is not the correct address
 where the worker is reachable on. To override this behavior, you may also
 provide the correct IP address using an additional environment variable
 `MTMONKEY_PUBLIC_ADDR`.
+
+On startup, the worker registers with the appserver using the shared passphrase
+for verification. When the worker is shut down, it notifies the appserver and
+should be automatically removed from the worker collection.
