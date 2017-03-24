@@ -141,6 +141,7 @@ class MosesTranslator(Translator):
             "align": str(doalign),
             "nbest": nbestsize,
             "nbest-distinct": str(True),
+            "no-ReportSegmentation": str(True),
         })
 
         # provide n-best lists
