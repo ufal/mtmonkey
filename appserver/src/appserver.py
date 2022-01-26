@@ -390,7 +390,7 @@ def main():
     app.route(app.config['URL'] + "/worker-api", methods=['POST'])(mtmonkey.worker_api)
 
     # run
-    app.run(host="", port=app.config['PORT'], threaded=True)
+    app.run(host=app.config.get('HOST'), port=app.config['PORT'], threaded=True)
 
 if __name__ == "__main__":
     main()
